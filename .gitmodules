@@ -1,0 +1,4 @@
+[submodule "upstream/animaku"]
+	path = upstream/animaku
+	url = https://github.com/uerax/Animaku.git
+	branch = master

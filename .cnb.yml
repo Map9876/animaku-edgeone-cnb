@@ -1,0 +1,41 @@
+# CNB → EdgeOne Pages 自动部署
+# 复刻自 kfc50/vless-websocket-edgeone，改成 animaku-edgeone
+# 机制：CNB push → webhook 通知 EdgeOne（site=intl）→ EdgeOne 从本仓库拉取并构建
+#
+# 注意：本仓库 cloud-functions/api/[[default]].js 是 esbuild 产物，
+# 由「构建」阶段生成后再通知 EdgeOne。若改用 EdgeOne 侧构建，请确保
+# EdgeOne 项目指向本仓库 master 且安装了 package.json 依赖。
+main:
+  push:
+  - stages:
+    - name: 构建 EdgeOne 函数 bundle
+      image: node:20
+      script:
+        - npm install --no-audit --no-fund
+        # 拉取 Animaku 上游源码（submodule），用最新版本重新打包 Hono 后端
+        - git submodule update --init --recursive
+        - node scripts/build-edge.mjs
+        # 把最新前端构建产物同步进来并注入我们的开关脚本
+        - node scripts/sync-web.mjs
+        - node scripts/inject-into-html.mjs
+    - name: notify-edgeone
+      image: cnbcool/webhook
+      settings:
+        urls:
+          - https://api.edgeone.ai/eo/pages/hook/cnb?site=intl
+        method: POST
+        content_type: application/json
+        template: |
+          {
+            "repoName": "{{ CNB_REPO_NAME }}",
+            "repoUrl": "{{ CNB_REPO_URL_HTTPS }}",
+            "branch": "{{ CNB_BRANCH }}",
+            "commit": "{{ CNB_COMMIT_SHORT }}",
+            "commitMessage": "{{ CNB_COMMIT_MESSAGE }}",
+            "committer": "{{ CNB_COMMITTER }}",
+            "event": "{{ CNB_EVENT }}",
+            "buildId": "{{ CNB_BUILD_ID }}",
+            "buildWebUrl": "{{ CNB_BUILD_WEB_URL }}",
+            "buildUser": "{{ CNB_BUILD_USER }}",
+            "pipelineName": "{{ CNB_PIPELINE_NAME }}"
+          }

@@ -1,0 +1,59 @@
+/**
+ * 把 Animaku 的 Hono 后端打包成 EdgeOne Pages Node 函数。
+ *
+ * 关键 alias：
+ *  - node:sqlite        → runtime/sqlite-stub.ts   （EdgeOne 无状态，node:sqlite 不可用）
+ *  - @animaku/shared    → animaku/packages/shared/src/index.ts
+ *
+ * 输出：
+ *  - cloud-functions/api/[[default]].js  （export default app，框架模式，路由 /api/*）
+ */
+import { build } from 'esbuild'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const root = path.resolve(__dirname, '..')
+const animaku = path.resolve(root, 'upstream/animaku')
+
+await build({
+  entryPoints: [path.join(root, 'runtime/edge-index.ts')],
+  outfile: path.join(root, 'cloud-functions/api/[[default]].js'),
+  bundle: true,
+  platform: 'node',
+  target: 'node20',
+  format: 'esm',
+  packages: 'bundle',
+  // 不 minify：EdgeOne CLI 靠源码字面 "export default"/"onRequest" 识别函数入口，
+  // minify 成 export{x as default} 会被判为非函数文件跳过（"No node functions found"）
+  minify: false,
+  logLevel: 'info',
+  // 源码在 upstream/animaku/，但依赖装在我们的 node_modules，
+  // 让 esbuild 从项目根解析 bare import
+  nodePaths: [path.join(root, 'node_modules')],
+  alias: {
+    'node:sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
+    'sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
+    '@animaku/shared': path.join(animaku, 'packages/shared/src/index.ts'),
+  },
+  // CJS 依赖（cheerio/opencc 等）运行时调用 require("buffer")，
+  // ESM 输出注入 createRequire 否则报 "Dynamic require of buffer is not supported"
+  banner: {
+    js: "import { createRequire as __cr } from 'node:module';const require=__cr(import.meta.url);",
+  },
+  define: {
+    'process.env.APP_VERSION': JSON.stringify(process.env.APP_VERSION || 'v-edge-1.0.0'),
+  },
+  // EdgeOne CLI 识别函数靠源码字面 "onRequest"；同时注入具名 handler 兜底，
+  // 保证无论被判为框架模式还是 Handler 模式都能路由到 Hono app。
+  footer: {
+    js: `
+// EdgeOne entry adapter (injected by build-edge.mjs)
+export function onRequest(context) {
+  return edge_index_default.fetch(context.request, context.env);
+}
+`,
+  },
+})
+
+console.log('✅ bundle → cloud-functions/api/[[default]].js')

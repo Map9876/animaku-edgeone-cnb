@@ -1,0 +1,26 @@
+{
+  "name": "animaku-edgeone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Animaku full-stack port to EdgeOne Pages Functions (Node runtime) + inject layer",
+  "scripts": {
+    "build": "node scripts/build-edge.mjs",
+    "dev": "edgeone makers dev -n animaku-edgeone --skip-env-sync --skip-ai-gateway-sync",
+    "deploy": "edgeone makers deploy . -n animaku-edgeone -e production"
+  },
+  "dependencies": {
+    "@edgeone/pages-blob": "*",
+    "@hono/node-server": "^1.19.19",
+    "@xmldom/xmldom": "^0.9.10",
+    "cheerio": "^1.2.0",
+    "hono": "^4.7.5",
+    "opencc-js": "^1.4.1",
+    "sharp": "^0.35.5",
+    "undici": "^8.10.2",
+    "xpath": "^0.0.34"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}
