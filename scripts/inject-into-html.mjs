@@ -24,6 +24,7 @@ const cfg = {
   gitSync: process.env.VITE_GIT_SYNC || 'on',
   autoRefresh: process.env.VITE_AUTO_REFRESH || 'on',
   bottomNav: process.env.VITE_BOTTOM_NAV || 'on',
+  compact: process.env.VITE_COMPACT || 'on',
   trackStats: process.env.VITE_TRACK_STATS || 'on',
   trackEndpoint: process.env.VITE_TRACK_ENDPOINT || '/api/track',
 }
