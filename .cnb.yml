@@ -12,12 +12,14 @@ main:
       image: node:20
       script:
         - npm install --no-audit --no-fund
-        # 拉取 Animaku 上游源码（submodule），用最新版本重新打包 Hono 后端
-        - git submodule update --init --recursive
+        # 拉取 Animaku 上游最新 master（--remote），实现「定时更新源项目」
+        - git submodule update --init --remote --recursive
         - node scripts/build-edge.mjs
         # 把最新前端构建产物同步进来并注入我们的开关脚本
         - node scripts/sync-web.mjs
         - node scripts/inject-into-html.mjs
+        # 有变化才把产物提交回仓库，EdgeOne 下次拉取即拿到最新成品
+        - sh scripts/ci-commit-artifacts.sh
     - name: notify-edgeone
       image: cnbcool/webhook
       settings:

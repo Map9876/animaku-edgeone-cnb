@@ -1,5 +1,4 @@
 node_modules/
-upstream/
 .git/
 .edgeone/
 *.log
