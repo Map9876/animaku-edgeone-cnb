@@ -1540,13 +1540,6 @@ function parseSourceProxyMap(env = process.env) {
   }
   return map2;
 }
-function resolveLogLevel() {
-  const raw2 = (process.env.LOG_LEVEL || "info").trim().toLowerCase();
-  if (["debug", "info", "warn", "error", "silent"].includes(raw2)) {
-    return raw2;
-  }
-  return "info";
-}
 var dataDir, appVersion, cleanVersion, timezone, config;
 var init_config = __esm({
   "upstream/animaku/apps/server/src/config.ts"() {
@@ -1634,10 +1627,6 @@ var init_config = __esm({
        * e.g. https://anime.example.com — when empty, robots/sitemap use request Host.
        */
       siteUrl: (process.env.SITE_URL || process.env.PUBLIC_SITE_URL || "").trim().replace(/\/+$/, ""),
-      /**
-       * Server log filtering level: 'debug' | 'info' (default) | 'warn' | 'error' | 'silent'
-       */
-      logLevel: resolveLogLevel(),
       /**
        * Server access log output format: 'pretty' (default human-friendly) | 'json' (structured JSONL for ELK/Loki)
        */
@@ -2090,6 +2079,654 @@ var init_ttl_cache = __esm({
     };
     DEFAULT_MAX_ENTRIES = 200;
     PLUGIN_MAX_ENTRIES = 400;
+  }
+});
+
+// node_modules/@edgeone/pages-blob/dist/index.js
+var require_dist = __commonJS({
+  "node_modules/@edgeone/pages-blob/dist/index.js"(exports, module) {
+    "use strict";
+    var U = Object.defineProperty;
+    var ge = Object.getOwnPropertyDescriptor;
+    var fe = Object.getOwnPropertyNames;
+    var he = Object.prototype.hasOwnProperty;
+    var me = (t2, e2) => {
+      for (var n2 in e2) U(t2, n2, { get: e2[n2], enumerable: true });
+    };
+    var ye = (t2, e2, n2, r2) => {
+      if (e2 && typeof e2 == "object" || typeof e2 == "function") for (let s2 of fe(e2)) !he.call(t2, s2) && s2 !== n2 && U(t2, s2, { get: () => e2[s2], enumerable: !(r2 = ge(e2, s2)) || r2.enumerable });
+      return t2;
+    };
+    var pe = (t2) => ye(U({}, "__esModule", { value: true }), t2);
+    var Le = {};
+    me(Le, { InvalidKeyError: () => w2, InvalidStoreNameError: () => p2, MissingProjectIdError: () => S2, PagesBlobError: () => m2, PreconditionFailedError: () => b2, QuotaExceededError: () => x2, RateLimitedError: () => B, Store: () => T2, getStore: () => _e, listStores: () => Ne });
+    module.exports = pe(Le);
+    var m2 = class extends Error {
+      code;
+      constructor(e2, n2) {
+        super(`PagesBlob: ${n2}`), this.name = "PagesBlobError", this.code = e2;
+      }
+    };
+    var w2 = class extends m2 {
+      constructor(e2) {
+        super("INVALID_KEY", e2);
+      }
+    };
+    var p2 = class extends m2 {
+      constructor(e2) {
+        super("INVALID_STORE_NAME", e2);
+      }
+    };
+    var E2 = class extends m2 {
+      constructor(e2) {
+        super("MISSING_ENVIRONMENT", `Environment not configured for Pages Blob. Missing: ${e2.join(", ")}. Supply these properties when creating a store, or ensure the function is running in a Pages environment.`);
+      }
+    };
+    var we = "If usage just dropped back under the limit, wait a few minutes and retry.";
+    var Ce = { storage: "write denied: storage quota exceeded (free plan 1 GB). Reads and deletes still work; delete objects or upgrade the plan.", "complex-operations": "write denied: complex operation quota (writes and lists) exceeded. Reads and deletes still work; upgrade the plan or wait until usage is back under the limit.", egress: "write denied: egress bandwidth quota exceeded. Only deletes still work; upgrade the plan or wait until usage is back under the limit." };
+    var x2 = class extends m2 {
+      reason;
+      overMetrics;
+      constructor(e2 = {}) {
+        let n2 = e2.reason && Ce[e2.reason] || "write denied: blob quota exceeded.";
+        super("QUOTA_EXCEEDED", `${n2} ${we}`), this.reason = e2.reason, this.overMetrics = e2.overMetrics ?? [];
+      }
+    };
+    var B = class extends m2 {
+      constructor() {
+        super("RATE_LIMITED", "request rate limited, please retry later");
+      }
+    };
+    var S2 = class extends m2 {
+      constructor() {
+        super("MISSING_PROJECT_ID", "projectId is required when using API token mode. Please supply { name, projectId, token } to getStore() / listStores().");
+      }
+    };
+    var y2 = class extends m2 {
+      constructor(e2) {
+        super("CREDENTIAL_ERROR", e2);
+      }
+    };
+    var h2 = class extends m2 {
+      statusCode;
+      constructor(e2, n2) {
+        super("COS_ERROR", `COS returned ${e2}: ${n2}`), this.statusCode = e2;
+      }
+    };
+    var b2 = class extends m2 {
+      constructor() {
+        super("PRECONDITION_FAILED", "conditional write failed (key already exists)");
+      }
+    };
+    function C2(t2) {
+      if (t2 === "") throw new w2("Blob key must not be empty.");
+      if (t2.startsWith("/") || t2.startsWith("%2F")) throw new w2("Blob key must not start with forward slash (/).");
+      if (new TextEncoder().encode(t2).length > 600) throw new w2("Blob key must be a sequence of Unicode characters whose UTF-8 encoding is at most 600 bytes long.");
+    }
+    function F(t2) {
+      if (t2 === "") throw new p2("Store name must not be empty.");
+      if (t2.includes("/") || t2.includes(":")) throw new p2("Store name must not contain forward slashes (/) or colons (:).");
+      if (!/^[a-zA-Z0-9_-]+$/.test(t2)) throw new p2("Store name must only contain letters, digits, underscores, and hyphens.");
+      if (new TextEncoder().encode(t2).length > 64) throw new p2("Store name must be a sequence of Unicode characters whose UTF-8 encoding is at most 64 bytes long.");
+    }
+    var T2 = class {
+      cosClient;
+      storeName;
+      defaultConsistency;
+      constructor(e2, n2, r2 = "eventual") {
+        this.cosClient = e2, this.storeName = n2, this.defaultConsistency = r2;
+      }
+      resolveConsistency(e2) {
+        return e2 ?? this.defaultConsistency;
+      }
+      async set(e2, n2, r2) {
+        C2(e2);
+        let s2 = await this.cosClient.putObject(this.storeName, e2, n2, { onlyIfNew: r2?.onlyIfNew, cacheControl: r2?.cacheControl });
+        if (r2?.onlyIfNew && s2.statusCode === 412) throw new b2();
+      }
+      async setJSON(e2, n2, r2) {
+        C2(e2);
+        let s2 = JSON.stringify(n2), o2 = await this.cosClient.putObject(this.storeName, e2, s2, { onlyIfNew: r2?.onlyIfNew, contentType: "application/json", cacheControl: r2?.cacheControl });
+        if (r2?.onlyIfNew && o2.statusCode === 412) throw new b2();
+      }
+      async createUploadUrl(e2, n2) {
+        C2(e2);
+        let { url: r2, expiresAt: s2 } = await this.cosClient.createPresignedPutUrl(this.storeName, e2, { expireSeconds: n2?.expireSeconds, contentType: n2?.contentType });
+        return { url: r2, key: e2, expiresAt: s2 };
+      }
+      async get(e2, n2) {
+        C2(e2);
+        let r2 = this.resolveConsistency(n2?.consistency), s2 = await this.cosClient.getObject(this.storeName, e2, r2);
+        if (s2 === null) return null;
+        let { body: o2 } = s2, c2 = n2?.type ?? "text", i2 = new TextDecoder("utf-8");
+        switch (c2) {
+          case "text":
+            return i2.decode(o2);
+          case "json":
+            return JSON.parse(i2.decode(o2));
+          case "arrayBuffer":
+            return o2.buffer.slice(o2.byteOffset, o2.byteOffset + o2.byteLength);
+          case "blob":
+            return new Blob([o2]);
+          case "stream":
+            return new ReadableStream({ start(d2) {
+              d2.enqueue(o2), d2.close();
+            } });
+          default:
+            return i2.decode(o2);
+        }
+      }
+      async getMetadata(e2, n2) {
+        C2(e2);
+        let r2 = this.resolveConsistency(n2?.consistency);
+        return this.cosClient.headObject(this.storeName, e2, r2);
+      }
+      async getWithHeaders(e2, n2) {
+        C2(e2);
+        let r2 = this.resolveConsistency(n2?.consistency), s2 = await this.cosClient.getObject(this.storeName, e2, r2);
+        return s2 ? { body: new TextDecoder("utf-8").decode(s2.body), headers: s2.headers || {} } : null;
+      }
+      async delete(e2) {
+        C2(e2), await this.cosClient.deleteObject(this.storeName, e2);
+      }
+      async list(e2) {
+        let n2 = e2?.paginate !== false, r2 = e2?.limit, s2 = [], o2 = [], c2 = this.resolveConsistency(e2?.consistency), i2 = e2?.cursor || "", d2 = true, a2;
+        for (; d2; ) {
+          let l2 = r2 !== void 0 ? r2 - s2.length : 1e3, g2 = Math.min(l2, 1e3);
+          if (g2 <= 0) break;
+          let u2 = await this.cosClient.listObjects(this.storeName, { prefix: e2?.prefix, delimiter: e2?.directories ? "/" : void 0, marker: i2 || void 0, maxKeys: g2, consistency: c2 });
+          for (let f2 of u2.contents) s2.push({ key: f2.key, etag: f2.etag });
+          o2.push(...u2.commonPrefixes), r2 !== void 0 && s2.length >= r2 ? (s2.length = r2, (u2.isTruncated || u2.contents.length === g2) && (a2 = u2.nextMarker), d2 = false) : u2.isTruncated ? !n2 && r2 === void 0 ? (a2 = u2.nextMarker, d2 = false) : i2 = u2.nextMarker : d2 = false;
+        }
+        return { blobs: s2, directories: o2, ...a2 ? { cursor: a2 } : {} };
+      }
+    };
+    var xe = new TextEncoder();
+    function K(t2) {
+      let e2 = xe.encode(t2), n2 = new ArrayBuffer(e2.byteLength), r2 = new Uint8Array(n2);
+      return r2.set(e2), r2;
+    }
+    function V2(t2) {
+      let e2 = t2 instanceof Uint8Array ? t2 : new Uint8Array(t2), n2 = "";
+      for (let r2 = 0; r2 < e2.length; r2++) n2 += e2[r2].toString(16).padStart(2, "0");
+      return n2;
+    }
+    async function W(t2, e2) {
+      let n2 = await crypto.subtle.importKey("raw", K(t2), { name: "HMAC", hash: "SHA-1" }, false, ["sign"]), r2 = await crypto.subtle.sign("HMAC", n2, K(e2));
+      return V2(r2);
+    }
+    async function be(t2) {
+      let e2 = await crypto.subtle.digest("SHA-1", K(t2));
+      return V2(e2);
+    }
+    function j(t2) {
+      return encodeURIComponent(t2).replace(/[!'()*]/g, (e2) => "%" + e2.charCodeAt(0).toString(16).toUpperCase());
+    }
+    function I2(t2) {
+      try {
+        return decodeURIComponent(t2);
+      } catch {
+        return t2;
+      }
+    }
+    function Ee(t2) {
+      return t2.split("/").map((e2) => I2(e2)).join("/");
+    }
+    function k2(t2) {
+      return Ee(I2(t2));
+    }
+    function J(t2) {
+      return t2.split("/").map((e2) => j(I2(e2))).join("/");
+    }
+    var Se = /* @__PURE__ */ new Set(["cache-control", "content-disposition", "content-encoding", "content-length", "content-md5", "content-type", "expect", "expires", "if-match", "if-modified-since", "if-none-match", "if-unmodified-since", "origin", "range", "transfer-encoding"]);
+    function Te(t2) {
+      return t2 === "host" || t2 === "x-cos-security-token" ? false : !!(Se.has(t2) || t2.startsWith("x-cos-"));
+    }
+    function X(t2) {
+      if (!t2) return [];
+      let e2 = [];
+      for (let [n2, r2] of Object.entries(t2)) r2 != null && e2.push([n2.toLowerCase(), String(r2)]);
+      return e2.sort(([n2], [r2]) => n2 < r2 ? -1 : n2 > r2 ? 1 : 0), e2;
+    }
+    function Y(t2) {
+      return t2.map(([e2, n2]) => `${j(e2)}=${j(n2)}`).join("&");
+    }
+    function G(t2) {
+      return t2.map(([e2]) => j(e2)).join(";");
+    }
+    async function Z(t2) {
+      let e2 = t2.method.toLowerCase(), n2 = t2.pathname.startsWith("/") ? t2.pathname : `/${t2.pathname}`, r2 = Math.floor(Date.now() / 1e3), s2 = r2 + (t2.expireSeconds ?? 3600), o2 = `${r2};${s2}`, i2 = X(t2.headers).filter(([L2]) => Te(L2)), d2 = G(i2), a2 = Y(i2), l2 = X(t2.query), g2 = G(l2), u2 = Y(l2), f2 = `${e2}
+${n2}
+${u2}
+${a2}
+`, _2 = `sha1
+${o2}
+${await be(f2)}
+`, N2 = await W(t2.secretKey, o2), de = await W(N2, _2), le = ["q-sign-algorithm=sha1", `q-ak=${t2.secretId}`, `q-sign-time=${o2}`, `q-key-time=${o2}`, `q-header-list=${d2}`, `q-url-param-list=${g2}`, `q-signature=${de}`].join("&"), H = {};
+      for (let [L2, ue] of i2) H[L2] = ue;
+      return { authorization: le, signedHeaders: H };
+    }
+    async function Q2(t2) {
+      let e2 = new URL(t2.domain), n2 = I2(t2.key), r2 = `/${k2(t2.key)}`, s2 = `/${J(n2)}`;
+      e2.pathname = s2;
+      let { authorization: o2 } = await Z({ method: t2.method, pathname: r2, query: t2.query, headers: t2.headers, secretId: t2.credential.secretId, secretKey: t2.credential.secretKey, expireSeconds: t2.expireSeconds });
+      if (t2.query) for (let [c2, i2] of Object.entries(t2.query)) i2 != null && e2.searchParams.set(c2, String(i2));
+      for (let c2 of o2.split("&")) {
+        let i2 = c2.indexOf("=");
+        if (i2 === -1) continue;
+        let d2 = c2.slice(0, i2), a2 = c2.slice(i2 + 1);
+        e2.searchParams.set(d2, a2);
+      }
+      return t2.credential.sessionToken && e2.searchParams.set("x-cos-security-token", t2.credential.sessionToken), e2.toString();
+    }
+    async function P2(t2) {
+      let e2 = new URL(t2.domain), n2 = t2.key ? I2(t2.key) : "", r2 = t2.key ? `/${k2(t2.key)}` : "/", s2 = n2 ? `/${J(n2)}` : "/";
+      if (e2.pathname = s2, t2.query) for (let [g2, u2] of Object.entries(t2.query)) u2 != null && e2.searchParams.set(g2, String(u2));
+      let { authorization: o2 } = await Z({ method: t2.method, pathname: r2, query: t2.query, headers: t2.headers, secretId: t2.credential.secretId, secretKey: t2.credential.secretKey }), c2 = new Headers();
+      if (t2.headers) for (let [g2, u2] of Object.entries(t2.headers)) u2 != null && c2.set(g2, String(u2));
+      c2.set("Authorization", o2), t2.credential.sessionToken && c2.set("x-cos-security-token", t2.credential.sessionToken);
+      let i2 = e2.toString(), d2 = { method: t2.method, headers: c2, body: t2.body ?? void 0, signal: t2.signal }, a2 = 2, l2;
+      for (let g2 = 0; g2 <= a2; g2++) try {
+        return await fetch(i2, d2);
+      } catch (u2) {
+        if (l2 = u2, u2 instanceof DOMException && u2.name === "AbortError") throw u2;
+        g2 < a2 && await new Promise((f2) => setTimeout(f2, 1e3 * (g2 + 1)));
+      }
+      throw l2;
+    }
+    var Pe = "blob.edgeone.site";
+    var Ie = "blob-nocache.edgeone.site";
+    var ke = "max-age=0, stale-while-revalidate=60";
+    var D2 = class t2 {
+      credentialManager;
+      bucket = "";
+      region = "";
+      keyPrefix = "";
+      cachedDomain = "";
+      uncachedDomain = "";
+      initialized = false;
+      static buildErrorDetail(e2, n2, r2, s2, o2) {
+        let c2 = r2 ? `${n2}/${r2}` : n2, i2 = o2 ? ` [request-id: ${o2}]` : "";
+        return `${e2} ${c2} - ${Ae(s2)}${i2}`;
+      }
+      constructor(e2) {
+        this.credentialManager = e2;
+      }
+      computeSubdomain(e2) {
+        let n2 = [];
+        if (e2.appId && n2.push(e2.appId), e2.zoneId && n2.push(e2.zoneId), e2.projectId && n2.push(e2.projectId), n2.length >= 2) return n2.join("-");
+        if (e2.resourcePrefix) {
+          let s2 = e2.resourcePrefix.replace(/\/?\*$/, "").split("/").filter(Boolean);
+          if (s2.length >= 2) return s2.slice(0, Math.min(s2.length, 3)).join("-");
+        }
+        return "";
+      }
+      async ensureInitialized() {
+        if (this.initialized) return;
+        let e2 = await this.credentialManager.getCredential();
+        !this.keyPrefix && e2.resourcePrefix && (this.keyPrefix = e2.resourcePrefix.replace(/\/?\*$/, ""));
+        let n2 = e2.edgeRegion === "CN", r2 = e2.cosMainland, s2 = e2.cosOverseas, o2 = n2 ? r2 || s2 : s2 || r2;
+        !this.bucket && o2 && (this.bucket = o2.bucket, this.region = o2.region);
+        let { cachedDomain: c2, uncachedDomain: i2 } = e2;
+        if (!c2 || !i2) {
+          let d2 = this.computeSubdomain(e2);
+          if (!d2) throw new h2(0, "unable to derive tenant subdomain from credential; missing appId/zoneId/projectId or resourcePrefix");
+          c2 ||= `https://${d2}.${Pe}`, i2 ||= `https://${d2}.${Ie}`;
+        }
+        this.cachedDomain = c2, this.uncachedDomain = i2, this.initialized = true;
+      }
+      async resolveDomain(e2) {
+        return await this.ensureInitialized(), e2 === "strong" ? this.uncachedDomain : this.cachedDomain;
+      }
+      async resolveCredential() {
+        let e2 = await this.credentialManager.getCredential();
+        return { secretId: e2.tmpSecretId, secretKey: e2.tmpSecretKey, sessionToken: e2.sessionToken };
+      }
+      buildCosKey(e2, n2) {
+        return `${this.keyPrefix}/${e2}/${n2}`;
+      }
+      async getDomains() {
+        return await this.ensureInitialized(), { cached: this.cachedDomain, uncached: this.uncachedDomain };
+      }
+      async putObject(e2, n2, r2, s2) {
+        let o2 = await this.resolveDomain("strong"), c2 = await this.ensureWriteAllowed(), i2 = await this.resolveCredential(), d2 = this.buildCosKey(e2, n2), { defaultCacheControl: a2 = ke } = c2, l2 = s2?.cacheControl === null ? void 0 : s2?.cacheControl ?? a2, g2 = {};
+        s2?.onlyIfNew && (g2["x-cos-forbid-overwrite"] = "true"), l2 && (g2["Cache-Control"] = l2), s2?.contentType && (g2["Content-Type"] = s2.contentType);
+        let u2;
+        try {
+          let f2 = await P2({ domain: o2, method: "PUT", key: d2, headers: g2, body: r2, credential: i2 });
+          if (s2?.onlyIfNew && (f2.status === 409 || f2.status === 412)) return await f2.arrayBuffer().catch(() => {
+          }), { etag: "", statusCode: 412 };
+          if (f2.ok) {
+            let N2 = f2.headers.get("etag") || "";
+            return await f2.arrayBuffer().catch(() => {
+            }), { etag: N2, statusCode: f2.status };
+          }
+          let _2 = await A2(f2);
+          u2 = new h2(f2.status, t2.buildErrorDetail("PUT", o2, d2, _2 || `status ${f2.status}`, R(f2)));
+        } catch (f2) {
+          u2 = new h2(0, t2.buildErrorDetail("PUT", o2, d2, v2(f2)));
+        }
+        throw await this.explainWriteFailure(u2);
+      }
+      async ensureWriteAllowed() {
+        let e2 = await this.credentialManager.getCredential();
+        if (e2.writeAllowed !== false) return e2;
+        let n2 = e2;
+        try {
+          n2 = await this.credentialManager.refreshCredential();
+        } catch {
+        }
+        return ee(n2), n2;
+      }
+      async explainWriteFailure(e2) {
+        if (![0, 403, 550].includes(e2.statusCode)) return e2;
+        try {
+          let n2 = await this.credentialManager.refreshCredential();
+          ee(n2);
+        } catch (n2) {
+          if (n2 instanceof x2) return n2;
+        }
+        return e2;
+      }
+      async createPresignedPutUrl(e2, n2, r2) {
+        let s2 = await this.resolveDomain("strong");
+        await this.ensureWriteAllowed();
+        let o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2), i2 = {};
+        r2?.contentType && (i2["Content-Type"] = r2.contentType);
+        let d2 = r2?.expireSeconds ?? 3600, a2 = await Q2({ domain: s2, method: "PUT", key: c2, headers: i2, credential: o2, expireSeconds: d2 }), l2 = Math.floor(Date.now() / 1e3) + d2;
+        return { url: a2, expiresAt: l2 };
+      }
+      async getObject(e2, n2, r2) {
+        let s2 = await this.resolveDomain(r2), o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2);
+        try {
+          let i2 = await P2({ domain: s2, method: "GET", key: c2, credential: o2 });
+          if (i2.status === 404) return await i2.arrayBuffer().catch(() => {
+          }), null;
+          if (!i2.ok) {
+            let l2 = await A2(i2);
+            throw new h2(i2.status, t2.buildErrorDetail("GET", s2, c2, l2 || `status ${i2.status}`, R(i2)));
+          }
+          let d2 = new Uint8Array(await i2.arrayBuffer()), a2 = te(i2.headers);
+          return { body: d2, contentType: a2["content-type"], headers: a2 };
+        } catch (i2) {
+          throw i2 instanceof h2 ? i2 : new h2(0, t2.buildErrorDetail("GET", s2, c2, v2(i2)));
+        }
+      }
+      async headObject(e2, n2, r2) {
+        let s2 = await this.resolveDomain(r2), o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2);
+        try {
+          let i2 = await P2({ domain: s2, method: "HEAD", key: c2, credential: o2 });
+          if (i2.status === 404) return null;
+          if (!i2.ok) {
+            let a2 = await A2(i2);
+            throw new h2(i2.status, t2.buildErrorDetail("HEAD", s2, c2, a2 || `status ${i2.status}`, R(i2)));
+          }
+          let d2 = te(i2.headers);
+          return { cacheControl: d2["cache-control"], contentType: d2["content-type"], etag: d2.etag, headers: d2 };
+        } catch (i2) {
+          throw i2 instanceof h2 ? i2 : new h2(0, t2.buildErrorDetail("HEAD", s2, c2, v2(i2)));
+        }
+      }
+      async deleteObject(e2, n2) {
+        let r2 = await this.resolveDomain("strong"), s2 = await this.resolveCredential(), o2 = this.buildCosKey(e2, n2);
+        try {
+          let c2 = await P2({ domain: r2, method: "DELETE", key: o2, credential: s2 });
+          if (c2.status === 204 || c2.status === 404 || c2.ok) {
+            await c2.arrayBuffer().catch(() => {
+            });
+            return;
+          }
+          let i2 = await A2(c2);
+          throw new h2(c2.status, t2.buildErrorDetail("DELETE", r2, o2, i2 || `status ${c2.status}`, R(c2)));
+        } catch (c2) {
+          throw c2 instanceof h2 ? c2 : new h2(0, t2.buildErrorDetail("DELETE", r2, o2, v2(c2)));
+        }
+      }
+      async listObjects(e2, n2) {
+        await this.ensureInitialized();
+        let r2 = `${this.keyPrefix}/${e2}/`, s2 = n2?.prefix ? r2 + n2.prefix : r2, o2 = await this.getBucketRaw({ prefix: s2, delimiter: n2?.delimiter, marker: n2?.marker, maxKeys: n2?.maxKeys, consistency: n2?.consistency }), c2 = o2.contents.map((d2) => {
+          let a2 = d2.key, l2 = a2.startsWith(r2) ? a2.slice(r2.length) : a2;
+          return l2 ? { key: l2, etag: d2.etag } : null;
+        }).filter((d2) => d2 !== null), i2 = o2.commonPrefixes.map((d2) => d2.startsWith(r2) ? d2.slice(r2.length) : d2).filter((d2) => !!d2);
+        return { contents: c2, commonPrefixes: i2, isTruncated: o2.isTruncated, nextMarker: o2.nextMarker };
+      }
+      async listStores(e2) {
+        let n2 = [], r2 = "", s2 = true;
+        for (; s2; ) {
+          await this.ensureInitialized();
+          let o2 = `${this.keyPrefix}/`, c2 = await this.getBucketRaw({ prefix: o2, delimiter: "/", maxKeys: 1e3, marker: r2 || void 0, consistency: e2 });
+          for (let i2 of c2.commonPrefixes) {
+            let d2 = i2.startsWith(o2) ? i2.slice(o2.length, -1) : i2.slice(0, -1);
+            d2 && n2.push(d2);
+          }
+          if (s2 = c2.isTruncated, r2 = c2.nextMarker, !s2 || !r2) break;
+        }
+        return n2;
+      }
+      async getBucketRaw(e2) {
+        let n2 = await this.resolveDomain(e2.consistency), r2 = await this.resolveCredential(), s2 = { prefix: k2(e2.prefix) };
+        e2.delimiter && (s2.delimiter = e2.delimiter), e2.marker && (s2.marker = k2(e2.marker)), e2.maxKeys && (s2["max-keys"] = e2.maxKeys);
+        try {
+          let o2 = await P2({ domain: n2, method: "GET", query: s2, credential: r2 });
+          if (!o2.ok) {
+            let i2 = await A2(o2);
+            throw new h2(o2.status, t2.buildErrorDetail("LIST", n2, e2.prefix, i2 || `status ${o2.status}`, R(o2)));
+          }
+          let c2 = await o2.text();
+          return Re(c2);
+        } catch (o2) {
+          throw o2 instanceof h2 ? o2 : new h2(0, t2.buildErrorDetail("LIST", n2, e2.prefix, v2(o2)));
+        }
+      }
+    };
+    function ee(t2) {
+      if (t2.writeAllowed === false) throw new x2({ reason: t2.writeDeniedReason, overMetrics: t2.overMetrics });
+    }
+    function Ae(t2) {
+      return t2.replace(/[a-zA-Z0-9\-]+\.cos\.[a-zA-Z0-9\-.]+\.myqcloud\.com/gi, "[cos-origin]").replace(/[a-zA-Z0-9\-]+\.cos\.[a-zA-Z0-9\-.]+\.tencentcos\.cn/gi, "[cos-origin]");
+    }
+    async function A2(t2) {
+      try {
+        return await t2.text();
+      } catch {
+        return "";
+      }
+    }
+    function R(t2) {
+      return t2.headers.get("x-cos-request-id") || t2.headers.get("x-eo-log-id") || void 0;
+    }
+    function v2(t2) {
+      let e2 = t2, n2 = e2.message || String(t2), r2 = e2.cause;
+      if (r2) {
+        let s2 = r2.message || r2.code || "";
+        return s2 ? `${n2} (${s2})` : n2;
+      }
+      return n2;
+    }
+    function te(t2) {
+      let e2 = {};
+      return t2.forEach((n2, r2) => {
+        e2[r2.toLowerCase()] = n2;
+      }), e2;
+    }
+    function Re(t2) {
+      let e2 = [], n2 = /<Contents>([\s\S]*?)<\/Contents>/g, r2;
+      for (; (r2 = n2.exec(t2)) !== null; ) {
+        let a2 = r2[1], l2 = M2(a2, "Key"), g2 = M2(a2, "ETag");
+        l2 !== null && e2.push({ key: q(l2), etag: g2 || "" });
+      }
+      let s2 = [], o2 = /<CommonPrefixes>([\s\S]*?)<\/CommonPrefixes>/g;
+      for (; (r2 = o2.exec(t2)) !== null; ) {
+        let a2 = r2[1], l2 = M2(a2, "Prefix");
+        l2 !== null && s2.push(q(l2));
+      }
+      let i2 = M2(t2, "IsTruncated") === "true", d2 = M2(t2, "NextMarker") || "";
+      return { contents: e2, commonPrefixes: s2, isTruncated: i2, nextMarker: q(d2) };
+    }
+    function M2(t2, e2) {
+      let r2 = new RegExp(`<${e2}>([\\s\\S]*?)<\\/${e2}>`).exec(t2);
+      return r2 ? r2[1] : null;
+    }
+    function q(t2) {
+      return t2.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+    }
+    var ve = "X-RateLimit-Reset";
+    async function $2(t2, e2, n2 = 2) {
+      e2.signal?.throwIfAborted?.();
+      try {
+        let r2 = await fetch(t2, e2);
+        if (n2 > 0 && (r2.status === 429 || r2.status >= 500)) {
+          let s2 = ne(r2.headers.get(ve));
+          return await re(s2, e2.signal), $2(t2, e2, n2 - 1);
+        }
+        return r2;
+      } catch (r2) {
+        if (n2 === 0 || r2 instanceof DOMException && r2.name === "AbortError") throw r2;
+        let s2 = ne();
+        return await re(s2, e2.signal), $2(t2, e2, n2 - 1);
+      }
+    }
+    function ne(t2) {
+      return t2 ? Math.max(Number(t2) * 1e3 - Date.now(), 500) : 1500;
+    }
+    function re(t2, e2) {
+      return new Promise((n2, r2) => {
+        if (e2?.aborted) return r2(e2.reason);
+        let s2 = setTimeout(() => {
+          e2?.removeEventListener("abort", o2), n2();
+        }, t2), o2 = () => {
+          clearTimeout(s2), r2(e2.reason);
+        };
+        e2?.addEventListener("abort", o2, { once: true });
+      });
+    }
+    var Me = "prod";
+    function se() {
+      let t2 = typeof process < "u" ? process.env.PAGES_BLOB_STS_ENV : void 0;
+      return t2 === "test" || t2 === "prod" ? t2 : Me;
+    }
+    var De = 300;
+    var Oe = 6e4;
+    var Be = "https://blob-sts.edgeone.site/";
+    var O = class {
+      authToken;
+      projectId;
+      cached = null;
+      lastForcedRefreshAt = 0;
+      constructor(e2, n2) {
+        this.authToken = e2, this.projectId = n2;
+      }
+      async getCredential() {
+        if (this.cached && !this.isExpired(this.cached)) return this.cached;
+        let e2 = await this.fetchCredential();
+        return this.cached = e2, e2;
+      }
+      async refreshCredential() {
+        if (this.cached && Date.now() - this.lastForcedRefreshAt < Oe) return this.cached;
+        this.lastForcedRefreshAt = Date.now();
+        let e2 = await this.fetchCredential(true);
+        return this.cached = e2, e2;
+      }
+      clearCache() {
+        this.cached = null;
+      }
+      isExpired(e2) {
+        let n2 = Math.floor(Date.now() / 1e3);
+        return e2.expiredTime - n2 < De;
+      }
+      async fetchCredential(e2 = false) {
+        for (let s2 = 1; s2 <= 3; s2++) {
+          let o2 = new AbortController(), c2 = setTimeout(() => o2.abort(), 1e4), i2;
+          try {
+            i2 = await $2(Be, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.authToken}`, "X-Env": se(), ...e2 ? { "X-SKIP-CACHE": "true" } : {} }, body: JSON.stringify(this.projectId ? { ProjectId: this.projectId } : {}), signal: o2.signal });
+          } catch (l2) {
+            if (s2 < 3) {
+              await z2(500 * s2);
+              continue;
+            }
+            throw new y2(`failed to obtain STS credential: ${l2.message || "timeout"}`);
+          } finally {
+            clearTimeout(c2);
+          }
+          if (i2.status === 413) throw new y2("storage quota exceeded");
+          if (i2.status === 429) throw new y2("rate limited, please retry later");
+          if (!i2.ok) {
+            if (i2.status >= 500 && s2 < 3) {
+              await z2(500 * s2);
+              continue;
+            }
+            let l2 = await i2.text().catch(() => "unknown error");
+            throw new y2(`failed to obtain STS credential: ${i2.status} ${l2}`);
+          }
+          let d2 = await i2.json(), a2 = d2.data && typeof d2.data == "object" ? d2.data : d2;
+          if (a2.tmpSecretId && a2.tmpSecretKey && a2.sessionToken && a2.expiredTime) {
+            let l2 = a2.cosMainland, g2 = a2.cosOverseas, u2 = i2.headers.get("X-Edge-Region") || void 0;
+            return { tmpSecretId: a2.tmpSecretId, tmpSecretKey: a2.tmpSecretKey, sessionToken: a2.sessionToken, expiredTime: a2.expiredTime, appId: a2.appId || void 0, zoneId: a2.zoneId || void 0, projectId: a2.projectId || void 0, resourcePrefix: a2.resourcePrefix || void 0, cosMainland: l2 || void 0, cosOverseas: g2 || void 0, edgeRegion: u2, defaultCacheControl: typeof a2.defaultCacheControl == "string" && a2.defaultCacheControl ? a2.defaultCacheControl : void 0, cachedDomain: ie(a2.cachedDomain), uncachedDomain: ie(a2.uncachedDomain), writeAllowed: typeof a2.writeAllowed == "boolean" ? a2.writeAllowed : void 0, writeDeniedReason: typeof a2.writeDeniedReason == "string" && a2.writeDeniedReason ? a2.writeDeniedReason : void 0, overMetrics: Array.isArray(a2.overMetrics) ? a2.overMetrics.filter((f2) => typeof f2 == "string") : void 0 };
+          }
+          if (a2.code !== void 0 && a2.code !== 0) {
+            let l2 = a2.msg || a2.message || "unknown error";
+            throw new y2(`credential exchange failed (code=${a2.code}): ${l2}`);
+          }
+          if (d2.code !== void 0 && d2.code !== 0) {
+            let l2 = d2.msg || d2.message || "unknown error";
+            throw new y2(`credential exchange failed (code=${d2.code}): ${l2}`);
+          }
+          if (s2 < 3) {
+            await z2(500 * s2);
+            continue;
+          }
+          throw new y2("invalid STS credential response");
+        }
+        throw new y2("invalid STS credential response");
+      }
+    };
+    function ie(t2) {
+      if (typeof t2 != "string") return;
+      let e2 = t2.trim().replace(/\/+$/, "");
+      if (e2) return /^https?:\/\//i.test(e2) ? e2 : `https://${e2}`;
+    }
+    function z2(t2) {
+      return new Promise((e2) => setTimeout(e2, t2));
+    }
+    var je = "{{PAGES_BLOB_DEPLOY_CREDENTIAL}}";
+    function ae() {
+      let t2 = {}, e2 = $e();
+      if (e2) t2.deployCredential = e2;
+      else {
+        let r2 = oe("PAGES_BLOB_DEPLOY_CREDENTIAL");
+        r2 && (t2.deployCredential = r2);
+      }
+      let n2 = oe("PAGES_PROJECT_ID");
+      return n2 && (t2.projectId = n2), t2;
+    }
+    function $e() {
+      let t2 = je;
+      if (!(t2.startsWith("{{") && t2.endsWith("}}"))) return t2 || void 0;
+    }
+    function oe(t2) {
+      if (typeof process < "u" && process.env) return process.env[t2];
+    }
+    function _e(t2) {
+      let e2 = typeof t2 == "string" ? t2 : t2.name;
+      F(e2);
+      let n2 = ce(typeof t2 == "string" ? void 0 : t2), r2 = new O(n2.authToken, n2.projectId), s2 = new D2(r2);
+      return new T2(s2, e2, n2.consistency ?? "eventual");
+    }
+    async function Ne(t2) {
+      let e2 = ce(t2 ? { name: "__list__", projectId: t2.projectId, token: t2.token, consistency: t2.consistency } : void 0), n2 = new O(e2.authToken, e2.projectId);
+      return { stores: (await new D2(n2).listStores(e2.consistency)).map((o2) => ({ name: o2 })) };
+    }
+    function ce(t2) {
+      let e2 = ae(), n2 = t2?.token || e2.deployCredential, r2 = t2?.projectId || e2.projectId;
+      if (t2?.token || e2.projectId) {
+        if (!r2) throw new S2();
+        if (!n2) throw new E2(["token"]);
+        return { authToken: n2, projectId: r2, consistency: t2?.consistency };
+      }
+      if (t2?.projectId && !n2) throw new E2(["token"]);
+      if (!e2.deployCredential) throw new E2(["deployCredential"]);
+      return { authToken: e2.deployCredential, consistency: t2?.consistency };
+    }
   }
 });
 
@@ -39439,654 +40076,6 @@ var init_indexnow = __esm({
   }
 });
 
-// node_modules/@edgeone/pages-blob/dist/index.js
-var require_dist = __commonJS({
-  "node_modules/@edgeone/pages-blob/dist/index.js"(exports, module) {
-    "use strict";
-    var U = Object.defineProperty;
-    var ge = Object.getOwnPropertyDescriptor;
-    var fe = Object.getOwnPropertyNames;
-    var he = Object.prototype.hasOwnProperty;
-    var me = (t2, e2) => {
-      for (var n2 in e2) U(t2, n2, { get: e2[n2], enumerable: true });
-    };
-    var ye = (t2, e2, n2, r2) => {
-      if (e2 && typeof e2 == "object" || typeof e2 == "function") for (let s2 of fe(e2)) !he.call(t2, s2) && s2 !== n2 && U(t2, s2, { get: () => e2[s2], enumerable: !(r2 = ge(e2, s2)) || r2.enumerable });
-      return t2;
-    };
-    var pe = (t2) => ye(U({}, "__esModule", { value: true }), t2);
-    var Le = {};
-    me(Le, { InvalidKeyError: () => w2, InvalidStoreNameError: () => p2, MissingProjectIdError: () => S2, PagesBlobError: () => m2, PreconditionFailedError: () => b2, QuotaExceededError: () => x2, RateLimitedError: () => B, Store: () => T2, getStore: () => _e, listStores: () => Ne });
-    module.exports = pe(Le);
-    var m2 = class extends Error {
-      code;
-      constructor(e2, n2) {
-        super(`PagesBlob: ${n2}`), this.name = "PagesBlobError", this.code = e2;
-      }
-    };
-    var w2 = class extends m2 {
-      constructor(e2) {
-        super("INVALID_KEY", e2);
-      }
-    };
-    var p2 = class extends m2 {
-      constructor(e2) {
-        super("INVALID_STORE_NAME", e2);
-      }
-    };
-    var E2 = class extends m2 {
-      constructor(e2) {
-        super("MISSING_ENVIRONMENT", `Environment not configured for Pages Blob. Missing: ${e2.join(", ")}. Supply these properties when creating a store, or ensure the function is running in a Pages environment.`);
-      }
-    };
-    var we = "If usage just dropped back under the limit, wait a few minutes and retry.";
-    var Ce = { storage: "write denied: storage quota exceeded (free plan 1 GB). Reads and deletes still work; delete objects or upgrade the plan.", "complex-operations": "write denied: complex operation quota (writes and lists) exceeded. Reads and deletes still work; upgrade the plan or wait until usage is back under the limit.", egress: "write denied: egress bandwidth quota exceeded. Only deletes still work; upgrade the plan or wait until usage is back under the limit." };
-    var x2 = class extends m2 {
-      reason;
-      overMetrics;
-      constructor(e2 = {}) {
-        let n2 = e2.reason && Ce[e2.reason] || "write denied: blob quota exceeded.";
-        super("QUOTA_EXCEEDED", `${n2} ${we}`), this.reason = e2.reason, this.overMetrics = e2.overMetrics ?? [];
-      }
-    };
-    var B = class extends m2 {
-      constructor() {
-        super("RATE_LIMITED", "request rate limited, please retry later");
-      }
-    };
-    var S2 = class extends m2 {
-      constructor() {
-        super("MISSING_PROJECT_ID", "projectId is required when using API token mode. Please supply { name, projectId, token } to getStore() / listStores().");
-      }
-    };
-    var y2 = class extends m2 {
-      constructor(e2) {
-        super("CREDENTIAL_ERROR", e2);
-      }
-    };
-    var h2 = class extends m2 {
-      statusCode;
-      constructor(e2, n2) {
-        super("COS_ERROR", `COS returned ${e2}: ${n2}`), this.statusCode = e2;
-      }
-    };
-    var b2 = class extends m2 {
-      constructor() {
-        super("PRECONDITION_FAILED", "conditional write failed (key already exists)");
-      }
-    };
-    function C2(t2) {
-      if (t2 === "") throw new w2("Blob key must not be empty.");
-      if (t2.startsWith("/") || t2.startsWith("%2F")) throw new w2("Blob key must not start with forward slash (/).");
-      if (new TextEncoder().encode(t2).length > 600) throw new w2("Blob key must be a sequence of Unicode characters whose UTF-8 encoding is at most 600 bytes long.");
-    }
-    function F(t2) {
-      if (t2 === "") throw new p2("Store name must not be empty.");
-      if (t2.includes("/") || t2.includes(":")) throw new p2("Store name must not contain forward slashes (/) or colons (:).");
-      if (!/^[a-zA-Z0-9_-]+$/.test(t2)) throw new p2("Store name must only contain letters, digits, underscores, and hyphens.");
-      if (new TextEncoder().encode(t2).length > 64) throw new p2("Store name must be a sequence of Unicode characters whose UTF-8 encoding is at most 64 bytes long.");
-    }
-    var T2 = class {
-      cosClient;
-      storeName;
-      defaultConsistency;
-      constructor(e2, n2, r2 = "eventual") {
-        this.cosClient = e2, this.storeName = n2, this.defaultConsistency = r2;
-      }
-      resolveConsistency(e2) {
-        return e2 ?? this.defaultConsistency;
-      }
-      async set(e2, n2, r2) {
-        C2(e2);
-        let s2 = await this.cosClient.putObject(this.storeName, e2, n2, { onlyIfNew: r2?.onlyIfNew, cacheControl: r2?.cacheControl });
-        if (r2?.onlyIfNew && s2.statusCode === 412) throw new b2();
-      }
-      async setJSON(e2, n2, r2) {
-        C2(e2);
-        let s2 = JSON.stringify(n2), o2 = await this.cosClient.putObject(this.storeName, e2, s2, { onlyIfNew: r2?.onlyIfNew, contentType: "application/json", cacheControl: r2?.cacheControl });
-        if (r2?.onlyIfNew && o2.statusCode === 412) throw new b2();
-      }
-      async createUploadUrl(e2, n2) {
-        C2(e2);
-        let { url: r2, expiresAt: s2 } = await this.cosClient.createPresignedPutUrl(this.storeName, e2, { expireSeconds: n2?.expireSeconds, contentType: n2?.contentType });
-        return { url: r2, key: e2, expiresAt: s2 };
-      }
-      async get(e2, n2) {
-        C2(e2);
-        let r2 = this.resolveConsistency(n2?.consistency), s2 = await this.cosClient.getObject(this.storeName, e2, r2);
-        if (s2 === null) return null;
-        let { body: o2 } = s2, c2 = n2?.type ?? "text", i2 = new TextDecoder("utf-8");
-        switch (c2) {
-          case "text":
-            return i2.decode(o2);
-          case "json":
-            return JSON.parse(i2.decode(o2));
-          case "arrayBuffer":
-            return o2.buffer.slice(o2.byteOffset, o2.byteOffset + o2.byteLength);
-          case "blob":
-            return new Blob([o2]);
-          case "stream":
-            return new ReadableStream({ start(d2) {
-              d2.enqueue(o2), d2.close();
-            } });
-          default:
-            return i2.decode(o2);
-        }
-      }
-      async getMetadata(e2, n2) {
-        C2(e2);
-        let r2 = this.resolveConsistency(n2?.consistency);
-        return this.cosClient.headObject(this.storeName, e2, r2);
-      }
-      async getWithHeaders(e2, n2) {
-        C2(e2);
-        let r2 = this.resolveConsistency(n2?.consistency), s2 = await this.cosClient.getObject(this.storeName, e2, r2);
-        return s2 ? { body: new TextDecoder("utf-8").decode(s2.body), headers: s2.headers || {} } : null;
-      }
-      async delete(e2) {
-        C2(e2), await this.cosClient.deleteObject(this.storeName, e2);
-      }
-      async list(e2) {
-        let n2 = e2?.paginate !== false, r2 = e2?.limit, s2 = [], o2 = [], c2 = this.resolveConsistency(e2?.consistency), i2 = e2?.cursor || "", d2 = true, a2;
-        for (; d2; ) {
-          let l2 = r2 !== void 0 ? r2 - s2.length : 1e3, g2 = Math.min(l2, 1e3);
-          if (g2 <= 0) break;
-          let u2 = await this.cosClient.listObjects(this.storeName, { prefix: e2?.prefix, delimiter: e2?.directories ? "/" : void 0, marker: i2 || void 0, maxKeys: g2, consistency: c2 });
-          for (let f2 of u2.contents) s2.push({ key: f2.key, etag: f2.etag });
-          o2.push(...u2.commonPrefixes), r2 !== void 0 && s2.length >= r2 ? (s2.length = r2, (u2.isTruncated || u2.contents.length === g2) && (a2 = u2.nextMarker), d2 = false) : u2.isTruncated ? !n2 && r2 === void 0 ? (a2 = u2.nextMarker, d2 = false) : i2 = u2.nextMarker : d2 = false;
-        }
-        return { blobs: s2, directories: o2, ...a2 ? { cursor: a2 } : {} };
-      }
-    };
-    var xe = new TextEncoder();
-    function K(t2) {
-      let e2 = xe.encode(t2), n2 = new ArrayBuffer(e2.byteLength), r2 = new Uint8Array(n2);
-      return r2.set(e2), r2;
-    }
-    function V2(t2) {
-      let e2 = t2 instanceof Uint8Array ? t2 : new Uint8Array(t2), n2 = "";
-      for (let r2 = 0; r2 < e2.length; r2++) n2 += e2[r2].toString(16).padStart(2, "0");
-      return n2;
-    }
-    async function W(t2, e2) {
-      let n2 = await crypto.subtle.importKey("raw", K(t2), { name: "HMAC", hash: "SHA-1" }, false, ["sign"]), r2 = await crypto.subtle.sign("HMAC", n2, K(e2));
-      return V2(r2);
-    }
-    async function be(t2) {
-      let e2 = await crypto.subtle.digest("SHA-1", K(t2));
-      return V2(e2);
-    }
-    function j(t2) {
-      return encodeURIComponent(t2).replace(/[!'()*]/g, (e2) => "%" + e2.charCodeAt(0).toString(16).toUpperCase());
-    }
-    function I2(t2) {
-      try {
-        return decodeURIComponent(t2);
-      } catch {
-        return t2;
-      }
-    }
-    function Ee(t2) {
-      return t2.split("/").map((e2) => I2(e2)).join("/");
-    }
-    function k2(t2) {
-      return Ee(I2(t2));
-    }
-    function J(t2) {
-      return t2.split("/").map((e2) => j(I2(e2))).join("/");
-    }
-    var Se = /* @__PURE__ */ new Set(["cache-control", "content-disposition", "content-encoding", "content-length", "content-md5", "content-type", "expect", "expires", "if-match", "if-modified-since", "if-none-match", "if-unmodified-since", "origin", "range", "transfer-encoding"]);
-    function Te(t2) {
-      return t2 === "host" || t2 === "x-cos-security-token" ? false : !!(Se.has(t2) || t2.startsWith("x-cos-"));
-    }
-    function X(t2) {
-      if (!t2) return [];
-      let e2 = [];
-      for (let [n2, r2] of Object.entries(t2)) r2 != null && e2.push([n2.toLowerCase(), String(r2)]);
-      return e2.sort(([n2], [r2]) => n2 < r2 ? -1 : n2 > r2 ? 1 : 0), e2;
-    }
-    function Y(t2) {
-      return t2.map(([e2, n2]) => `${j(e2)}=${j(n2)}`).join("&");
-    }
-    function G(t2) {
-      return t2.map(([e2]) => j(e2)).join(";");
-    }
-    async function Z(t2) {
-      let e2 = t2.method.toLowerCase(), n2 = t2.pathname.startsWith("/") ? t2.pathname : `/${t2.pathname}`, r2 = Math.floor(Date.now() / 1e3), s2 = r2 + (t2.expireSeconds ?? 3600), o2 = `${r2};${s2}`, i2 = X(t2.headers).filter(([L2]) => Te(L2)), d2 = G(i2), a2 = Y(i2), l2 = X(t2.query), g2 = G(l2), u2 = Y(l2), f2 = `${e2}
-${n2}
-${u2}
-${a2}
-`, _2 = `sha1
-${o2}
-${await be(f2)}
-`, N2 = await W(t2.secretKey, o2), de = await W(N2, _2), le = ["q-sign-algorithm=sha1", `q-ak=${t2.secretId}`, `q-sign-time=${o2}`, `q-key-time=${o2}`, `q-header-list=${d2}`, `q-url-param-list=${g2}`, `q-signature=${de}`].join("&"), H = {};
-      for (let [L2, ue] of i2) H[L2] = ue;
-      return { authorization: le, signedHeaders: H };
-    }
-    async function Q2(t2) {
-      let e2 = new URL(t2.domain), n2 = I2(t2.key), r2 = `/${k2(t2.key)}`, s2 = `/${J(n2)}`;
-      e2.pathname = s2;
-      let { authorization: o2 } = await Z({ method: t2.method, pathname: r2, query: t2.query, headers: t2.headers, secretId: t2.credential.secretId, secretKey: t2.credential.secretKey, expireSeconds: t2.expireSeconds });
-      if (t2.query) for (let [c2, i2] of Object.entries(t2.query)) i2 != null && e2.searchParams.set(c2, String(i2));
-      for (let c2 of o2.split("&")) {
-        let i2 = c2.indexOf("=");
-        if (i2 === -1) continue;
-        let d2 = c2.slice(0, i2), a2 = c2.slice(i2 + 1);
-        e2.searchParams.set(d2, a2);
-      }
-      return t2.credential.sessionToken && e2.searchParams.set("x-cos-security-token", t2.credential.sessionToken), e2.toString();
-    }
-    async function P2(t2) {
-      let e2 = new URL(t2.domain), n2 = t2.key ? I2(t2.key) : "", r2 = t2.key ? `/${k2(t2.key)}` : "/", s2 = n2 ? `/${J(n2)}` : "/";
-      if (e2.pathname = s2, t2.query) for (let [g2, u2] of Object.entries(t2.query)) u2 != null && e2.searchParams.set(g2, String(u2));
-      let { authorization: o2 } = await Z({ method: t2.method, pathname: r2, query: t2.query, headers: t2.headers, secretId: t2.credential.secretId, secretKey: t2.credential.secretKey }), c2 = new Headers();
-      if (t2.headers) for (let [g2, u2] of Object.entries(t2.headers)) u2 != null && c2.set(g2, String(u2));
-      c2.set("Authorization", o2), t2.credential.sessionToken && c2.set("x-cos-security-token", t2.credential.sessionToken);
-      let i2 = e2.toString(), d2 = { method: t2.method, headers: c2, body: t2.body ?? void 0, signal: t2.signal }, a2 = 2, l2;
-      for (let g2 = 0; g2 <= a2; g2++) try {
-        return await fetch(i2, d2);
-      } catch (u2) {
-        if (l2 = u2, u2 instanceof DOMException && u2.name === "AbortError") throw u2;
-        g2 < a2 && await new Promise((f2) => setTimeout(f2, 1e3 * (g2 + 1)));
-      }
-      throw l2;
-    }
-    var Pe = "blob.edgeone.site";
-    var Ie = "blob-nocache.edgeone.site";
-    var ke = "max-age=0, stale-while-revalidate=60";
-    var D2 = class t2 {
-      credentialManager;
-      bucket = "";
-      region = "";
-      keyPrefix = "";
-      cachedDomain = "";
-      uncachedDomain = "";
-      initialized = false;
-      static buildErrorDetail(e2, n2, r2, s2, o2) {
-        let c2 = r2 ? `${n2}/${r2}` : n2, i2 = o2 ? ` [request-id: ${o2}]` : "";
-        return `${e2} ${c2} - ${Ae(s2)}${i2}`;
-      }
-      constructor(e2) {
-        this.credentialManager = e2;
-      }
-      computeSubdomain(e2) {
-        let n2 = [];
-        if (e2.appId && n2.push(e2.appId), e2.zoneId && n2.push(e2.zoneId), e2.projectId && n2.push(e2.projectId), n2.length >= 2) return n2.join("-");
-        if (e2.resourcePrefix) {
-          let s2 = e2.resourcePrefix.replace(/\/?\*$/, "").split("/").filter(Boolean);
-          if (s2.length >= 2) return s2.slice(0, Math.min(s2.length, 3)).join("-");
-        }
-        return "";
-      }
-      async ensureInitialized() {
-        if (this.initialized) return;
-        let e2 = await this.credentialManager.getCredential();
-        !this.keyPrefix && e2.resourcePrefix && (this.keyPrefix = e2.resourcePrefix.replace(/\/?\*$/, ""));
-        let n2 = e2.edgeRegion === "CN", r2 = e2.cosMainland, s2 = e2.cosOverseas, o2 = n2 ? r2 || s2 : s2 || r2;
-        !this.bucket && o2 && (this.bucket = o2.bucket, this.region = o2.region);
-        let { cachedDomain: c2, uncachedDomain: i2 } = e2;
-        if (!c2 || !i2) {
-          let d2 = this.computeSubdomain(e2);
-          if (!d2) throw new h2(0, "unable to derive tenant subdomain from credential; missing appId/zoneId/projectId or resourcePrefix");
-          c2 ||= `https://${d2}.${Pe}`, i2 ||= `https://${d2}.${Ie}`;
-        }
-        this.cachedDomain = c2, this.uncachedDomain = i2, this.initialized = true;
-      }
-      async resolveDomain(e2) {
-        return await this.ensureInitialized(), e2 === "strong" ? this.uncachedDomain : this.cachedDomain;
-      }
-      async resolveCredential() {
-        let e2 = await this.credentialManager.getCredential();
-        return { secretId: e2.tmpSecretId, secretKey: e2.tmpSecretKey, sessionToken: e2.sessionToken };
-      }
-      buildCosKey(e2, n2) {
-        return `${this.keyPrefix}/${e2}/${n2}`;
-      }
-      async getDomains() {
-        return await this.ensureInitialized(), { cached: this.cachedDomain, uncached: this.uncachedDomain };
-      }
-      async putObject(e2, n2, r2, s2) {
-        let o2 = await this.resolveDomain("strong"), c2 = await this.ensureWriteAllowed(), i2 = await this.resolveCredential(), d2 = this.buildCosKey(e2, n2), { defaultCacheControl: a2 = ke } = c2, l2 = s2?.cacheControl === null ? void 0 : s2?.cacheControl ?? a2, g2 = {};
-        s2?.onlyIfNew && (g2["x-cos-forbid-overwrite"] = "true"), l2 && (g2["Cache-Control"] = l2), s2?.contentType && (g2["Content-Type"] = s2.contentType);
-        let u2;
-        try {
-          let f2 = await P2({ domain: o2, method: "PUT", key: d2, headers: g2, body: r2, credential: i2 });
-          if (s2?.onlyIfNew && (f2.status === 409 || f2.status === 412)) return await f2.arrayBuffer().catch(() => {
-          }), { etag: "", statusCode: 412 };
-          if (f2.ok) {
-            let N2 = f2.headers.get("etag") || "";
-            return await f2.arrayBuffer().catch(() => {
-            }), { etag: N2, statusCode: f2.status };
-          }
-          let _2 = await A2(f2);
-          u2 = new h2(f2.status, t2.buildErrorDetail("PUT", o2, d2, _2 || `status ${f2.status}`, R(f2)));
-        } catch (f2) {
-          u2 = new h2(0, t2.buildErrorDetail("PUT", o2, d2, v2(f2)));
-        }
-        throw await this.explainWriteFailure(u2);
-      }
-      async ensureWriteAllowed() {
-        let e2 = await this.credentialManager.getCredential();
-        if (e2.writeAllowed !== false) return e2;
-        let n2 = e2;
-        try {
-          n2 = await this.credentialManager.refreshCredential();
-        } catch {
-        }
-        return ee(n2), n2;
-      }
-      async explainWriteFailure(e2) {
-        if (![0, 403, 550].includes(e2.statusCode)) return e2;
-        try {
-          let n2 = await this.credentialManager.refreshCredential();
-          ee(n2);
-        } catch (n2) {
-          if (n2 instanceof x2) return n2;
-        }
-        return e2;
-      }
-      async createPresignedPutUrl(e2, n2, r2) {
-        let s2 = await this.resolveDomain("strong");
-        await this.ensureWriteAllowed();
-        let o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2), i2 = {};
-        r2?.contentType && (i2["Content-Type"] = r2.contentType);
-        let d2 = r2?.expireSeconds ?? 3600, a2 = await Q2({ domain: s2, method: "PUT", key: c2, headers: i2, credential: o2, expireSeconds: d2 }), l2 = Math.floor(Date.now() / 1e3) + d2;
-        return { url: a2, expiresAt: l2 };
-      }
-      async getObject(e2, n2, r2) {
-        let s2 = await this.resolveDomain(r2), o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2);
-        try {
-          let i2 = await P2({ domain: s2, method: "GET", key: c2, credential: o2 });
-          if (i2.status === 404) return await i2.arrayBuffer().catch(() => {
-          }), null;
-          if (!i2.ok) {
-            let l2 = await A2(i2);
-            throw new h2(i2.status, t2.buildErrorDetail("GET", s2, c2, l2 || `status ${i2.status}`, R(i2)));
-          }
-          let d2 = new Uint8Array(await i2.arrayBuffer()), a2 = te(i2.headers);
-          return { body: d2, contentType: a2["content-type"], headers: a2 };
-        } catch (i2) {
-          throw i2 instanceof h2 ? i2 : new h2(0, t2.buildErrorDetail("GET", s2, c2, v2(i2)));
-        }
-      }
-      async headObject(e2, n2, r2) {
-        let s2 = await this.resolveDomain(r2), o2 = await this.resolveCredential(), c2 = this.buildCosKey(e2, n2);
-        try {
-          let i2 = await P2({ domain: s2, method: "HEAD", key: c2, credential: o2 });
-          if (i2.status === 404) return null;
-          if (!i2.ok) {
-            let a2 = await A2(i2);
-            throw new h2(i2.status, t2.buildErrorDetail("HEAD", s2, c2, a2 || `status ${i2.status}`, R(i2)));
-          }
-          let d2 = te(i2.headers);
-          return { cacheControl: d2["cache-control"], contentType: d2["content-type"], etag: d2.etag, headers: d2 };
-        } catch (i2) {
-          throw i2 instanceof h2 ? i2 : new h2(0, t2.buildErrorDetail("HEAD", s2, c2, v2(i2)));
-        }
-      }
-      async deleteObject(e2, n2) {
-        let r2 = await this.resolveDomain("strong"), s2 = await this.resolveCredential(), o2 = this.buildCosKey(e2, n2);
-        try {
-          let c2 = await P2({ domain: r2, method: "DELETE", key: o2, credential: s2 });
-          if (c2.status === 204 || c2.status === 404 || c2.ok) {
-            await c2.arrayBuffer().catch(() => {
-            });
-            return;
-          }
-          let i2 = await A2(c2);
-          throw new h2(c2.status, t2.buildErrorDetail("DELETE", r2, o2, i2 || `status ${c2.status}`, R(c2)));
-        } catch (c2) {
-          throw c2 instanceof h2 ? c2 : new h2(0, t2.buildErrorDetail("DELETE", r2, o2, v2(c2)));
-        }
-      }
-      async listObjects(e2, n2) {
-        await this.ensureInitialized();
-        let r2 = `${this.keyPrefix}/${e2}/`, s2 = n2?.prefix ? r2 + n2.prefix : r2, o2 = await this.getBucketRaw({ prefix: s2, delimiter: n2?.delimiter, marker: n2?.marker, maxKeys: n2?.maxKeys, consistency: n2?.consistency }), c2 = o2.contents.map((d2) => {
-          let a2 = d2.key, l2 = a2.startsWith(r2) ? a2.slice(r2.length) : a2;
-          return l2 ? { key: l2, etag: d2.etag } : null;
-        }).filter((d2) => d2 !== null), i2 = o2.commonPrefixes.map((d2) => d2.startsWith(r2) ? d2.slice(r2.length) : d2).filter((d2) => !!d2);
-        return { contents: c2, commonPrefixes: i2, isTruncated: o2.isTruncated, nextMarker: o2.nextMarker };
-      }
-      async listStores(e2) {
-        let n2 = [], r2 = "", s2 = true;
-        for (; s2; ) {
-          await this.ensureInitialized();
-          let o2 = `${this.keyPrefix}/`, c2 = await this.getBucketRaw({ prefix: o2, delimiter: "/", maxKeys: 1e3, marker: r2 || void 0, consistency: e2 });
-          for (let i2 of c2.commonPrefixes) {
-            let d2 = i2.startsWith(o2) ? i2.slice(o2.length, -1) : i2.slice(0, -1);
-            d2 && n2.push(d2);
-          }
-          if (s2 = c2.isTruncated, r2 = c2.nextMarker, !s2 || !r2) break;
-        }
-        return n2;
-      }
-      async getBucketRaw(e2) {
-        let n2 = await this.resolveDomain(e2.consistency), r2 = await this.resolveCredential(), s2 = { prefix: k2(e2.prefix) };
-        e2.delimiter && (s2.delimiter = e2.delimiter), e2.marker && (s2.marker = k2(e2.marker)), e2.maxKeys && (s2["max-keys"] = e2.maxKeys);
-        try {
-          let o2 = await P2({ domain: n2, method: "GET", query: s2, credential: r2 });
-          if (!o2.ok) {
-            let i2 = await A2(o2);
-            throw new h2(o2.status, t2.buildErrorDetail("LIST", n2, e2.prefix, i2 || `status ${o2.status}`, R(o2)));
-          }
-          let c2 = await o2.text();
-          return Re(c2);
-        } catch (o2) {
-          throw o2 instanceof h2 ? o2 : new h2(0, t2.buildErrorDetail("LIST", n2, e2.prefix, v2(o2)));
-        }
-      }
-    };
-    function ee(t2) {
-      if (t2.writeAllowed === false) throw new x2({ reason: t2.writeDeniedReason, overMetrics: t2.overMetrics });
-    }
-    function Ae(t2) {
-      return t2.replace(/[a-zA-Z0-9\-]+\.cos\.[a-zA-Z0-9\-.]+\.myqcloud\.com/gi, "[cos-origin]").replace(/[a-zA-Z0-9\-]+\.cos\.[a-zA-Z0-9\-.]+\.tencentcos\.cn/gi, "[cos-origin]");
-    }
-    async function A2(t2) {
-      try {
-        return await t2.text();
-      } catch {
-        return "";
-      }
-    }
-    function R(t2) {
-      return t2.headers.get("x-cos-request-id") || t2.headers.get("x-eo-log-id") || void 0;
-    }
-    function v2(t2) {
-      let e2 = t2, n2 = e2.message || String(t2), r2 = e2.cause;
-      if (r2) {
-        let s2 = r2.message || r2.code || "";
-        return s2 ? `${n2} (${s2})` : n2;
-      }
-      return n2;
-    }
-    function te(t2) {
-      let e2 = {};
-      return t2.forEach((n2, r2) => {
-        e2[r2.toLowerCase()] = n2;
-      }), e2;
-    }
-    function Re(t2) {
-      let e2 = [], n2 = /<Contents>([\s\S]*?)<\/Contents>/g, r2;
-      for (; (r2 = n2.exec(t2)) !== null; ) {
-        let a2 = r2[1], l2 = M2(a2, "Key"), g2 = M2(a2, "ETag");
-        l2 !== null && e2.push({ key: q(l2), etag: g2 || "" });
-      }
-      let s2 = [], o2 = /<CommonPrefixes>([\s\S]*?)<\/CommonPrefixes>/g;
-      for (; (r2 = o2.exec(t2)) !== null; ) {
-        let a2 = r2[1], l2 = M2(a2, "Prefix");
-        l2 !== null && s2.push(q(l2));
-      }
-      let i2 = M2(t2, "IsTruncated") === "true", d2 = M2(t2, "NextMarker") || "";
-      return { contents: e2, commonPrefixes: s2, isTruncated: i2, nextMarker: q(d2) };
-    }
-    function M2(t2, e2) {
-      let r2 = new RegExp(`<${e2}>([\\s\\S]*?)<\\/${e2}>`).exec(t2);
-      return r2 ? r2[1] : null;
-    }
-    function q(t2) {
-      return t2.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
-    }
-    var ve = "X-RateLimit-Reset";
-    async function $2(t2, e2, n2 = 2) {
-      e2.signal?.throwIfAborted?.();
-      try {
-        let r2 = await fetch(t2, e2);
-        if (n2 > 0 && (r2.status === 429 || r2.status >= 500)) {
-          let s2 = ne(r2.headers.get(ve));
-          return await re(s2, e2.signal), $2(t2, e2, n2 - 1);
-        }
-        return r2;
-      } catch (r2) {
-        if (n2 === 0 || r2 instanceof DOMException && r2.name === "AbortError") throw r2;
-        let s2 = ne();
-        return await re(s2, e2.signal), $2(t2, e2, n2 - 1);
-      }
-    }
-    function ne(t2) {
-      return t2 ? Math.max(Number(t2) * 1e3 - Date.now(), 500) : 1500;
-    }
-    function re(t2, e2) {
-      return new Promise((n2, r2) => {
-        if (e2?.aborted) return r2(e2.reason);
-        let s2 = setTimeout(() => {
-          e2?.removeEventListener("abort", o2), n2();
-        }, t2), o2 = () => {
-          clearTimeout(s2), r2(e2.reason);
-        };
-        e2?.addEventListener("abort", o2, { once: true });
-      });
-    }
-    var Me = "prod";
-    function se() {
-      let t2 = typeof process < "u" ? process.env.PAGES_BLOB_STS_ENV : void 0;
-      return t2 === "test" || t2 === "prod" ? t2 : Me;
-    }
-    var De = 300;
-    var Oe = 6e4;
-    var Be = "https://blob-sts.edgeone.site/";
-    var O = class {
-      authToken;
-      projectId;
-      cached = null;
-      lastForcedRefreshAt = 0;
-      constructor(e2, n2) {
-        this.authToken = e2, this.projectId = n2;
-      }
-      async getCredential() {
-        if (this.cached && !this.isExpired(this.cached)) return this.cached;
-        let e2 = await this.fetchCredential();
-        return this.cached = e2, e2;
-      }
-      async refreshCredential() {
-        if (this.cached && Date.now() - this.lastForcedRefreshAt < Oe) return this.cached;
-        this.lastForcedRefreshAt = Date.now();
-        let e2 = await this.fetchCredential(true);
-        return this.cached = e2, e2;
-      }
-      clearCache() {
-        this.cached = null;
-      }
-      isExpired(e2) {
-        let n2 = Math.floor(Date.now() / 1e3);
-        return e2.expiredTime - n2 < De;
-      }
-      async fetchCredential(e2 = false) {
-        for (let s2 = 1; s2 <= 3; s2++) {
-          let o2 = new AbortController(), c2 = setTimeout(() => o2.abort(), 1e4), i2;
-          try {
-            i2 = await $2(Be, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.authToken}`, "X-Env": se(), ...e2 ? { "X-SKIP-CACHE": "true" } : {} }, body: JSON.stringify(this.projectId ? { ProjectId: this.projectId } : {}), signal: o2.signal });
-          } catch (l2) {
-            if (s2 < 3) {
-              await z2(500 * s2);
-              continue;
-            }
-            throw new y2(`failed to obtain STS credential: ${l2.message || "timeout"}`);
-          } finally {
-            clearTimeout(c2);
-          }
-          if (i2.status === 413) throw new y2("storage quota exceeded");
-          if (i2.status === 429) throw new y2("rate limited, please retry later");
-          if (!i2.ok) {
-            if (i2.status >= 500 && s2 < 3) {
-              await z2(500 * s2);
-              continue;
-            }
-            let l2 = await i2.text().catch(() => "unknown error");
-            throw new y2(`failed to obtain STS credential: ${i2.status} ${l2}`);
-          }
-          let d2 = await i2.json(), a2 = d2.data && typeof d2.data == "object" ? d2.data : d2;
-          if (a2.tmpSecretId && a2.tmpSecretKey && a2.sessionToken && a2.expiredTime) {
-            let l2 = a2.cosMainland, g2 = a2.cosOverseas, u2 = i2.headers.get("X-Edge-Region") || void 0;
-            return { tmpSecretId: a2.tmpSecretId, tmpSecretKey: a2.tmpSecretKey, sessionToken: a2.sessionToken, expiredTime: a2.expiredTime, appId: a2.appId || void 0, zoneId: a2.zoneId || void 0, projectId: a2.projectId || void 0, resourcePrefix: a2.resourcePrefix || void 0, cosMainland: l2 || void 0, cosOverseas: g2 || void 0, edgeRegion: u2, defaultCacheControl: typeof a2.defaultCacheControl == "string" && a2.defaultCacheControl ? a2.defaultCacheControl : void 0, cachedDomain: ie(a2.cachedDomain), uncachedDomain: ie(a2.uncachedDomain), writeAllowed: typeof a2.writeAllowed == "boolean" ? a2.writeAllowed : void 0, writeDeniedReason: typeof a2.writeDeniedReason == "string" && a2.writeDeniedReason ? a2.writeDeniedReason : void 0, overMetrics: Array.isArray(a2.overMetrics) ? a2.overMetrics.filter((f2) => typeof f2 == "string") : void 0 };
-          }
-          if (a2.code !== void 0 && a2.code !== 0) {
-            let l2 = a2.msg || a2.message || "unknown error";
-            throw new y2(`credential exchange failed (code=${a2.code}): ${l2}`);
-          }
-          if (d2.code !== void 0 && d2.code !== 0) {
-            let l2 = d2.msg || d2.message || "unknown error";
-            throw new y2(`credential exchange failed (code=${d2.code}): ${l2}`);
-          }
-          if (s2 < 3) {
-            await z2(500 * s2);
-            continue;
-          }
-          throw new y2("invalid STS credential response");
-        }
-        throw new y2("invalid STS credential response");
-      }
-    };
-    function ie(t2) {
-      if (typeof t2 != "string") return;
-      let e2 = t2.trim().replace(/\/+$/, "");
-      if (e2) return /^https?:\/\//i.test(e2) ? e2 : `https://${e2}`;
-    }
-    function z2(t2) {
-      return new Promise((e2) => setTimeout(e2, t2));
-    }
-    var je = "{{PAGES_BLOB_DEPLOY_CREDENTIAL}}";
-    function ae() {
-      let t2 = {}, e2 = $e();
-      if (e2) t2.deployCredential = e2;
-      else {
-        let r2 = oe("PAGES_BLOB_DEPLOY_CREDENTIAL");
-        r2 && (t2.deployCredential = r2);
-      }
-      let n2 = oe("PAGES_PROJECT_ID");
-      return n2 && (t2.projectId = n2), t2;
-    }
-    function $e() {
-      let t2 = je;
-      if (!(t2.startsWith("{{") && t2.endsWith("}}"))) return t2 || void 0;
-    }
-    function oe(t2) {
-      if (typeof process < "u" && process.env) return process.env[t2];
-    }
-    function _e(t2) {
-      let e2 = typeof t2 == "string" ? t2 : t2.name;
-      F(e2);
-      let n2 = ce(typeof t2 == "string" ? void 0 : t2), r2 = new O(n2.authToken, n2.projectId), s2 = new D2(r2);
-      return new T2(s2, e2, n2.consistency ?? "eventual");
-    }
-    async function Ne(t2) {
-      let e2 = ce(t2 ? { name: "__list__", projectId: t2.projectId, token: t2.token, consistency: t2.consistency } : void 0), n2 = new O(e2.authToken, e2.projectId);
-      return { stores: (await new D2(n2).listStores(e2.consistency)).map((o2) => ({ name: o2 })) };
-    }
-    function ce(t2) {
-      let e2 = ae(), n2 = t2?.token || e2.deployCredential, r2 = t2?.projectId || e2.projectId;
-      if (t2?.token || e2.projectId) {
-        if (!r2) throw new S2();
-        if (!n2) throw new E2(["token"]);
-        return { authToken: n2, projectId: r2, consistency: t2?.consistency };
-      }
-      if (t2?.projectId && !n2) throw new E2(["token"]);
-      if (!e2.deployCredential) throw new E2(["deployCredential"]);
-      return { authToken: e2.deployCredential, consistency: t2?.consistency };
-    }
-  }
-});
-
 // node_modules/hono/dist/http-exception.js
 var HTTPException = class extends Error {
   res;
@@ -43874,29 +43863,6 @@ function clientRemoteAddress(c2) {
 
 // upstream/animaku/apps/server/src/lib/logger.ts
 init_config();
-import { randomBytes } from "node:crypto";
-var CLIENT_REQ_ID_REGEX = /^[A-Za-z0-9_-]{8,64}$/;
-function resolveRequestId(incoming) {
-  if (incoming) {
-    const trimmed = incoming.trim();
-    if (CLIENT_REQ_ID_REGEX.test(trimmed)) {
-      return trimmed;
-    }
-  }
-  return randomBytes(4).toString("hex");
-}
-var LOG_LEVEL_WEIGHT = {
-  debug: 10,
-  info: 20,
-  warn: 30,
-  error: 40,
-  silent: 99
-};
-function isLogLevelEnabled(level, currentLevel = config.logLevel) {
-  const currentWeight = LOG_LEVEL_WEIGHT[currentLevel] ?? 20;
-  const targetWeight = LOG_LEVEL_WEIGHT[level] ?? 20;
-  return targetWeight >= currentWeight;
-}
 var UA_CACHE_LIMIT = 300;
 var uaCache = /* @__PURE__ */ new Map();
 function parseClientDevice(ua, platformVersionHeader) {
@@ -44244,7 +44210,6 @@ function formatPrettyParams(params) {
 }
 function formatPrettyLog(record) {
   const timeStr = `[${record.time}]`;
-  const reqIdStr = record.reqId ? ` ${ANSI.gray}[${record.reqId}]${ANSI.reset}` : "";
   const levelStr = colorLevel(record.level);
   const ipStr = `${ANSI.gray}[${record.ip}]${ANSI.reset}`;
   const countryStr = record.country ? ` ${ANSI.blue}[${record.country}]${ANSI.reset}` : "";
@@ -44270,7 +44235,7 @@ function formatPrettyLog(record) {
   const sizeStr = record.bytes ? `, ${formatBytes(record.bytes)}` : "";
   const perfStr = `(${durationStr}${sizeStr})`;
   const errStr = record.error ? ` ${ANSI.red}- "${record.error}"${ANSI.reset}` : "";
-  return `${timeStr}${reqIdStr} ${levelStr} ${ipStr}${countryStr} ${deviceStr} ${methodStr} ${pathStr}${paramsStr}${cacheStr} -> ${statusStr} ${perfStr}${errStr}`;
+  return `${timeStr} ${levelStr} ${ipStr}${countryStr} ${deviceStr} ${methodStr} ${pathStr}${paramsStr}${cacheStr} -> ${statusStr} ${perfStr}${errStr}`;
 }
 function formatJsonLog(record) {
   return JSON.stringify(record);
@@ -44289,10 +44254,8 @@ function accessLogger() {
     const path2 = c2.req.path;
     const method = c2.req.method;
     const ip = getClientIp(c2.req);
-    const reqId = resolveRequestId(c2.req.header("x-request-id"));
     const isMediaProxy = path2.startsWith("/api/media/proxy");
     const isHealthCheck = path2 === "/api/health" || path2 === "/api/health/";
-    const isPingCheck = path2 === "/api/stats/ping" || path2 === "/api/stats/ping/" || path2 === "/api/stats/active" || path2 === "/api/stats/active/";
     const isStaticAsset = isStaticAssetPath(path2);
     const ua = c2.req.header("user-agent");
     const platformVer = c2.req.header("sec-ch-ua-platform-version");
@@ -44313,16 +44276,7 @@ function accessLogger() {
     } finally {
       const elapsed = Date.now() - start;
       const status = c2.res ? c2.res.status : caughtError ? 500 : 200;
-      if (c2.res) {
-        try {
-          c2.res.headers.set("x-request-id", reqId);
-        } catch {
-        }
-      }
       if (isHealthCheck && status === 200) {
-        return;
-      }
-      if (isPingCheck && status < 400) {
         return;
       }
       if (isMediaProxy && status < 400) {
@@ -44333,9 +44287,6 @@ function accessLogger() {
       }
       const timeStr = formatLogTimestamp();
       const level = status >= 500 ? "error" : status >= 400 ? "warn" : "info";
-      if (!isLogLevelEnabled(level)) {
-        return;
-      }
       const xCacheHeader = c2.res?.headers.get("x-cache")?.toUpperCase();
       let cacheStatus = "NONE";
       if (xCacheHeader?.includes("HIT")) {
@@ -44349,7 +44300,6 @@ function accessLogger() {
       const bytes = contentLengthHeader ? Number(contentLengthHeader) : void 0;
       const record = {
         time: timeStr,
-        reqId,
         level,
         ip,
         country,
@@ -44410,11 +44360,11 @@ function resolveIp(c2) {
 function isHealthCheckPath(path2) {
   return path2 === "/api/health" || path2 === "/api/health/" || path2 === "/health" || path2 === "/health/";
 }
-function checkWindowLimit(store3, ip, limit, now) {
-  let bucket = store3.get(ip);
+function checkWindowLimit(store4, ip, limit, now) {
+  let bucket = store4.get(ip);
   if (!bucket || now - bucket.windowStart >= 1e3) {
     bucket = { count: 1, windowStart: now };
-    store3.set(ip, bucket);
+    store4.set(ip, bucket);
     return { allowed: true, remaining: limit - 1 };
   }
   bucket.count += 1;
@@ -45962,6 +45912,106 @@ danmuboxRoutes.get("/danmubox/comments", (c2) => {
   );
 });
 
+// runtime/rules-store.ts
+var import_pages_blob = __toESM(require_dist(), 1);
+var STORE = { name: "animaku-rules", consistency: "strong" };
+var GITHUB_RAW = "https://raw.githubusercontent.com/uerax/Animaku/master/apps/web/src/data/default-plugins";
+var TTL_MS = 60 * 60 * 1e3;
+var memCache = null;
+function store3() {
+  return (0, import_pages_blob.getStore)(STORE);
+}
+async function loadRules() {
+  const now = Date.now();
+  if (memCache && now - memCache.at < TTL_MS) return memCache.rules;
+  try {
+    const doc = await store3().get("rules.json", { type: "json" });
+    if (doc && doc.rules && now - doc.at < TTL_MS * 24) {
+      memCache = { rules: doc.rules, at: doc.at };
+      if (now - doc.at > TTL_MS) void refreshRules();
+      return doc.rules;
+    }
+  } catch (e2) {
+    console.warn("[rules] blob read failed:", e2.message);
+  }
+  const rules = await refreshRules();
+  return rules;
+}
+async function refreshRules() {
+  const names = [
+    "cycani",
+    "tvtfun",
+    "animoe",
+    "akianime",
+    "huazi",
+    "jzacg",
+    "moonci",
+    "mifun",
+    "girigiri",
+    "lzizy",
+    "xifan-next",
+    "bimi",
+    "anime1",
+    "neosek",
+    "sorani",
+    "mxdm",
+    "omofun"
+  ];
+  const rules = {};
+  await Promise.all(names.map(async (n2) => {
+    try {
+      const res = await fetch(`${GITHUB_RAW}/${n2}.json`);
+      if (res.ok) {
+        const rule = await res.json();
+        rules[n2] = rule;
+        if (typeof rule.name === "string") rules[rule.name.toLowerCase()] = rule;
+      }
+    } catch (e2) {
+      console.warn(`[rules] fetch ${n2} failed:`, e2.message);
+    }
+  }));
+  if (Object.keys(rules).length) {
+    memCache = { rules, at: Date.now() };
+    try {
+      await store3().setJSON("rules.json", { at: Date.now(), rules });
+    } catch (e2) {
+      console.warn("[rules] blob write failed:", e2.message);
+    }
+  }
+  return rules;
+}
+async function debugRules() {
+  try {
+    const doc = await store3().get("rules.json", { type: "json" });
+    if (!doc || !doc.rules) return { ok: false, reason: "no_blob" };
+    const names = Object.keys(doc.rules).filter((k2) => !doc.rules[k2]._index);
+    return {
+      ok: true,
+      updatedAt: doc.at,
+      ageMs: Date.now() - doc.at,
+      ruleCount: names.length,
+      names: names.slice(0, 30),
+      sample: doc.rules["bimi"] || doc.rules[names[0]]
+    };
+  } catch (e2) {
+    return { ok: false, reason: e2.message };
+  }
+}
+async function resolveRuleFromStore(raw2) {
+  const incoming = raw2 && typeof raw2 === "object" ? raw2 : {};
+  const name2 = String(incoming.name || incoming.id || "").toLowerCase();
+  try {
+    const rules = await loadRules();
+    const fresh = name2 ? rules[name2] : null;
+    if (fresh && Object.keys(fresh).length) {
+      return { ...fresh };
+    }
+  } catch (e2) {
+    console.warn("[rules] resolve fallback to incoming:", e2.message);
+  }
+  return incoming;
+}
+
 // upstream/animaku/apps/server/src/routes/plugin.ts
 init_src();
 
@@ -46081,7 +46131,7 @@ function isReleaseRule(rule) {
 init_opencc_s2t();
 
 // upstream/animaku/apps/server/src/lib/media/playback-registry.ts
-import { randomBytes as randomBytes3 } from "node:crypto";
+import { randomBytes as randomBytes2 } from "node:crypto";
 
 // upstream/animaku/apps/server/src/lib/media/playback-types.ts
 var PLAYBACK_TICKET_AUDIENCE = "media";
@@ -46089,7 +46139,7 @@ var PLAYBACK_TICKET_AUDIENCE = "media";
 // upstream/animaku/apps/server/src/lib/media/ticket-codec.ts
 init_config();
 import {
-  randomBytes as randomBytes2,
+  randomBytes,
   createCipheriv,
   createDecipheriv,
   createHash as createHash4
@@ -46128,7 +46178,7 @@ function getDefaultMediaKey() {
   if (configuredSecret) {
     resolvedKey = deriveKey(configuredSecret);
   } else {
-    resolvedKey = randomBytes2(32);
+    resolvedKey = randomBytes(32);
   }
   try {
     kvCache.set(SYSTEM_KEY_NAMESPACE, MASTER_KEY_KV_KEY, resolvedKey.toString("hex"));
@@ -46205,7 +46255,7 @@ function encryptTicketPayload(payload, key = getDefaultMediaKey()) {
     ...payload,
     sub: pathCheck.normalized
   });
-  const iv = randomBytes2(IV_LENGTH);
+  const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const ciphertext = Buffer.concat([
     cipher.update(payloadString, "utf8"),
@@ -46298,7 +46348,7 @@ function decryptTicketPayload(token, key = getDefaultMediaKey()) {
 }
 function encryptCredentials(credentials, key = getDefaultMediaKey()) {
   const plainText = typeof credentials === "string" ? credentials : JSON.stringify(credentials);
-  const iv = randomBytes2(IV_LENGTH);
+  const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const ciphertext = Buffer.concat([
     cipher.update(plainText, "utf8"),
@@ -46425,7 +46475,7 @@ var PlaybackRegistry = class {
     this.maybeCleanup(now);
     const ttlMs = input.ttlMs && input.ttlMs > 0 ? input.ttlMs : DEFAULT_ASSET_TTL_MS;
     const expiresAt = now + ttlMs;
-    const assetId = `ast_${randomBytes3(12).toString("hex")}`;
+    const assetId = `ast_${randomBytes2(12).toString("hex")}`;
     let encryptedCredentials;
     if (input.credentials) {
       encryptedCredentials = encryptCredentials(input.credentials, this.key);
@@ -46573,7 +46623,7 @@ var PlaybackRegistry = class {
           ttlSec = Math.min(DEFAULT_PLAYLIST_TTL_SEC, assetRemainingSec);
       }
     }
-    const jti = `jti_${randomBytes3(12).toString("hex")}`;
+    const jti = `jti_${randomBytes2(12).toString("hex")}`;
     const payload = {
       v: 1,
       aud: PLAYBACK_TICKET_AUDIENCE,
@@ -48492,7 +48542,6 @@ var PluginCircuitBreaker = class {
         };
       }
       state.halfOpenProbing = true;
-      console.log(`[circuit-breaker] \u6E90\u7AD9 [${key}] \u51B7\u5374\u671F\u6EE1\uFF0C\u653E\u884C\u5355\u98DE\u8BF7\u6C42\u8FDB\u884C\u63A2\u6D3B\u6D4B\u8BD5`);
       return { allowed: true };
     }
     return { allowed: true };
@@ -48502,10 +48551,6 @@ var PluginCircuitBreaker = class {
    */
   recordSuccess(pluginName) {
     const key = this.normalizeKey(pluginName);
-    const state = this.states.get(key);
-    if (state && (state.trippedUntil > 0 || state.failureCount > 0)) {
-      console.log(`[circuit-breaker] \u6E90\u7AD9 [${key}] \u63A2\u6D3B/\u8BBF\u95EE\u6210\u529F\uFF0C\u7194\u65AD\u5DF2\u89E3\u9664\uFF0C\u6062\u590D\u6B63\u5E38\u670D\u52A1`);
-    }
     this.states.delete(key);
   }
   /**
@@ -48532,9 +48577,6 @@ var PluginCircuitBreaker = class {
       state.lastFailureTime = now;
       state.failureCount++;
       this.states.set(key, state);
-      console.warn(
-        `[circuit-breaker] \u6E90\u7AD9 [${key}] \u534A\u5F00\u63A2\u6D3B\u5931\u8D25\uFF0C\u91CD\u65B0\u8FDB\u5165\u7194\u65AD\u51B7\u5374 (${BREAKER_CONFIG.COOLDOWN_MS / 1e3}s): ${errorMsg}`
-      );
       return;
     }
     if (now - state.lastFailureTime <= BREAKER_CONFIG.FAILURE_WINDOW_MS) {
@@ -48547,10 +48589,6 @@ var PluginCircuitBreaker = class {
     if (shouldTrip) {
       state.trippedUntil = now + BREAKER_CONFIG.COOLDOWN_MS;
       state.halfOpenProbing = false;
-      const reason = isHard ? "\u7F51\u7EDC\u786C\u6545\u969C (\u8FDE\u63A5\u62D2\u7EDD/DNS\u89E3\u6790\u5931\u8D25)" : `\u8FDE\u7EED ${state.failureCount} \u6B21\u8D85\u65F6`;
-      console.warn(
-        `[circuit-breaker] \u6E90\u7AD9 [${key}] ${reason}\uFF0C\u89E6\u53D1\u7194\u65AD\u4FDD\u62A4\uFF0C\u8FDB\u5165\u51B7\u5374 (${BREAKER_CONFIG.COOLDOWN_MS / 1e3}s)`
-      );
     }
     this.states.set(key, state);
   }
@@ -48775,8 +48813,8 @@ function errStatus(message) {
 function cacheHeaders2(hit) {
   return { "X-Cache": hit ? "HIT" : "MISS" };
 }
-function parseRuleOrThrow(raw2) {
-  return parsePluginRule(raw2);
+async function parseRuleOrThrow(raw2) {
+  return parsePluginRule(await resolveRuleFromStore(raw2));
 }
 pluginRoutes.post("/validate", async (c2) => {
   const body = await c2.req.json();
@@ -48797,7 +48835,7 @@ pluginRoutes.post("/search", async (c2) => {
   }
   let rule;
   try {
-    rule = parseRuleOrThrow(body.rule);
+    rule = await parseRuleOrThrow(body.rule);
   } catch (e2) {
     return c2.json(
       { error: "bad_request", message: e2 instanceof Error ? e2.message : "\u89C4\u5219\u65E0\u6548" },
@@ -48849,7 +48887,7 @@ pluginRoutes.post("/chapters", async (c2) => {
   }
   let rule;
   try {
-    rule = parseRuleOrThrow(body.rule);
+    rule = await parseRuleOrThrow(body.rule);
   } catch (e2) {
     return c2.json(
       { error: "bad_request", message: e2 instanceof Error ? e2.message : "\u89C4\u5219\u65E0\u6548" },
@@ -48901,7 +48939,7 @@ pluginRoutes.post("/resolve", async (c2) => {
   }
   let rule;
   try {
-    rule = parseRuleOrThrow(body.rule);
+    rule = await parseRuleOrThrow(body.rule);
   } catch (e2) {
     return c2.json(
       { error: "bad_request", message: e2 instanceof Error ? e2.message : "\u89C4\u5219\u65E0\u6548" },
@@ -51768,8 +51806,8 @@ adminSiteRoutes.delete("/site/highlights/:placement", (c2) => {
 });
 
 // runtime/analytics.ts
-var import_pages_blob = __toESM(require_dist(), 1);
-var STORE = { name: "animaku-analytics", consistency: "strong" };
+var import_pages_blob2 = __toESM(require_dist(), 1);
+var STORE2 = { name: "animaku-analytics", consistency: "strong" };
 var FIELDS = ["utm_source", "entry", "fromPage", "toPage", "subjectId", "did", "ts"];
 var MAX_BODY = 32 * 1024;
 function sanitize(v2, maxLen = 128) {
@@ -51793,7 +51831,7 @@ analyticsRoutes.post("/track", async (c2) => {
   if (events.length === 0 || events.length > 100) {
     return c2.json({ error: "bad_count" }, 400);
   }
-  const store3 = (0, import_pages_blob.getStore)(STORE);
+  const store4 = (0, import_pages_blob2.getStore)(STORE2);
   const now = Date.now();
   let written = 0;
   for (let i2 = 0; i2 < events.length; i2++) {
@@ -51806,7 +51844,7 @@ analyticsRoutes.post("/track", async (c2) => {
     if (!clean.utm_source) clean.utm_source = "(direct)";
     const key = `events/${now}-${i2}-${Math.floor(Math.random() * 1e6)}.json`;
     try {
-      await store3.setJSON(key, clean);
+      await store4.setJSON(key, clean);
       written++;
     } catch (err) {
       console.error("[track] write failed:", err);
@@ -51824,15 +51862,15 @@ analyticsRoutes.options("/track", (c2) => {
 analyticsRoutes.get("/stats", async (c2) => {
   const since = Number(c2.req.query("since") || 0);
   const limit = Math.min(Number(c2.req.query("limit") || 5e3), 2e4);
-  let store3;
+  let store4;
   try {
-    store3 = (0, import_pages_blob.getStore)(STORE);
+    store4 = (0, import_pages_blob2.getStore)(STORE2);
   } catch (e2) {
     return c2.json({ error: "store_unavailable", message: String(e2.message || e2) }, 500);
   }
   let keys = [];
   try {
-    const listed = await store3.list({ prefix: "events/" });
+    const listed = await store4.list({ prefix: "events/" });
     const arr = listed.blobs || [];
     keys = arr.map((b2) => b2.key).filter(Boolean);
   } catch (e2) {
@@ -51845,7 +51883,7 @@ analyticsRoutes.get("/stats", async (c2) => {
   for (const key of recent) {
     let ev;
     try {
-      ev = await store3.get(key, { type: "json" });
+      ev = await store4.get(key, { type: "json" });
     } catch {
       continue;
     }
@@ -51920,6 +51958,7 @@ app.get(
     ts: Date.now()
   })
 );
+app.get("/api/__rules", async (c2) => c2.json(await debugRules()));
 app.route("/api", analyticsRoutes);
 app.route("/api/bangumi", bangumiRoutes);
 app.route("/api/danmaku", danmakuRoutes);

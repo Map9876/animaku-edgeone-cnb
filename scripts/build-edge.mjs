@@ -21,6 +21,30 @@ const privateHostEdgeSrc = readFileSync(privateHostEdge, 'utf8')
 const outboundProxyEdge = path.join(root, 'runtime/outbound-proxy-edge.ts')
 const outboundProxyEdgeSrc = readFileSync(outboundProxyEdge, 'utf8')
 const undiciStub = path.join(root, 'runtime/undici-edge-stub.ts')
+const rulesStore = path.join(root, 'runtime/rules-store.ts')
+
+// 规则自更新：把 plugin.ts 的 parseRuleOrThrow 改成 async，优先用 Blob/GitHub 最新规则。
+// 构建期源码文本替换，不改上游 submodule 文件（单行 import + 函数签名 + 3 处 await）。
+const injectRuleStore = {
+  name: 'inject-rule-store',
+  setup(b) {
+    b.onLoad({ filter: /routes[\\/]plugin\.ts$/ }, (args) => {
+      let src = readFileSync(args.path, 'utf8')
+      if (!src.includes('resolveRuleFromStore')) {
+        src = src.replace(
+          "import { Hono } from 'hono'",
+          "import { Hono } from 'hono'\nimport { resolveRuleFromStore } from '@rules-store'",
+        )
+        src = src.replace(
+          /function parseRuleOrThrow\(raw: unknown\): PluginRule \{\s*return parsePluginRule\(raw\)\s*\}/,
+          "async function parseRuleOrThrow(raw: unknown): Promise<PluginRule> { return parsePluginRule(await resolveRuleFromStore(raw)) }",
+        )
+        src = src.replace(/rule = parseRuleOrThrow\(body\.rule\)/g, 'rule = await parseRuleOrThrow(body.rule)')
+      }
+      return { contents: src, loader: 'ts', resolveDir: path.dirname(args.path) }
+    })
+  },
+}
 
 // 用原生 fetch 版替换 private-host.ts / outbound-proxy.ts（undici 在 EdgeOne 生产 bundle 下
 // 顶层加载即崩溃：decompress.js "reading 'bind'"）。彻底切断 undici 依赖。
@@ -56,7 +80,7 @@ await build({
   // 源码在 upstream/animaku/，但依赖装在我们的 node_modules，
   // 让 esbuild 从项目根解析 bare import
   nodePaths: [path.join(root, 'node_modules')],
-  plugins: [replaceUndiciModules],
+  plugins: [replaceUndiciModules, injectRuleStore],
   alias: {
     'node:sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
     'sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
@@ -64,6 +88,7 @@ await build({
     // cheerio 顶层 import undici，真实 undici 的 CJS 在 EdgeOne 生产 bundle 下崩。
     // Animaku 只用 cheerio.load()，从不调 fromURL，stub 掉 undici 即可。
     'undici': undiciStub,
+    '@rules-store': rulesStore,
     // sharp 原生模块（libvips）在 EdgeOne 云构建下无 linux-x64 二进制，加载即崩。
     // 只用于管理后台生成 favicon，非核心链路，stub 掉保证函数不崩。
     'sharp': path.join(root, 'runtime/sharp-edge-stub.ts'),
