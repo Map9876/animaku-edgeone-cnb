@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Animaku full-stack port to EdgeOne Pages Functions (Node runtime) + inject layer",
   "scripts": {
-    "build": "node scripts/build-edge.mjs",
+    "build": "node scripts/build-edge.mjs && node scripts/build-resolvers.mjs",
     "dev": "edgeone makers dev -n animaku-edgeone --skip-env-sync --skip-ai-gateway-sync",
     "deploy": "edgeone makers deploy . -n animaku-edgeone -e production"
   },

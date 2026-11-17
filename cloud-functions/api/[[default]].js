@@ -1540,13 +1540,6 @@ function parseSourceProxyMap(env = process.env) {
   }
   return map2;
 }
-function resolveLogLevel() {
-  const raw2 = (process.env.LOG_LEVEL || "info").trim().toLowerCase();
-  if (["debug", "info", "warn", "error", "silent"].includes(raw2)) {
-    return raw2;
-  }
-  return "info";
-}
 var dataDir, appVersion, cleanVersion, timezone, config;
 var init_config = __esm({
   "upstream/animaku/apps/server/src/config.ts"() {
@@ -1634,10 +1627,6 @@ var init_config = __esm({
        * e.g. https://anime.example.com — when empty, robots/sitemap use request Host.
        */
       siteUrl: (process.env.SITE_URL || process.env.PUBLIC_SITE_URL || "").trim().replace(/\/+$/, ""),
-      /**
-       * Server log filtering level: 'debug' | 'info' (default) | 'warn' | 'error' | 'silent'
-       */
-      logLevel: resolveLogLevel(),
       /**
        * Server access log output format: 'pretty' (default human-friendly) | 'json' (structured JSONL for ELK/Loki)
        */
@@ -37109,13 +37098,13 @@ function setVodCache(item) {
   });
 }
 function getVodCache(vodId) {
-  const cached = vodCache.get(vodId);
-  if (!cached) return void 0;
-  if (Date.now() - cached.timestamp > CACHE_TTL_MS) {
+  const cached2 = vodCache.get(vodId);
+  if (!cached2) return void 0;
+  if (Date.now() - cached2.timestamp > CACHE_TTL_MS) {
     vodCache.delete(vodId);
     return void 0;
   }
-  return cached;
+  return cached2;
 }
 function isUsefulVodItem(item) {
   const tid = Number(item.type_id);
@@ -37255,11 +37244,11 @@ function parseLzizyRoads(playFrom, playUrl) {
 async function chaptersLzizy(rule, source) {
   const vodId = extractVodId2(source);
   const diagnostics = [];
-  const cached = getVodCache(vodId);
-  if (cached && cached.vod_play_url) {
+  const cached2 = getVodCache(vodId);
+  if (cached2 && cached2.vod_play_url) {
     const roads = parseLzizyRoads(
-      cached.vod_play_from || "lzm3u8",
-      cached.vod_play_url
+      cached2.vod_play_from || "lzm3u8",
+      cached2.vod_play_url
     );
     if (roads.length > 0) {
       return {
@@ -43217,9 +43206,9 @@ var WatchStatsRepository = class {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     const now = Date.now();
     const cacheKey = `${type}::${safeLimit}`;
-    const cached = this.rankingCache.get(cacheKey);
-    if (cached && now < cached.expiresAt) {
-      return cached.data;
+    const cached2 = this.rankingCache.get(cacheKey);
+    if (cached2 && now < cached2.expiresAt) {
+      return cached2.data;
     }
     if (!isDatabaseActive()) {
       return [];
@@ -43874,29 +43863,6 @@ function clientRemoteAddress(c2) {
 
 // upstream/animaku/apps/server/src/lib/logger.ts
 init_config();
-import { randomBytes } from "node:crypto";
-var CLIENT_REQ_ID_REGEX = /^[A-Za-z0-9_-]{8,64}$/;
-function resolveRequestId(incoming) {
-  if (incoming) {
-    const trimmed = incoming.trim();
-    if (CLIENT_REQ_ID_REGEX.test(trimmed)) {
-      return trimmed;
-    }
-  }
-  return randomBytes(4).toString("hex");
-}
-var LOG_LEVEL_WEIGHT = {
-  debug: 10,
-  info: 20,
-  warn: 30,
-  error: 40,
-  silent: 99
-};
-function isLogLevelEnabled(level, currentLevel = config.logLevel) {
-  const currentWeight = LOG_LEVEL_WEIGHT[currentLevel] ?? 20;
-  const targetWeight = LOG_LEVEL_WEIGHT[level] ?? 20;
-  return targetWeight >= currentWeight;
-}
 var UA_CACHE_LIMIT = 300;
 var uaCache = /* @__PURE__ */ new Map();
 function parseClientDevice(ua, platformVersionHeader) {
@@ -43910,8 +43876,8 @@ function parseClientDevice(ua, platformVersionHeader) {
   }
   const trimmedUa = ua.trim();
   const cacheKey = `${trimmedUa}|${platformVersionHeader || ""}`;
-  const cached = uaCache.get(cacheKey);
-  if (cached) return cached;
+  const cached2 = uaCache.get(cacheKey);
+  if (cached2) return cached2;
   let type = "desktop";
   let os = "Unknown";
   let shortOs = "Unknown";
@@ -44244,7 +44210,6 @@ function formatPrettyParams(params) {
 }
 function formatPrettyLog(record) {
   const timeStr = `[${record.time}]`;
-  const reqIdStr = record.reqId ? ` ${ANSI.gray}[${record.reqId}]${ANSI.reset}` : "";
   const levelStr = colorLevel(record.level);
   const ipStr = `${ANSI.gray}[${record.ip}]${ANSI.reset}`;
   const countryStr = record.country ? ` ${ANSI.blue}[${record.country}]${ANSI.reset}` : "";
@@ -44270,7 +44235,7 @@ function formatPrettyLog(record) {
   const sizeStr = record.bytes ? `, ${formatBytes(record.bytes)}` : "";
   const perfStr = `(${durationStr}${sizeStr})`;
   const errStr = record.error ? ` ${ANSI.red}- "${record.error}"${ANSI.reset}` : "";
-  return `${timeStr}${reqIdStr} ${levelStr} ${ipStr}${countryStr} ${deviceStr} ${methodStr} ${pathStr}${paramsStr}${cacheStr} -> ${statusStr} ${perfStr}${errStr}`;
+  return `${timeStr} ${levelStr} ${ipStr}${countryStr} ${deviceStr} ${methodStr} ${pathStr}${paramsStr}${cacheStr} -> ${statusStr} ${perfStr}${errStr}`;
 }
 function formatJsonLog(record) {
   return JSON.stringify(record);
@@ -44289,10 +44254,8 @@ function accessLogger() {
     const path2 = c2.req.path;
     const method = c2.req.method;
     const ip = getClientIp(c2.req);
-    const reqId = resolveRequestId(c2.req.header("x-request-id"));
     const isMediaProxy = path2.startsWith("/api/media/proxy");
     const isHealthCheck = path2 === "/api/health" || path2 === "/api/health/";
-    const isPingCheck = path2 === "/api/stats/ping" || path2 === "/api/stats/ping/" || path2 === "/api/stats/active" || path2 === "/api/stats/active/";
     const isStaticAsset = isStaticAssetPath(path2);
     const ua = c2.req.header("user-agent");
     const platformVer = c2.req.header("sec-ch-ua-platform-version");
@@ -44313,16 +44276,7 @@ function accessLogger() {
     } finally {
       const elapsed = Date.now() - start;
       const status = c2.res ? c2.res.status : caughtError ? 500 : 200;
-      if (c2.res) {
-        try {
-          c2.res.headers.set("x-request-id", reqId);
-        } catch {
-        }
-      }
       if (isHealthCheck && status === 200) {
-        return;
-      }
-      if (isPingCheck && status < 400) {
         return;
       }
       if (isMediaProxy && status < 400) {
@@ -44333,9 +44287,6 @@ function accessLogger() {
       }
       const timeStr = formatLogTimestamp();
       const level = status >= 500 ? "error" : status >= 400 ? "warn" : "info";
-      if (!isLogLevelEnabled(level)) {
-        return;
-      }
       const xCacheHeader = c2.res?.headers.get("x-cache")?.toUpperCase();
       let cacheStatus = "NONE";
       if (xCacheHeader?.includes("HIT")) {
@@ -44349,7 +44300,6 @@ function accessLogger() {
       const bytes = contentLengthHeader ? Number(contentLengthHeader) : void 0;
       const record = {
         time: timeStr,
-        reqId,
         level,
         ip,
         country,
@@ -44596,8 +44546,8 @@ function tokenFrom(c2) {
 }
 async function getUsernameForToken(token) {
   const cacheKey = `bangumi:token-user:${createHash2("sha256").update(token).digest("hex")}`;
-  const cached = cacheGet(cacheKey);
-  if (cached) return cached;
+  const cached2 = cacheGet(cacheKey);
+  if (cached2) return cached2;
   const meRes = await bangumiFetch(`${BANGUMI_API_URL_BANGUMI}/v0/me`, { token });
   if (!meRes.ok) return null;
   const me = await meRes.json();
@@ -45047,12 +44997,12 @@ async function fetchDanmakuWithGuard(options) {
   const { c: c2, upstreamKey, cacheKey, ttlMs, keyPrefix, loader } = options;
   const wantsBypass = wantsCacheBypass(c2);
   const clientIp = resolveIp(c2);
-  const cached = cacheGet(cacheKey);
+  const cached2 = cacheGet(cacheKey);
   if (wantsBypass) {
     const now = Date.now();
     const lastBypass = danmakuBypassCooldownMap.get(cacheKey) || 0;
-    if (cached !== void 0 && now - lastBypass < DANMAKU_BYPASS_COOLDOWN_MS) {
-      return { value: cached, hit: true, bypassUsed: false };
+    if (cached2 !== void 0 && now - lastBypass < DANMAKU_BYPASS_COOLDOWN_MS) {
+      return { value: cached2, hit: true, bypassUsed: false };
     }
     const rateLimit = checkSourceRateLimit(clientIp, upstreamKey, "danmaku");
     if (!rateLimit.allowed) {
@@ -45066,8 +45016,8 @@ async function fetchDanmakuWithGuard(options) {
     danmakuBypassCooldownMap.set(cacheKey, now);
     cacheDelete(cacheKey);
   } else {
-    if (cached !== void 0) {
-      return { value: cached, hit: true, bypassUsed: false };
+    if (cached2 !== void 0) {
+      return { value: cached2, hit: true, bypassUsed: false };
     }
     const rateLimit = checkSourceRateLimit(clientIp, upstreamKey, "danmaku");
     if (!rateLimit.allowed) {
@@ -46073,6 +46023,85 @@ async function resolveRuleFromStore(raw2) {
   return incoming;
 }
 
+// runtime/parser-loader.ts
+import { createRequire } from "node:module";
+var PARSERS_URL = "/resolvers/parsers.cjs";
+var TTL_MS2 = 10 * 60 * 1e3;
+var cached = null;
+var loading = null;
+var nodeRequire = createRequire(import.meta.url);
+async function loadParsers() {
+  const now = Date.now();
+  if (cached && now - cached.at < TTL_MS2) return cached.mod;
+  if (loading) return loading;
+  loading = (async () => {
+    try {
+      const base = globalThis.__ANIMAKU_ORIGIN__ || "https://anime.map987.dpdns.org";
+      const res = await fetch(new URL(PARSERS_URL, base).toString());
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const code = await res.text();
+      const m2 = { exports: {} };
+      new Function("require", "module", "exports", code)(nodeRequire, m2, m2.exports);
+      cached = { mod: m2.exports, at: now, url: base };
+      console.log(`[parser-loader] loaded ${Object.keys(m2.exports).length} sources`);
+      return m2.exports;
+    } catch (e2) {
+      console.warn("[parser-loader] load failed, will use builtin:", e2.message);
+      return null;
+    } finally {
+      loading = null;
+    }
+  })();
+  return loading;
+}
+function sourceKey(name2) {
+  return name2.toLowerCase().replace(/[^a-z0-9]/g, "_");
+}
+async function getSourceFns(name2) {
+  const mod = await loadParsers();
+  if (!mod) return null;
+  return mod[sourceKey(name2)] || null;
+}
+async function dynamicSearch(rule, keyword) {
+  const fns = await getSourceFns(String(rule?.name || rule?.id || ""));
+  if (!fns) return void 0;
+  const fn2 = Object.values(fns).find((f2) => /^search/i.test(f2.name || "") && typeof f2 === "function");
+  if (!fn2) return void 0;
+  try {
+    return await fn2(rule, keyword);
+  } catch (e2) {
+    console.warn("[parser-loader] dynamic search failed:", e2.message);
+    return void 0;
+  }
+}
+async function dynamicChapters(rule, source) {
+  const fns = await getSourceFns(String(rule?.name || rule?.id || ""));
+  if (!fns) return void 0;
+  const fn2 = Object.values(fns).find((f2) => /^chapters/i.test(f2.name || "") && typeof f2 === "function");
+  if (!fn2) return void 0;
+  try {
+    return await fn2(rule, source);
+  } catch {
+    return void 0;
+  }
+}
+async function dynamicResolve(rule, pageUrl) {
+  const fns = await getSourceFns(String(rule?.name || rule?.id || ""));
+  if (!fns) return void 0;
+  const fn2 = Object.values(fns).find((f2) => /^resolve/i.test(f2.name || "") && typeof f2 === "function");
+  if (!fn2) return void 0;
+  try {
+    return await fn2(rule, pageUrl);
+  } catch {
+    return void 0;
+  }
+}
+async function debugParsers() {
+  const mod = await loadParsers();
+  if (!mod) return { ok: false, reason: "load_failed" };
+  return { ok: true, sources: Object.keys(mod), cachedAt: cached?.at };
+}
+
 // upstream/animaku/apps/server/src/routes/plugin.ts
 init_src();
 
@@ -46148,8 +46177,8 @@ async function resolveReleaseBaseUrl(rule, forceRefresh = false) {
   const cacheKey = `${config2.pageUrl}:${config2.fetchHour || 2}:${config2.domainIndex || 0}`;
   if (forceRefresh) cache.delete(cacheKey);
   else {
-    const cached = cacheGet2(cacheKey);
-    if (cached) return cached;
+    const cached2 = cacheGet2(cacheKey);
+    if (cached2) return cached2;
   }
   const ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
   let html3;
@@ -46192,7 +46221,7 @@ function isReleaseRule(rule) {
 init_opencc_s2t();
 
 // upstream/animaku/apps/server/src/lib/media/playback-registry.ts
-import { randomBytes as randomBytes3 } from "node:crypto";
+import { randomBytes as randomBytes2 } from "node:crypto";
 
 // upstream/animaku/apps/server/src/lib/media/playback-types.ts
 var PLAYBACK_TICKET_AUDIENCE = "media";
@@ -46200,7 +46229,7 @@ var PLAYBACK_TICKET_AUDIENCE = "media";
 // upstream/animaku/apps/server/src/lib/media/ticket-codec.ts
 init_config();
 import {
-  randomBytes as randomBytes2,
+  randomBytes,
   createCipheriv,
   createDecipheriv,
   createHash as createHash4
@@ -46239,7 +46268,7 @@ function getDefaultMediaKey() {
   if (configuredSecret) {
     resolvedKey = deriveKey(configuredSecret);
   } else {
-    resolvedKey = randomBytes2(32);
+    resolvedKey = randomBytes(32);
   }
   try {
     kvCache.set(SYSTEM_KEY_NAMESPACE, MASTER_KEY_KV_KEY, resolvedKey.toString("hex"));
@@ -46316,7 +46345,7 @@ function encryptTicketPayload(payload, key = getDefaultMediaKey()) {
     ...payload,
     sub: pathCheck.normalized
   });
-  const iv = randomBytes2(IV_LENGTH);
+  const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const ciphertext = Buffer.concat([
     cipher.update(payloadString, "utf8"),
@@ -46409,7 +46438,7 @@ function decryptTicketPayload(token, key = getDefaultMediaKey()) {
 }
 function encryptCredentials(credentials, key = getDefaultMediaKey()) {
   const plainText = typeof credentials === "string" ? credentials : JSON.stringify(credentials);
-  const iv = randomBytes2(IV_LENGTH);
+  const iv = randomBytes(IV_LENGTH);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   const ciphertext = Buffer.concat([
     cipher.update(plainText, "utf8"),
@@ -46536,7 +46565,7 @@ var PlaybackRegistry = class {
     this.maybeCleanup(now);
     const ttlMs = input.ttlMs && input.ttlMs > 0 ? input.ttlMs : DEFAULT_ASSET_TTL_MS;
     const expiresAt = now + ttlMs;
-    const assetId = `ast_${randomBytes3(12).toString("hex")}`;
+    const assetId = `ast_${randomBytes2(12).toString("hex")}`;
     let encryptedCredentials;
     if (input.credentials) {
       encryptedCredentials = encryptCredentials(input.credentials, this.key);
@@ -46562,13 +46591,13 @@ var PlaybackRegistry = class {
   getAsset(assetId) {
     if (!assetId) return null;
     const now = Date.now();
-    const cached = this.assets.get(assetId);
-    if (!cached) return null;
-    if (cached.expiresAt <= now) {
+    const cached2 = this.assets.get(assetId);
+    if (!cached2) return null;
+    if (cached2.expiresAt <= now) {
       this.assets.delete(assetId);
       return null;
     }
-    return cached;
+    return cached2;
   }
   /**
    * 变更资产状态机 ('active' | 'expired' | 'revoked' | 'blocked')
@@ -46684,7 +46713,7 @@ var PlaybackRegistry = class {
           ttlSec = Math.min(DEFAULT_PLAYLIST_TTL_SEC, assetRemainingSec);
       }
     }
-    const jti = `jti_${randomBytes3(12).toString("hex")}`;
+    const jti = `jti_${randomBytes2(12).toString("hex")}`;
     const payload = {
       v: 1,
       aud: PLAYBACK_TICKET_AUDIENCE,
@@ -48603,7 +48632,6 @@ var PluginCircuitBreaker = class {
         };
       }
       state.halfOpenProbing = true;
-      console.log(`[circuit-breaker] \u6E90\u7AD9 [${key}] \u51B7\u5374\u671F\u6EE1\uFF0C\u653E\u884C\u5355\u98DE\u8BF7\u6C42\u8FDB\u884C\u63A2\u6D3B\u6D4B\u8BD5`);
       return { allowed: true };
     }
     return { allowed: true };
@@ -48613,10 +48641,6 @@ var PluginCircuitBreaker = class {
    */
   recordSuccess(pluginName) {
     const key = this.normalizeKey(pluginName);
-    const state = this.states.get(key);
-    if (state && (state.trippedUntil > 0 || state.failureCount > 0)) {
-      console.log(`[circuit-breaker] \u6E90\u7AD9 [${key}] \u63A2\u6D3B/\u8BBF\u95EE\u6210\u529F\uFF0C\u7194\u65AD\u5DF2\u89E3\u9664\uFF0C\u6062\u590D\u6B63\u5E38\u670D\u52A1`);
-    }
     this.states.delete(key);
   }
   /**
@@ -48643,9 +48667,6 @@ var PluginCircuitBreaker = class {
       state.lastFailureTime = now;
       state.failureCount++;
       this.states.set(key, state);
-      console.warn(
-        `[circuit-breaker] \u6E90\u7AD9 [${key}] \u534A\u5F00\u63A2\u6D3B\u5931\u8D25\uFF0C\u91CD\u65B0\u8FDB\u5165\u7194\u65AD\u51B7\u5374 (${BREAKER_CONFIG.COOLDOWN_MS / 1e3}s): ${errorMsg}`
-      );
       return;
     }
     if (now - state.lastFailureTime <= BREAKER_CONFIG.FAILURE_WINDOW_MS) {
@@ -48658,10 +48679,6 @@ var PluginCircuitBreaker = class {
     if (shouldTrip) {
       state.trippedUntil = now + BREAKER_CONFIG.COOLDOWN_MS;
       state.halfOpenProbing = false;
-      const reason = isHard ? "\u7F51\u7EDC\u786C\u6545\u969C (\u8FDE\u63A5\u62D2\u7EDD/DNS\u89E3\u6790\u5931\u8D25)" : `\u8FDE\u7EED ${state.failureCount} \u6B21\u8D85\u65F6`;
-      console.warn(
-        `[circuit-breaker] \u6E90\u7AD9 [${key}] ${reason}\uFF0C\u89E6\u53D1\u7194\u65AD\u4FDD\u62A4\uFF0C\u8FDB\u5165\u51B7\u5374 (${BREAKER_CONFIG.COOLDOWN_MS / 1e3}s)`
-      );
     }
     this.states.set(key, state);
   }
@@ -48928,7 +48945,7 @@ pluginRoutes.post("/search", async (c2) => {
       cacheKey,
       clientIp,
       bypass,
-      loader: () => searchWithRule(rule, keyword),
+      loader: async () => await dynamicSearch(rule, keyword) ?? searchWithRule(rule, keyword),
       isEmpty: (res) => !res.items || res.items.length === 0,
       reformatResult: (res) => ({ ...res, pluginName: rule.name })
     });
@@ -48980,7 +48997,7 @@ pluginRoutes.post("/chapters", async (c2) => {
       cacheKey,
       clientIp,
       bypass,
-      loader: () => chaptersWithRule(rule, source),
+      loader: async () => await dynamicChapters(rule, source) ?? chaptersWithRule(rule, source),
       isEmpty: (res) => !res.roads || res.roads.length === 0,
       reformatResult: (res) => ({ ...res, pluginName: rule.name })
     });
@@ -49024,8 +49041,8 @@ pluginRoutes.post("/resolve", async (c2) => {
   const bypass = wantsCacheBypass(c2);
   try {
     if (!bypass) {
-      const cached = cacheGet(key);
-      if (cached) return c2.json({ data: cached }, 200, cacheHeaders2(true));
+      const cached2 = cacheGet(key);
+      if (cached2) return c2.json({ data: cached2 }, 200, cacheHeaders2(true));
     }
     const sourceId = resolveBuiltinSourceId(rule);
     const upstreamKey = sourceId || resolveUpstreamKey(rule);
@@ -49048,7 +49065,7 @@ pluginRoutes.post("/resolve", async (c2) => {
     const { value, hit: flightHit } = await cacheGetOrSet(
       key,
       0,
-      () => resolvePlay(rule, pageUrl),
+      async () => await dynamicResolve(rule, pageUrl) ?? resolvePlay(rule, pageUrl),
       { bypass: false, maxEntries: PLUGIN_MAX_ENTRIES }
     );
     if (!flightHit) {
@@ -50235,12 +50252,12 @@ function rewriteM3u8Ast(rawM3u8, asset, currentSub = "", options = {}) {
       const subWithQuery = targetUrl.search ? `${candidateSub}${targetUrl.search}` : candidateSub;
       const check = validateSubPath(subWithQuery);
       if (check.valid) {
-        let cached = subAssetCache.get(targetBase);
-        if (!cached) {
+        let cached2 = subAssetCache.get(targetBase);
+        if (!cached2) {
           if (subAssetCache.size >= MAX_SUB_ASSETS_PER_PLAYLIST) {
-            cached = asset;
+            cached2 = asset;
           } else {
-            cached = playback.registerAsset({
+            cached2 = playback.registerAsset({
               source: asset.source,
               baseUrl: targetBase,
               trustLevel: asset.trustLevel,
@@ -50248,18 +50265,18 @@ function rewriteM3u8Ast(rawM3u8, asset, currentSub = "", options = {}) {
               credentials: asset.encryptedCredentials ? playback.getDecryptedCredentials(asset) || void 0 : void 0,
               ttlMs: Math.max(1e3, asset.expiresAt - Date.now())
             });
-            subAssetCache.set(targetBase, cached);
+            subAssetCache.set(targetBase, cached2);
           }
         }
-        targetAsset = cached;
+        targetAsset = cached2;
         finalSub = check.normalized;
       } else {
-        let cached = subAssetCache.get(targetUrl.href);
-        if (!cached) {
+        let cached2 = subAssetCache.get(targetUrl.href);
+        if (!cached2) {
           if (subAssetCache.size >= MAX_SUB_ASSETS_PER_PLAYLIST) {
-            cached = asset;
+            cached2 = asset;
           } else {
-            cached = playback.registerAsset({
+            cached2 = playback.registerAsset({
               source: asset.source,
               baseUrl: targetUrl.href,
               trustLevel: asset.trustLevel,
@@ -50267,10 +50284,10 @@ function rewriteM3u8Ast(rawM3u8, asset, currentSub = "", options = {}) {
               credentials: asset.encryptedCredentials ? playback.getDecryptedCredentials(asset) || void 0 : void 0,
               ttlMs: Math.max(1e3, asset.expiresAt - Date.now())
             });
-            subAssetCache.set(targetUrl.href, cached);
+            subAssetCache.set(targetUrl.href, cached2);
           }
         }
-        targetAsset = cached;
+        targetAsset = cached2;
         finalSub = "";
       }
     }
@@ -52031,6 +52048,7 @@ app.get(
     ts: Date.now()
   })
 );
+app.get("/api/__parsers", async (c2) => c2.json(await debugParsers()));
 app.get("/api/__rules", async (c2) => c2.json({
   blob: await debugRules(),
   resolveBimi: await debugResolve("bimi")

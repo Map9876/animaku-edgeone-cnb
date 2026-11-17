@@ -4,3 +4,4 @@ node_modules/
 *.log
 
 *.mp4
+runtime/_resolvers-entry.ts

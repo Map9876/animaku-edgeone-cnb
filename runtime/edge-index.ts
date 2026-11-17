@@ -28,6 +28,7 @@ import { statsRoutes } from '../upstream/animaku/apps/server/src/routes/stats'
 import { siteRoutes, adminSiteRoutes } from '../upstream/animaku/apps/server/src/routes/site'
 import { analyticsRoutes } from './analytics'
 import { debugRules, debugResolve } from './rules-store'
+import { debugParsers } from './parser-loader'
 
 // 初始化 Bangumi 跨站映射（无 DB 时从内嵌 snapshot 读，esbuild 会把 JSON 打进 bundle）
 try {
@@ -81,6 +82,8 @@ app.get('/api/__diag', (c) =>
 )
 
 // 规则自更新诊断：查看 Blob 里的规则状态
+app.get('/api/__parsers', async (c) => c.json(await debugParsers()))
+
 app.get('/api/__rules', async (c) => c.json({
   blob: await debugRules(),
   resolveBimi: await debugResolve('bimi'),

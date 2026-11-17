@@ -8,6 +8,7 @@ cd "$(dirname "$0")/.."
 # 需要回写的产物：bundle、前端静态、注入脚本、submodule 指针
 git add -A -- \
   'cloud-functions' \
+  'resolvers' \
   'index.html' \
   'assets' \
   'inject' \

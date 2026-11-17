@@ -41,6 +41,25 @@ const injectRuleStore = {
         )
         src = src.replace(/rule = parseRuleOrThrow\(body\.rule\)/g, 'rule = await parseRuleOrThrow(body.rule)')
       }
+      // --- 动态解析注入（B 层热更新）---
+      if (!src.includes('dynamicSearch')) {
+        src = src.replace(
+          "import { resolveRuleFromStore } from '@rules-store'",
+          "import { resolveRuleFromStore } from '@rules-store'\nimport { dynamicSearch, dynamicChapters, dynamicResolve } from '@parser-loader'",
+        )
+        src = src.replace(
+          'loader: () => searchWithRule(rule, keyword),',
+          'loader: async () => (await dynamicSearch(rule, keyword)) ?? searchWithRule(rule, keyword),',
+        )
+        src = src.replace(
+          'loader: () => chaptersWithRule(rule, source),',
+          'loader: async () => (await dynamicChapters(rule, source)) ?? chaptersWithRule(rule, source),',
+        )
+        src = src.replace(
+          '() => resolvePlay(rule, pageUrl),',
+          'async () => (await dynamicResolve(rule, pageUrl)) ?? resolvePlay(rule, pageUrl),',
+        )
+      }
       return { contents: src, loader: 'ts', resolveDir: path.dirname(args.path) }
     })
   },
@@ -89,6 +108,7 @@ await build({
     // Animaku 只用 cheerio.load()，从不调 fromURL，stub 掉 undici 即可。
     'undici': undiciStub,
     '@rules-store': rulesStore,
+    '@parser-loader': path.join(root, 'runtime/parser-loader.ts'),
     // sharp 原生模块（libvips）在 EdgeOne 云构建下无 linux-x64 二进制，加载即崩。
     // 只用于管理后台生成 favicon，非核心链路，stub 掉保证函数不崩。
     'sharp': path.join(root, 'runtime/sharp-edge-stub.ts'),
