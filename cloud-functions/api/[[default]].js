@@ -11,8 +11,8 @@ var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? requir
   if (typeof require !== "undefined") return require.apply(this, arguments);
   throw Error('Dynamic require of "' + x2 + '" is not supported');
 });
-var __esm = (fn3, res) => function __init() {
-  return fn3 && (res = (0, fn3[__getOwnPropNames(fn3)[0]])(fn3 = 0)), res;
+var __esm = (fn2, res) => function __init() {
+  return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
 };
 var __commonJS = (cb, mod) => function __require2() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
@@ -39,11 +39,11 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // upstream/animaku/packages/shared/src/plugin.ts
-function isAnxRule(raw3) {
-  if (!raw3 || typeof raw3 !== "object") return false;
-  const r2 = raw3;
-  const format2 = String(r2.format ?? "").trim().toLowerCase();
-  if (format2 === "anx-rule/2" || format2 === "animaku-rule/2") return true;
+function isAnxRule(raw2) {
+  if (!raw2 || typeof raw2 !== "object") return false;
+  const r2 = raw2;
+  const format = String(r2.format ?? "").trim().toLowerCase();
+  if (format === "anx-rule/2" || format === "animaku-rule/2") return true;
   return Array.isArray(r2.search) && (Array.isArray(r2.detail) || Array.isArray(r2.play));
 }
 function extractBaseTitle(fullTitle) {
@@ -60,8 +60,8 @@ function extractBaseTitle(fullTitle) {
 function asObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : null;
 }
-function parseApiRequestConfig(raw3) {
-  const j = asObject(raw3) || {};
+function parseApiRequestConfig(raw2) {
+  const j = asObject(raw2) || {};
   const url = String(j.url ?? "").trim();
   if (!url) throw new Error("API \u8BF7\u6C42\u7F3A\u5C11 url");
   const method = String(j.method ?? "GET").toUpperCase();
@@ -76,8 +76,8 @@ function parseApiRequestConfig(raw3) {
     body: j.body
   };
 }
-function parseApiSearchConfig(raw3) {
-  const j = asObject(raw3);
+function parseApiSearchConfig(raw2) {
+  const j = asObject(raw2);
   if (!j) throw new Error("searchApiConfig \u65E0\u6548");
   const listPath = String(j.listPath ?? "").trim();
   const namePath = String(j.namePath ?? "").trim();
@@ -94,10 +94,10 @@ function parseApiSearchConfig(raw3) {
     ...sourceTemplate ? { sourceTemplate } : {}
   };
 }
-function parseApiChapterConfig(raw3) {
-  const j = asObject(raw3);
+function parseApiChapterConfig(raw2) {
+  const j = asObject(raw2);
   if (!j) throw new Error("chapterApiConfig \u65E0\u6548");
-  const format2 = j.format === "delimited" ? "delimited" : "nested";
+  const format = j.format === "delimited" ? "delimited" : "nested";
   const episodePageRaw = asObject(j.episodePage);
   const episodePage = episodePageRaw ? {
     url: String(episodePageRaw.url ?? "").trim(),
@@ -112,7 +112,7 @@ function parseApiChapterConfig(raw3) {
   ) : void 0;
   return {
     request: parseApiRequestConfig(j.request),
-    format: format2,
+    format,
     roadsPath: String(j.roadsPath ?? ""),
     roadNamePath: String(j.roadNamePath ?? ""),
     episodesPath: String(j.episodesPath ?? ""),
@@ -127,11 +127,11 @@ function parseApiChapterConfig(raw3) {
     episodePage
   };
 }
-function parsePluginRule(raw3) {
-  if (!raw3 || typeof raw3 !== "object") {
+function parsePluginRule(raw2) {
+  if (!raw2 || typeof raw2 !== "object") {
     throw new Error("\u63D2\u4EF6 JSON \u65E0\u6548");
   }
-  const j = raw3;
+  const j = raw2;
   const name2 = String(j.name ?? "").trim();
   const baseURL = String(j.baseURL ?? j.baseUrl ?? "").trim();
   const searchURL = String(j.searchURL ?? "").trim();
@@ -288,14 +288,14 @@ var init_episode_alignment = __esm({
 });
 
 // upstream/animaku/packages/shared/src/bangumi-endpoint.ts
-function normalizeBangumiImageHost(raw3) {
-  return (raw3 || "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+function normalizeBangumiImageHost(raw2) {
+  return (raw2 || "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
 }
-function normalizeBangumiApiHost(raw3) {
-  return (raw3 || "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+function normalizeBangumiApiHost(raw2) {
+  return (raw2 || "").trim().replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
 }
-function resolveBangumiApiPreset(raw3) {
-  const v2 = (raw3 || "").trim().toLowerCase();
+function resolveBangumiApiPreset(raw2) {
+  const v2 = (raw2 || "").trim().toLowerCase();
   if (!v2 || v2 === "mirror" || v2 === "proxy" || v2 === "1" || v2.includes("bgmapi")) {
     return BANGUMI_API_HOST_MIRROR;
   }
@@ -304,8 +304,8 @@ function resolveBangumiApiPreset(raw3) {
   }
   return normalizeBangumiApiHost(v2) || BANGUMI_API_HOST_MIRROR;
 }
-function resolveBangumiImagePreset(raw3) {
-  const v2 = (raw3 || "").trim().toLowerCase();
+function resolveBangumiImagePreset(raw2) {
+  const v2 = (raw2 || "").trim().toLowerCase();
   if (!v2 || v2 === "mirror" || v2 === "proxy" || v2 === "1" || v2.includes("bgmimg")) {
     return BANGUMI_IMAGE_HOST_MIRROR;
   }
@@ -315,12 +315,12 @@ function resolveBangumiImagePreset(raw3) {
   return normalizeBangumiImageHost(v2) || BANGUMI_IMAGE_HOST_MIRROR;
 }
 function toBangumiApiUrl(hostOrUrl) {
-  const raw3 = (hostOrUrl || "").trim();
-  if (!raw3) return BANGUMI_API_URL_MIRROR;
-  if (/^https?:\/\//i.test(raw3)) {
-    return raw3.replace(/\/+$/, "");
+  const raw2 = (hostOrUrl || "").trim();
+  if (!raw2) return BANGUMI_API_URL_MIRROR;
+  if (/^https?:\/\//i.test(raw2)) {
+    return raw2.replace(/\/+$/, "");
   }
-  const host = resolveBangumiApiPreset(raw3);
+  const host = resolveBangumiApiPreset(raw2);
   return host ? `https://${host}` : BANGUMI_API_URL_MIRROR;
 }
 var BANGUMI_IMAGE_HOST_BANGUMI, BANGUMI_IMAGE_HOST_MIRROR, BANGUMI_API_HOST_BANGUMI, BANGUMI_API_HOST_MIRROR, BANGUMI_API_URL_BANGUMI, BANGUMI_API_URL_MIRROR;
@@ -521,10 +521,10 @@ function parseBangumiAliases(json) {
     if (!item || typeof item !== "object") continue;
     const row = item;
     if (String(row.key ?? "") !== "\u522B\u540D") continue;
-    const raw3 = row.values ?? row.value;
-    if (raw3 == null) return [];
-    if (Array.isArray(raw3)) {
-      return raw3.map((element) => {
+    const raw2 = row.values ?? row.value;
+    if (raw2 == null) return [];
+    if (Array.isArray(raw2)) {
+      return raw2.map((element) => {
         let str = "";
         if (element && typeof element === "object" && "v" in element) {
           str = String(element.v ?? "").trim();
@@ -534,7 +534,7 @@ function parseBangumiAliases(json) {
         return decodeHtmlEntities(str).trim();
       }).filter((a2) => a2.length > 0);
     }
-    const text3 = decodeHtmlEntities(String(raw3)).trim();
+    const text3 = decodeHtmlEntities(String(raw2)).trim();
     return text3 ? [text3] : [];
   }
   return [];
@@ -597,14 +597,14 @@ var init_bangumi_image = __esm({
 function parseDanmakuComments(comments) {
   const out = [];
   for (const o2 of comments) {
-    const [time, type, color2, senderHash] = o2.p.split(",");
+    const [time, type, color, senderHash] = o2.p.split(",");
     const t2 = parseFloat(time);
     if (!Number.isFinite(t2)) continue;
     out.push({
       mode: MODE_MAP[type] || "rtl",
       text: o2.m,
       time: t2,
-      style: { color: colorToHex(color2) },
+      style: { color: colorToHex(color) },
       source: "dandan",
       senderHash: senderHash || void 0
     });
@@ -623,14 +623,14 @@ function parseDanmakuXml(xml2) {
     const parts = p2.split(",");
     const time = parseFloat(parts[0] || "0");
     const type = parts[1] || "1";
-    const color2 = parts[3];
+    const color = parts[3];
     const senderHash = parts[6] || void 0;
     if (!Number.isFinite(time)) continue;
     out.push({
       mode: MODE_MAP[type] || "rtl",
       text: text3,
       time,
-      style: { color: colorToHex(color2) },
+      style: { color: colorToHex(color) },
       source: "bilibili",
       senderHash
     });
@@ -643,8 +643,8 @@ function decodeXmlEntities(s2) {
     (_2, h2) => String.fromCharCode(parseInt(h2, 16))
   ).replace(/&amp;/g, "&");
 }
-function colorToHex(color2) {
-  const n2 = parseInt(color2 || "16777215", 10);
+function colorToHex(color) {
+  const n2 = parseInt(color || "16777215", 10);
   if (Number.isNaN(n2)) return "#ffffff";
   return `#${(n2 & 16777215).toString(16).padStart(6, "0")}`;
 }
@@ -818,8 +818,8 @@ function resolveM3u8Url(baseUrl, relativeUrl) {
     const parts = [];
     const schemeHost = joined.match(/^(https?:\/\/[^/]+)(\/.*)?$/i);
     if (!schemeHost) return relativeUrl;
-    const path3 = schemeHost[2] || "/";
-    for (const seg of path3.split("/")) {
+    const path2 = schemeHost[2] || "/";
+    for (const seg of path2.split("/")) {
       if (!seg || seg === ".") continue;
       if (seg === "..") parts.pop();
       else parts.push(seg);
@@ -842,13 +842,13 @@ function parseMediaPlaylist(content, baseUrl) {
   let currentDuration = 0;
   let seenSegment = false;
   for (let i2 = 0; i2 < lines.length; i2++) {
-    const raw3 = lines[i2] ?? "";
-    const line = raw3.trim();
+    const raw2 = lines[i2] ?? "";
+    const line = raw2.trim();
     if (!line) continue;
     if (line.startsWith("#EXT-X-TARGETDURATION:")) {
       const n2 = Number(line.slice("#EXT-X-TARGETDURATION:".length));
       if (Number.isFinite(n2)) targetDuration = n2;
-      if (!seenSegment) headerLines.push(raw3);
+      if (!seenSegment) headerLines.push(raw2);
       continue;
     }
     if (line === "#EXT-X-ENDLIST") {
@@ -857,12 +857,12 @@ function parseMediaPlaylist(content, baseUrl) {
     }
     if (line === "#EXT-X-PLAYLIST-TYPE:VOD") {
       isExplicitVod = true;
-      if (!seenSegment) headerLines.push(raw3);
+      if (!seenSegment) headerLines.push(raw2);
       continue;
     }
     if (line === "#EXT-X-PLAYLIST-TYPE:EVENT") {
       isLiveEvent = true;
-      if (!seenSegment) headerLines.push(raw3);
+      if (!seenSegment) headerLines.push(raw2);
       continue;
     }
     if (line === "#EXT-X-DISCONTINUITY") {
@@ -893,7 +893,7 @@ function parseMediaPlaylist(content, baseUrl) {
     }
     if (line.startsWith("#")) {
       if (!seenSegment && !line.startsWith("#EXTINF")) {
-        headerLines.push(raw3);
+        headerLines.push(raw2);
       }
       continue;
     }
@@ -914,8 +914,8 @@ function parseOriginAndDir(uri) {
     const m2 = uri.match(/^(https?:\/\/[^/?#]+)([^?#]*)/i);
     if (!m2) return { origin: "", dir: "" };
     const origin = m2[1].toLowerCase();
-    const path3 = m2[2] || "/";
-    const dir = path3.includes("/") ? path3.slice(0, path3.lastIndexOf("/") + 1) : "/";
+    const path2 = m2[2] || "/";
+    const dir = path2.includes("/") ? path2.slice(0, path2.lastIndexOf("/") + 1) : "/";
     return { origin, dir };
   } catch {
     return { origin: "", dir: "" };
@@ -1424,21 +1424,21 @@ function loadEnvFile(filePath) {
     if (process.env[key] === void 0) process.env[key] = val2;
   }
 }
-function envInt(raw3, fallback) {
-  if (raw3 === void 0 || raw3 === "") return fallback;
-  const n2 = Number(raw3);
+function envInt(raw2, fallback) {
+  if (raw2 === void 0 || raw2 === "") return fallback;
+  const n2 = Number(raw2);
   return Number.isFinite(n2) && n2 > 0 ? n2 : fallback;
 }
-function envBool(raw3, fallback) {
-  if (raw3 === void 0 || raw3 === "") return fallback;
-  const v2 = raw3.trim().toLowerCase();
+function envBool(raw2, fallback) {
+  if (raw2 === void 0 || raw2 === "") return fallback;
+  const v2 = raw2.trim().toLowerCase();
   if (["1", "true", "yes", "on"].includes(v2)) return true;
   if (["0", "false", "no", "off"].includes(v2)) return false;
   return fallback;
 }
-function parseCorsOrigins(raw3) {
-  if (!raw3?.trim()) return [];
-  return raw3.split(",").map((s2) => s2.trim()).filter(Boolean);
+function parseCorsOrigins(raw2) {
+  if (!raw2?.trim()) return [];
+  return raw2.split(",").map((s2) => s2.trim()).filter(Boolean);
 }
 function resolveDataDir() {
   if (process.env.DATA_DIR?.trim()) {
@@ -1469,8 +1469,8 @@ function resolveAppVersion() {
   return "v1.1.1";
 }
 function resolveTimezone() {
-  const raw3 = (process.env.TZ || process.env.TIMEZONE || process.env.LOG_TIMEZONE || "Asia/Shanghai").trim();
-  return raw3 || "Asia/Shanghai";
+  const raw2 = (process.env.TZ || process.env.TIMEZONE || process.env.LOG_TIMEZONE || "Asia/Shanghai").trim();
+  return raw2 || "Asia/Shanghai";
 }
 function parseProxyPool(env = process.env) {
   const pool = {};
@@ -1744,10 +1744,10 @@ function isPrivateHost(hostname) {
   if (h2.includes(":")) return isPrivateIpv6(h2);
   return false;
 }
-function assertPublicHttpUrl(raw3, label = "url") {
+function assertPublicHttpUrl(raw2, label = "url") {
   let u2;
   try {
-    u2 = new URL(raw3);
+    u2 = new URL(raw2);
   } catch {
     throw new Error(`${label} \u65E0\u6548`);
   }
@@ -2186,31 +2186,31 @@ function cloneNode(node, recursive = false) {
     result = new Comment2(node.data);
   } else if (isTag2(node)) {
     const children2 = recursive ? cloneChildren(node.children) : [];
-    const clone3 = new Element(node.name, { ...node.attribs }, children2);
-    children2.forEach((child) => child.parent = clone3);
+    const clone2 = new Element(node.name, { ...node.attribs }, children2);
+    children2.forEach((child) => child.parent = clone2);
     if (node.namespace != null) {
-      clone3.namespace = node.namespace;
+      clone2.namespace = node.namespace;
     }
     if (node["x-attribsNamespace"]) {
-      clone3["x-attribsNamespace"] = { ...node["x-attribsNamespace"] };
+      clone2["x-attribsNamespace"] = { ...node["x-attribsNamespace"] };
     }
     if (node["x-attribsPrefix"]) {
-      clone3["x-attribsPrefix"] = { ...node["x-attribsPrefix"] };
+      clone2["x-attribsPrefix"] = { ...node["x-attribsPrefix"] };
     }
-    result = clone3;
+    result = clone2;
   } else if (isCDATA(node)) {
     const children2 = recursive ? cloneChildren(node.children) : [];
-    const clone3 = new CDATA2(children2);
-    children2.forEach((child) => child.parent = clone3);
-    result = clone3;
+    const clone2 = new CDATA2(children2);
+    children2.forEach((child) => child.parent = clone2);
+    result = clone2;
   } else if (isDocument(node)) {
     const children2 = recursive ? cloneChildren(node.children) : [];
-    const clone3 = new Document(children2);
-    children2.forEach((child) => child.parent = clone3);
+    const clone2 = new Document(children2);
+    children2.forEach((child) => child.parent = clone2);
     if (node["x-mode"]) {
-      clone3["x-mode"] = node["x-mode"];
+      clone2["x-mode"] = node["x-mode"];
     }
-    result = clone3;
+    result = clone2;
   } else if (isDirective(node)) {
     const instruction = new ProcessingInstruction(node.name, node.data);
     if (node["x-name"] != null) {
@@ -2749,10 +2749,10 @@ var init_decode = __esm({
       DecodingMode4[DecodingMode4["Attribute"] = 2] = "Attribute";
     })(DecodingMode || (DecodingMode = {}));
     EntityDecoder = class {
-      constructor(decodeTree, emitCodePoint, errors3) {
+      constructor(decodeTree, emitCodePoint, errors2) {
         this.decodeTree = decodeTree;
         this.emitCodePoint = emitCodePoint;
-        this.errors = errors3;
+        this.errors = errors2;
         this.state = EntityDecoderState.EntityStart;
         this.consumed = 1;
         this.result = 0;
@@ -4115,10 +4115,10 @@ function camelCase(str) {
 function cssCase(str) {
   return str.replace(/[A-Z]/g, "-$&").toLowerCase();
 }
-function domEach(array, fn3) {
+function domEach(array, fn2) {
   const len = array.length;
   for (let i2 = 0; i2 < len; i2++)
-    fn3(array[i2], i2);
+    fn2(array[i2], i2);
   return array;
 }
 function isHtml(str) {
@@ -4344,10 +4344,10 @@ var init_decode2 = __esm({
       DecodingMode4[DecodingMode4["Attribute"] = 2] = "Attribute";
     })(DecodingMode2 || (DecodingMode2 = {}));
     EntityDecoder2 = class {
-      constructor(decodeTree, emitCodePoint, errors3) {
+      constructor(decodeTree, emitCodePoint, errors2) {
         this.decodeTree = decodeTree;
         this.emitCodePoint = emitCodePoint;
-        this.errors = errors3;
+        this.errors = errors2;
         this.state = EntityDecoderState2.EntityStart;
         this.consumed = 1;
         this.result = 0;
@@ -6224,7 +6224,7 @@ var init_attributes = __esm({
     init_esm5();
     init_esm6();
     hasOwn = // @ts-expect-error `hasOwn` is a standard object method
-    (_a3 = Object.hasOwn) !== null && _a3 !== void 0 ? _a3 : ((object2, prop2) => Object.prototype.hasOwnProperty.call(object2, prop2));
+    (_a3 = Object.hasOwn) !== null && _a3 !== void 0 ? _a3 : ((object, prop2) => Object.prototype.hasOwnProperty.call(object, prop2));
     rspace = /\s+/;
     dataAttrPrefix = "data-";
     rboolean = /^(?:autofocus|autoplay|async|checked|controls|defer|disabled|hidden|loop|multiple|open|readonly|required|scoped|selected)$/i;
@@ -7063,23 +7063,23 @@ function parse(formula) {
   let idx = 0;
   let a2 = 0;
   let sign = readSign();
-  let number2 = readNumber();
+  let number = readNumber();
   if (idx < formula.length && formula.charAt(idx) === "n") {
     idx++;
-    a2 = sign * (number2 !== null && number2 !== void 0 ? number2 : 1);
+    a2 = sign * (number !== null && number !== void 0 ? number : 1);
     skipWhitespace();
     if (idx < formula.length) {
       sign = readSign();
       skipWhitespace();
-      number2 = readNumber();
+      number = readNumber();
     } else {
-      sign = number2 = 0;
+      sign = number = 0;
     }
   }
-  if (number2 === null || idx < formula.length) {
+  if (number === null || idx < formula.length) {
     throw new Error(`n-th rule couldn't be parsed ('${formula}')`);
   }
-  return [a2, sign * number2];
+  return [a2, sign * number];
   function readSign() {
     if (formula.charAt(idx) === "-") {
       idx++;
@@ -8127,16 +8127,16 @@ function _findBySelector(selector, limit) {
   return this._make(select(selector, elems, options, limit));
 }
 function _getMatcher(matchMap) {
-  return function(fn3, ...postFns) {
+  return function(fn2, ...postFns) {
     return function(selector) {
       var _a5;
-      let matched = matchMap(fn3, this);
+      let matched = matchMap(fn2, this);
       if (selector) {
         matched = filterArray(matched, selector, this.options.xmlMode, (_a5 = this._root) === null || _a5 === void 0 ? void 0 : _a5[0]);
       }
       return this._make(
         // Post processing is only necessary if there is more than one element.
-        this.length > 1 && matched.length > 1 ? postFns.reduce((elems, fn4) => fn4(elems), matched) : matched
+        this.length > 1 && matched.length > 1 ? postFns.reduce((elems, fn3) => fn3(elems), matched) : matched
       );
     };
   };
@@ -8195,18 +8195,18 @@ function contents() {
   const elems = this.toArray().reduce((newElems, elem) => hasChildren(elem) ? newElems.concat(elem.children) : newElems, []);
   return this._make(elems);
 }
-function each(fn3) {
+function each(fn2) {
   let i2 = 0;
   const len = this.length;
-  while (i2 < len && fn3.call(this[i2], i2, this[i2]) !== false)
+  while (i2 < len && fn2.call(this[i2], i2, this[i2]) !== false)
     ++i2;
   return this;
 }
-function map(fn3) {
+function map(fn2) {
   let elems = [];
   for (let i2 = 0; i2 < this.length; i2++) {
     const el = this[i2];
-    const val2 = fn3.call(el, i2, el);
+    const val2 = fn2.call(el, i2, el);
     if (val2 != null) {
       elems = elems.concat(val2);
     }
@@ -8315,19 +8315,19 @@ var init_traversing = __esm({
     init_static();
     init_esm5();
     reContextSelector = /^\s*(?:[+~]|:scope\b)/;
-    _matcher = _getMatcher((fn3, elems) => {
+    _matcher = _getMatcher((fn2, elems) => {
       let ret = [];
       for (let i2 = 0; i2 < elems.length; i2++) {
-        const value = fn3(elems[i2]);
+        const value = fn2(elems[i2]);
         if (value.length > 0)
           ret = ret.concat(value);
       }
       return ret;
     });
-    _singleMatcher = _getMatcher((fn3, elems) => {
+    _singleMatcher = _getMatcher((fn2, elems) => {
       const ret = [];
       for (let i2 = 0; i2 < elems.length; i2++) {
-        const value = fn3(elems[i2]);
+        const value = fn2(elems[i2]);
         if (value !== null) {
           ret.push(value);
         }
@@ -8452,7 +8452,7 @@ __export(manipulation_exports, {
   wrapAll: () => wrapAll,
   wrapInner: () => wrapInner
 });
-function _makeDomArray(elem, clone3) {
+function _makeDomArray(elem, clone2) {
   if (elem == null) {
     return [];
   }
@@ -8461,7 +8461,7 @@ function _makeDomArray(elem, clone3) {
   }
   if ("length" in elem) {
     if (elem.length === 1) {
-      return this._makeDomArray(elem[0], clone3);
+      return this._makeDomArray(elem[0], clone2);
     }
     const result = [];
     for (let i2 = 0; i2 < elem.length; i2++) {
@@ -8471,15 +8471,15 @@ function _makeDomArray(elem, clone3) {
           continue;
         }
         if (!("length" in el)) {
-          result.push(clone3 ? cloneNode(el, true) : el);
+          result.push(clone2 ? cloneNode(el, true) : el);
           continue;
         }
       }
-      result.push(...this._makeDomArray(el, clone3));
+      result.push(...this._makeDomArray(el, clone2));
     }
     return result;
   }
-  return [clone3 ? cloneNode(elem, true) : elem];
+  return [clone2 ? cloneNode(elem, true) : elem];
 }
 function _insert(concatenator) {
   return function(...elems) {
@@ -8743,12 +8743,12 @@ function text2(str) {
   });
 }
 function clone() {
-  const clone3 = Array.prototype.map.call(this.get(), (el) => cloneNode(el, true));
-  const root2 = new Document(clone3);
-  for (const node of clone3) {
+  const clone2 = Array.prototype.map.call(this.get(), (el) => cloneNode(el, true));
+  const root2 = new Document(clone2);
+  for (const node of clone2) {
     node.parent = root2;
   }
-  return this._make(clone3);
+  return this._make(clone2);
 }
 var append2, prepend2, wrap, wrapInner;
 var init_manipulation2 = __esm({
@@ -8937,12 +8937,12 @@ function extract2(map2) {
     const descr = map2[key];
     const isArray = Array.isArray(descr);
     const { selector, value } = getExtractDescr(isArray ? descr[0] : descr);
-    const fn3 = typeof value === "function" ? value : typeof value === "string" ? (el) => this._make(el).prop(value) : (el) => this._make(el).extract(value);
+    const fn2 = typeof value === "function" ? value : typeof value === "string" ? (el) => this._make(el).prop(value) : (el) => this._make(el).extract(value);
     if (isArray) {
-      ret[key] = this._findBySelector(selector, Number.POSITIVE_INFINITY).map((_2, el) => fn3(el, key, ret)).get();
+      ret[key] = this._findBySelector(selector, Number.POSITIVE_INFINITY).map((_2, el) => fn2(el, key, ret)).get();
     } else {
       const $2 = this._findBySelector(selector, 1);
-      ret[key] = $2.length > 0 ? fn3($2[0], key, ret) : void 0;
+      ret[key] = $2.length > 0 ? fn2($2[0], key, ret) : void 0;
     }
   }
   return ret;
@@ -9611,10 +9611,10 @@ var init_decode3 = __esm({
       DecodingMode4[DecodingMode4["Attribute"] = 2] = "Attribute";
     })(DecodingMode3 || (DecodingMode3 = {}));
     EntityDecoder3 = class {
-      constructor(decodeTree, emitCodePoint, errors3) {
+      constructor(decodeTree, emitCodePoint, errors2) {
         this.decodeTree = decodeTree;
         this.emitCodePoint = emitCodePoint;
-        this.errors = errors3;
+        this.errors = errors2;
         this.state = EntityDecoderState3.EntityStart;
         this.consumed = 1;
         this.result = 0;
@@ -17469,14 +17469,14 @@ var init_dist3 = __esm({
 var require_safer = __commonJS({
   "node_modules/safer-buffer/safer.js"(exports, module) {
     "use strict";
-    var buffer2 = __require("buffer");
-    var Buffer2 = buffer2.Buffer;
+    var buffer = __require("buffer");
+    var Buffer2 = buffer.Buffer;
     var safer = {};
     var key;
-    for (key in buffer2) {
-      if (!buffer2.hasOwnProperty(key)) continue;
+    for (key in buffer) {
+      if (!buffer.hasOwnProperty(key)) continue;
       if (key === "SlowBuffer" || key === "Buffer") continue;
-      safer[key] = buffer2[key];
+      safer[key] = buffer[key];
     }
     var Safer = safer.Buffer = {};
     for (key in Buffer2) {
@@ -21557,49 +21557,49 @@ var init_undici_edge_stub = __esm({
 var require_utils = __commonJS({
   "node_modules/whatwg-mimetype/lib/utils.js"(exports) {
     "use strict";
-    exports.removeLeadingAndTrailingHTTPWhitespace = (string2) => {
-      return string2.replace(/^[ \t\n\r]+/u, "").replace(/[ \t\n\r]+$/u, "");
+    exports.removeLeadingAndTrailingHTTPWhitespace = (string) => {
+      return string.replace(/^[ \t\n\r]+/u, "").replace(/[ \t\n\r]+$/u, "");
     };
-    exports.removeTrailingHTTPWhitespace = (string2) => {
-      return string2.replace(/[ \t\n\r]+$/u, "");
+    exports.removeTrailingHTTPWhitespace = (string) => {
+      return string.replace(/[ \t\n\r]+$/u, "");
     };
     exports.isHTTPWhitespaceChar = (char) => {
       return char === " " || char === "	" || char === "\n" || char === "\r";
     };
-    exports.solelyContainsHTTPTokenCodePoints = (string2) => {
-      return /^[-!#$%&'*+.^_`|~A-Za-z0-9]*$/u.test(string2);
+    exports.solelyContainsHTTPTokenCodePoints = (string) => {
+      return /^[-!#$%&'*+.^_`|~A-Za-z0-9]*$/u.test(string);
     };
-    exports.soleyContainsHTTPQuotedStringTokenCodePoints = (string2) => {
-      return /^[\t\u0020-\u007E\u0080-\u00FF]*$/u.test(string2);
+    exports.soleyContainsHTTPQuotedStringTokenCodePoints = (string) => {
+      return /^[\t\u0020-\u007E\u0080-\u00FF]*$/u.test(string);
     };
-    exports.asciiLowercase = (string2) => {
-      return string2.replace(/[A-Z]/ug, (l2) => l2.toLowerCase());
+    exports.asciiLowercase = (string) => {
+      return string.replace(/[A-Z]/ug, (l2) => l2.toLowerCase());
     };
-    exports.collectAnHTTPQuotedString = (input, position2) => {
+    exports.collectAnHTTPQuotedString = (input, position) => {
       let value = "";
-      position2++;
+      position++;
       while (true) {
-        while (position2 < input.length && input[position2] !== '"' && input[position2] !== "\\") {
-          value += input[position2];
-          ++position2;
+        while (position < input.length && input[position] !== '"' && input[position] !== "\\") {
+          value += input[position];
+          ++position;
         }
-        if (position2 >= input.length) {
+        if (position >= input.length) {
           break;
         }
-        const quoteOrBackslash = input[position2];
-        ++position2;
+        const quoteOrBackslash = input[position];
+        ++position;
         if (quoteOrBackslash === "\\") {
-          if (position2 >= input.length) {
+          if (position >= input.length) {
             value += "\\";
             break;
           }
-          value += input[position2];
-          ++position2;
+          value += input[position];
+          ++position;
         } else {
           break;
         }
       }
-      return [value, position2];
+      return [value, position];
     };
   }
 });
@@ -21680,23 +21680,23 @@ var require_parser = __commonJS({
     } = require_utils();
     module.exports = (input) => {
       input = removeLeadingAndTrailingHTTPWhitespace(input);
-      let position2 = 0;
+      let position = 0;
       let type = "";
-      while (position2 < input.length && input[position2] !== "/") {
-        type += input[position2];
-        ++position2;
+      while (position < input.length && input[position] !== "/") {
+        type += input[position];
+        ++position;
       }
       if (type.length === 0 || !solelyContainsHTTPTokenCodePoints(type)) {
         return null;
       }
-      if (position2 >= input.length) {
+      if (position >= input.length) {
         return null;
       }
-      ++position2;
+      ++position;
       let subtype = "";
-      while (position2 < input.length && input[position2] !== ";") {
-        subtype += input[position2];
-        ++position2;
+      while (position < input.length && input[position] !== ";") {
+        subtype += input[position];
+        ++position;
       }
       subtype = removeTrailingHTTPWhitespace(subtype);
       if (subtype.length === 0 || !solelyContainsHTTPTokenCodePoints(subtype)) {
@@ -21707,34 +21707,34 @@ var require_parser = __commonJS({
         subtype: asciiLowercase(subtype),
         parameters: /* @__PURE__ */ new Map()
       };
-      while (position2 < input.length) {
-        ++position2;
-        while (isHTTPWhitespaceChar(input[position2])) {
-          ++position2;
+      while (position < input.length) {
+        ++position;
+        while (isHTTPWhitespaceChar(input[position])) {
+          ++position;
         }
         let parameterName = "";
-        while (position2 < input.length && input[position2] !== ";" && input[position2] !== "=") {
-          parameterName += input[position2];
-          ++position2;
+        while (position < input.length && input[position] !== ";" && input[position] !== "=") {
+          parameterName += input[position];
+          ++position;
         }
         parameterName = asciiLowercase(parameterName);
-        if (position2 < input.length) {
-          if (input[position2] === ";") {
+        if (position < input.length) {
+          if (input[position] === ";") {
             continue;
           }
-          ++position2;
+          ++position;
         }
         let parameterValue = null;
-        if (input[position2] === '"') {
-          [parameterValue, position2] = collectAnHTTPQuotedString(input, position2);
-          while (position2 < input.length && input[position2] !== ";") {
-            ++position2;
+        if (input[position] === '"') {
+          [parameterValue, position] = collectAnHTTPQuotedString(input, position);
+          while (position < input.length && input[position] !== ";") {
+            ++position;
           }
         } else {
           parameterValue = "";
-          while (position2 < input.length && input[position2] !== ";") {
-            parameterValue += input[position2];
-            ++position2;
+          while (position < input.length && input[position] !== ";") {
+            parameterValue += input[position];
+            ++position;
           }
           parameterValue = removeTrailingHTTPWhitespace(parameterValue);
           if (parameterValue === "") {
@@ -21787,19 +21787,19 @@ var require_mime_type = __commonJS({
       solelyContainsHTTPTokenCodePoints
     } = require_utils();
     module.exports = class MIMEType {
-      constructor(string2) {
-        string2 = String(string2);
-        const result = parse8(string2);
+      constructor(string) {
+        string = String(string);
+        const result = parse8(string);
         if (result === null) {
-          throw new Error(`Could not parse MIME type string "${string2}"`);
+          throw new Error(`Could not parse MIME type string "${string}"`);
         }
         this._type = result.type;
         this._subtype = result.subtype;
         this._parameters = new MIMETypeParameters(result.parameters);
       }
-      static parse(string2) {
+      static parse(string) {
         try {
-          return new this(string2);
+          return new this(string);
         } catch (e2) {
           return null;
         }
@@ -21927,17 +21927,17 @@ var require_conventions = __commonJS({
         }
       }
     }
-    function freeze(object2, oc) {
+    function freeze(object, oc) {
       if (oc === void 0) {
         oc = Object;
       }
       if (oc && typeof oc.getOwnPropertyDescriptors === "function") {
-        object2 = oc.create(null, oc.getOwnPropertyDescriptors(object2));
+        object = oc.create(null, oc.getOwnPropertyDescriptors(object));
       }
-      return oc && typeof oc.freeze === "function" ? oc.freeze(object2) : object2;
+      return oc && typeof oc.freeze === "function" ? oc.freeze(object) : object;
     }
-    function hasOwn2(object2, key) {
-      return Object.prototype.hasOwnProperty.call(object2, key);
+    function hasOwn2(object, key) {
+      return Object.prototype.hasOwnProperty.call(object, key);
     }
     function assign(target, source) {
       if (target === null || typeof target !== "object") {
@@ -22496,9 +22496,9 @@ var require_dom = __commonJS({
     var MIME_TYPE = conventions.MIME_TYPE;
     var NAMESPACE = conventions.NAMESPACE;
     var PDC = Symbol();
-    var errors3 = require_errors();
-    var DOMException2 = errors3.DOMException;
-    var DOMExceptionName = errors3.DOMExceptionName;
+    var errors2 = require_errors();
+    var DOMException2 = errors2.DOMException;
+    var DOMExceptionName = errors2.DOMExceptionName;
     var g2 = require_grammar();
     function checkSymbol(symbol) {
       if (symbol !== PDC) {
@@ -23012,7 +23012,7 @@ var require_dom = __commonJS({
        * @see https://dom.spec.whatwg.org/#dom-domimplementation-hasfeature DOM Living Standard
        * @see https://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-5CED94D7 DOM Level 3 Core
        */
-      hasFeature: function(feature, version2) {
+      hasFeature: function(feature, version) {
         return true;
       },
       /**
@@ -23575,8 +23575,8 @@ var require_dom = __commonJS({
        * @since Introduced in DOM Level 2
        * @see {@link DOMImplementation.hasFeature}
        */
-      isSupported: function(feature, version2) {
-        return this.ownerDocument.implementation.hasFeature(feature, version2);
+      isSupported: function(feature, version) {
+        return this.ownerDocument.implementation.hasFeature(feature, version);
       },
       /**
        * Look up the prefix associated to the given namespace URI, starting from this node.
@@ -25026,8 +25026,8 @@ var require_dom = __commonJS({
       });
       return destRoot;
     }
-    function __set__(object2, key, value) {
-      object2[key] = value;
+    function __set__(object, key, value) {
+      object[key] = value;
     }
     function childrenRefresh(node) {
       var ls = [];
@@ -25119,8 +25119,8 @@ var require_dom = __commonJS({
             return new LiveNodeList(this, childrenRefresh);
           }
         });
-        __set__ = function(object2, key, value) {
-          object2["$$" + key] = value;
+        __set__ = function(object, key, value) {
+          object["$$" + key] = value;
         };
       }
     } catch (e2) {
@@ -27298,14 +27298,14 @@ var require_sax = __commonJS({
     "use strict";
     var conventions = require_conventions();
     var g2 = require_grammar();
-    var errors3 = require_errors();
+    var errors2 = require_errors();
     var isHTMLEscapableRawTextElement = conventions.isHTMLEscapableRawTextElement;
     var isHTMLMimeType = conventions.isHTMLMimeType;
     var isHTMLRawTextElement = conventions.isHTMLRawTextElement;
     var hasOwn2 = conventions.hasOwn;
     var NAMESPACE = conventions.NAMESPACE;
-    var ParseError = errors3.ParseError;
-    var DOMException2 = errors3.DOMException;
+    var ParseError = errors2.ParseError;
+    var DOMException2 = errors2.DOMException;
     var S_TAG = 0;
     var S_ATTR = 1;
     var S_ATTR_SPACE = 2;
@@ -27364,7 +27364,7 @@ var require_sax = __commonJS({
       function appendText(end3) {
         if (end3 > start) {
           var xt = source.substring(start, end3).replace(ENTITY_REG, entityReplacer);
-          locator && position2(start);
+          locator && position(start);
           domBuilder.characters(xt, 0, end3 - start);
           start = end3;
         }
@@ -27373,7 +27373,7 @@ var require_sax = __commonJS({
       var lineEnd = 0;
       var linePattern = /\r\n?|\n|$/g;
       var locator = domBuilder.locator;
-      function position2(p2, m2) {
+      function position(p2, m2) {
         while (p2 >= lineEnd && (m2 = linePattern.exec(source))) {
           lineStart = lineEnd;
           lineEnd = m2.index + m2[0].length;
@@ -27463,15 +27463,15 @@ var require_sax = __commonJS({
               break;
             // end element
             case "?":
-              locator && position2(tagStart);
+              locator && position(tagStart);
               end2 = parseProcessingInstruction(source, tagStart, domBuilder, errorHandler2);
               break;
             case "!":
-              locator && position2(tagStart);
+              locator && position(tagStart);
               end2 = parseDoctypeCommentOrCData(source, tagStart, domBuilder, errorHandler2, isHTML);
               break;
             default:
-              locator && position2(tagStart);
+              locator && position(tagStart);
               var el = new ElementAttributes();
               var currentNSMap = parseStack[parseStack.length - 1].currentNSMap;
               var end2 = parseElementStartPart(source, tagStart, el, currentNSMap, entityReplacer, errorHandler2, isHTML);
@@ -27487,7 +27487,7 @@ var require_sax = __commonJS({
                 var locator2 = copyLocator(locator, {});
                 for (var i2 = 0; i2 < len; i2++) {
                   var a2 = el[i2];
-                  position2(a2.offset);
+                  position(a2.offset);
                   a2.locator = copyLocator(locator, {});
                 }
                 domBuilder.locator = locator2;
@@ -28080,7 +28080,7 @@ var require_dom_parser = __commonJS({
     "use strict";
     var conventions = require_conventions();
     var dom = require_dom();
-    var errors3 = require_errors();
+    var errors2 = require_errors();
     var entities = require_entities();
     var sax = require_sax();
     var DOMImplementation = dom.DOMImplementation;
@@ -28089,7 +28089,7 @@ var require_dom_parser = __commonJS({
     var isValidMimeType = conventions.isValidMimeType;
     var MIME_TYPE = conventions.MIME_TYPE;
     var NAMESPACE = conventions.NAMESPACE;
-    var ParseError = errors3.ParseError;
+    var ParseError = errors2.ParseError;
     var XMLReader = sax.XMLReader;
     function normalizeLineEndings(input) {
       return input.replace(/\r[\n\u0085]/g, "\n").replace(/[\r\u0085\u2028\u2029]/g, "\n");
@@ -28158,7 +28158,7 @@ var require_dom_parser = __commonJS({
       this.locator = void 0;
       this.onError = opt.onError;
     }
-    function position2(locator, node) {
+    function position(locator, node) {
       node.lineNumber = locator.lineNumber;
       node.columnNumber = locator.columnNumber;
     }
@@ -28181,13 +28181,13 @@ var require_dom_parser = __commonJS({
         var len = attrs.length;
         appendElement(this, el);
         this.currentElement = el;
-        this.locator && position2(this.locator, el);
+        this.locator && position(this.locator, el);
         for (var i2 = 0; i2 < len; i2++) {
           var namespaceURI = attrs.getURI(i2);
           var value = attrs.getValue(i2);
           var qName = attrs.getQName(i2);
           var attr2 = doc.createAttributeNS(namespaceURI, qName);
-          this.locator && position2(attrs.getLocator(i2), attr2);
+          this.locator && position(attrs.getLocator(i2), attr2);
           attr2.value = attr2.nodeValue = value;
           el.setAttributeNode(attr2);
         }
@@ -28201,7 +28201,7 @@ var require_dom_parser = __commonJS({
       },
       processingInstruction: function(target, data2) {
         var ins = this.doc.createProcessingInstruction(target, data2);
-        this.locator && position2(this.locator, ins);
+        this.locator && position(this.locator, ins);
         appendElement(this, ins);
       },
       ignorableWhitespace: function(ch, start, length) {
@@ -28219,7 +28219,7 @@ var require_dom_parser = __commonJS({
           } else if (/^\s*$/.test(chars)) {
             this.doc.appendChild(charNode);
           }
-          this.locator && position2(this.locator, charNode);
+          this.locator && position(this.locator, charNode);
         }
       },
       skippedEntity: function(name2) {
@@ -28243,7 +28243,7 @@ var require_dom_parser = __commonJS({
       comment: function(chars, start, length) {
         chars = _toString.apply(this, arguments);
         var comm = this.doc.createComment(chars);
-        this.locator && position2(this.locator, comm);
+        this.locator && position(this.locator, comm);
         appendElement(this, comm);
       },
       startCDATA: function() {
@@ -28256,7 +28256,7 @@ var require_dom_parser = __commonJS({
         var impl = this.doc.implementation;
         if (impl && impl.createDocumentType) {
           var dt = impl.createDocumentType(name2, publicId, systemId, internalSubset);
-          this.locator && position2(this.locator, dt);
+          this.locator && position(this.locator, dt);
           appendElement(this, dt);
           this.doc.doctype = dt;
         }
@@ -28353,11 +28353,11 @@ var require_lib2 = __commonJS({
     exports.isValidMimeType = conventions.isValidMimeType;
     exports.MIME_TYPE = conventions.MIME_TYPE;
     exports.NAMESPACE = conventions.NAMESPACE;
-    var errors3 = require_errors();
-    exports.DOMException = errors3.DOMException;
-    exports.DOMExceptionName = errors3.DOMExceptionName;
-    exports.ExceptionCode = errors3.ExceptionCode;
-    exports.ParseError = errors3.ParseError;
+    var errors2 = require_errors();
+    exports.DOMException = errors2.DOMException;
+    exports.DOMExceptionName = errors2.DOMExceptionName;
+    exports.ExceptionCode = errors2.ExceptionCode;
+    exports.ParseError = errors2.ParseError;
     var dom = require_dom();
     exports.Attr = dom.Attr;
     exports.CDATASection = dom.CDATASection;
@@ -28403,15 +28403,15 @@ var require_xpath = __commonJS({
         return value && isValidNodeType(value.nodeType) && typeof value.nodeName === "string";
       };
       function curry(func) {
-        var slice2 = Array.prototype.slice, totalargs = func.length, partial = function(args, fn4) {
+        var slice2 = Array.prototype.slice, totalargs = func.length, partial = function(args, fn3) {
           return function() {
-            return fn4.apply(this, args.concat(slice2.call(arguments)));
+            return fn3.apply(this, args.concat(slice2.call(arguments)));
           };
-        }, fn3 = function() {
+        }, fn2 = function() {
           var args = slice2.call(arguments);
-          return args.length < totalargs ? partial(args, fn3) : func.apply(this, slice2.apply(arguments, [0, totalargs]));
+          return args.length < totalargs ? partial(args, fn2) : func.apply(this, slice2.apply(arguments, [0, totalargs]));
         };
-        return fn3;
+        return fn2;
       }
       var forEach = function(f2, xs) {
         for (var i2 = 0; i2 < xs.length; i2 += 1) {
@@ -28471,7 +28471,7 @@ var require_xpath = __commonJS({
         return reverse ? sorted.reverse() : sorted;
       };
       var MAX_ARGUMENT_LENGTH = 32767;
-      function flatten2(arr) {
+      function flatten(arr) {
         var result = [];
         for (var start = 0; start < arr.length; start += MAX_ARGUMENT_LENGTH) {
           var chunk = arr.slice(start, start + MAX_ARGUMENT_LENGTH);
@@ -29245,14 +29245,14 @@ var require_xpath = __commonJS({
               continue;
             }
             if (c2 >= "0" && c2 <= "9") {
-              var number2 = "." + c2;
+              var number = "." + c2;
               c2 = s2.charAt(pos++);
               while (c2 >= "0" && c2 <= "9") {
-                number2 += c2;
+                number += c2;
                 c2 = s2.charAt(pos++);
               }
               types.push(XPathParser.NUMBER);
-              values.push(number2);
+              values.push(number);
               continue;
             }
             types.push(XPathParser.DOT);
@@ -29276,25 +29276,25 @@ var require_xpath = __commonJS({
             continue;
           }
           if (c2 >= "0" && c2 <= "9") {
-            var number2 = c2;
+            var number = c2;
             c2 = s2.charAt(pos++);
             while (c2 >= "0" && c2 <= "9") {
-              number2 += c2;
+              number += c2;
               c2 = s2.charAt(pos++);
             }
             if (c2 == ".") {
               if (s2.charAt(pos) >= "0" && s2.charAt(pos) <= "9") {
-                number2 += c2;
-                number2 += s2.charAt(pos++);
+                number += c2;
+                number += s2.charAt(pos++);
                 c2 = s2.charAt(pos++);
                 while (c2 >= "0" && c2 <= "9") {
-                  number2 += c2;
+                  number += c2;
                   c2 = s2.charAt(pos++);
                 }
               }
             }
             types.push(XPathParser.NUMBER);
-            values.push(number2);
+            values.push(number);
             continue;
           }
           if (c2 == "*") {
@@ -30138,7 +30138,7 @@ var require_xpath = __commonJS({
         );
       }
       function applyStepToNodes(context, nodes, step) {
-        return flatten2(
+        return flatten(
           map2(
             applyStepWithPredicates.bind(null, step, context),
             nodes
@@ -30491,13 +30491,13 @@ var require_xpath = __commonJS({
       FunctionCall.prototype = new Expression();
       FunctionCall.prototype.constructor = FunctionCall;
       FunctionCall.superclass = Expression.prototype;
-      function FunctionCall(fn3, args) {
+      function FunctionCall(fn2, args) {
         if (arguments.length > 0) {
-          this.init(fn3, args);
+          this.init(fn2, args);
         }
       }
-      FunctionCall.prototype.init = function(fn3, args) {
-        this.functionName = fn3;
+      FunctionCall.prototype.init = function(fn2, args) {
+        this.functionName = fn2;
         this.arguments = args;
       };
       FunctionCall.prototype.toString = function() {
@@ -32424,15 +32424,15 @@ function simplifiedToTraditional(input) {
   }
 }
 function keywordVariantsZh(keyword) {
-  const raw3 = keyword.trim().replace(/\s+/g, " ");
-  if (!raw3) return [];
-  const trad = simplifiedToTraditional(raw3).trim();
+  const raw2 = keyword.trim().replace(/\s+/g, " ");
+  if (!raw2) return [];
+  const trad = simplifiedToTraditional(raw2).trim();
   const out = [];
   const push = (s2) => {
     if (s2 && !out.includes(s2)) out.push(s2);
   };
   push(trad);
-  push(raw3);
+  push(raw2);
   const stripped = trad.replace(/\s*第\s*[一二三四五六七八九十\d]+\s*季\s*$/u, "").replace(/\s*第\s*[一二三四五六七八九十\d]+\s*期\s*$/u, "").replace(/\s*S\d+\s*$/i, "").trim();
   if (stripped && stripped !== trad) push(stripped);
   return out;
@@ -33040,14 +33040,14 @@ function isHostAllowed(hostname, allowedHosts) {
 }
 function resolveSafeBaseUrl(ruleBaseUrl, defaultBaseUrl, allowedHosts) {
   const fallback = defaultBaseUrl.replace(/\/+$/, "");
-  const raw3 = (ruleBaseUrl || "").trim();
-  if (!raw3 || !/^https?:\/\//i.test(raw3)) {
+  const raw2 = (ruleBaseUrl || "").trim();
+  if (!raw2 || !/^https?:\/\//i.test(raw2)) {
     return fallback;
   }
   try {
-    const u2 = new URL(raw3);
+    const u2 = new URL(raw2);
     if (isHostAllowed(u2.hostname, allowedHosts)) {
-      return raw3.replace(/\/+$/, "");
+      return raw2.replace(/\/+$/, "");
     }
   } catch {
   }
@@ -34096,12 +34096,12 @@ async function resolveXifanNext(rule, pageUrl) {
   const isWoPan = playUrl.includes("pan.wo.cn") || playUrl.includes("moedot.net") || playUrl.includes("apn.moedot.net");
   const referer = isWoPan ? "https://pan.wo.cn/" : "https://next.xifanacg.com/";
   const proxyUrl = `/api/media/proxy?url=${encodeURIComponent(playUrl)}&referer=${encodeURIComponent(referer)}`;
-  const format2 = isHls ? "hls" : "mp4";
+  const format = isHls ? "hls" : "mp4";
   return {
     playUrl,
     proxyUrl,
     referer,
-    format: format2,
+    format,
     headers: {
       "User-Agent": rule.userAgent || config.defaultUserAgent,
       Referer: referer
@@ -34376,8 +34376,8 @@ async function resolveTvTFun(rule, pageUrl, options) {
   } catch {
   }
   const streamKey = `${episodeId}_${sourceId}`;
-  let stream2 = episodeId && sourceId ? getTvTFunStream(streamKey) : null;
-  if (!stream2 || !episodeId || !sourceId) {
+  let stream = episodeId && sourceId ? getTvTFunStream(streamKey) : null;
+  if (!stream || !episodeId || !sourceId) {
     const queryId = slug || "513878";
     try {
       const detailUrl = `${TVTFUN_BASE_URL}/api/client/anime/${queryId}`;
@@ -34395,28 +34395,28 @@ async function resolveTvTFun(rule, pageUrl, options) {
             if (!episodeId || ep.id === episodeId) {
               const matchedSrc = ep.sources?.find((s2) => !sourceId || s2.id === sourceId) || ep.sources?.[0];
               if (matchedSrc?.playback?.url) {
-                stream2 = {
+                stream = {
                   playUrl: matchedSrc.playback.url,
                   mediaType: matchedSrc.playback.mediaType || "mp4",
                   cachedAt: Date.now()
                 };
                 setTvTFunStream(
                   `${ep.id}_${matchedSrc.id}`,
-                  stream2.playUrl,
-                  stream2.mediaType
+                  stream.playUrl,
+                  stream.mediaType
                 );
                 break;
               }
             }
           }
-          if (stream2) break;
+          if (stream) break;
         }
       }
     } catch {
     }
   }
-  const playUrl = stream2?.playUrl?.trim() || "";
-  const playMediaType = stream2?.mediaType?.toLowerCase() || "mp4";
+  const playUrl = stream?.playUrl?.trim() || "";
+  const playMediaType = stream?.mediaType?.toLowerCase() || "mp4";
   if (!playUrl) {
     throw new Error("TvTFun \u8BE5\u5267\u96C6\u64AD\u653E\u6E90\u6682\u65F6\u4E0D\u53EF\u7528\u6216\u5C1A\u672A\u5C31\u7EEA");
   }
@@ -34484,8 +34484,8 @@ function getBaseHeaders4(referer) {
     ...referer ? { Referer: referer } : { Referer: `${AKIANIME_BASE_URL}/` }
   };
 }
-function normalizeUrl(raw3, base = AKIANIME_BASE_URL) {
-  const trimmed = raw3.trim();
+function normalizeUrl(raw2, base = AKIANIME_BASE_URL) {
+  const trimmed = raw2.trim();
   if (!trimmed) return "";
   try {
     return new URL(trimmed, base).toString();
@@ -34572,9 +34572,9 @@ async function chaptersAkianime(rule, detailUrl) {
   const $2 = load(html3);
   const tabNames = [];
   $2('.anthology-tab a, .swiper-slide, [data-toggle="tab"]').each((_2, el) => {
-    const clone3 = $2(el).clone();
-    clone3.find(".badge, i, em, span").remove();
-    const name2 = clone3.text().trim();
+    const clone2 = $2(el).clone();
+    clone2.find(".badge, i, em, span").remove();
+    const name2 = clone2.text().trim();
     if (name2 && !name2.includes("\u9996\u9875") && !name2.includes("\u5267\u573A") && !name2.includes("APP")) {
       tabNames.push(decodeHtmlEntities(name2));
     }
@@ -34942,14 +34942,14 @@ async function resolveHuazi(_rule, pageUrl) {
     finalPlayUrl = finalPlayUrl.replace(/^http:\/\//i, "https://");
   }
   const isHls = result.kind === "hls" || finalPlayUrl.includes(".m3u8") || finalPlayUrl.includes("m3u8");
-  const format2 = isHls ? "hls" : "mp4";
+  const format = isHls ? "hls" : "mp4";
   const referer = `${HUAZI_BASE_URL}/`;
   const proxyUrl = `/api/media/proxy?url=${encodeURIComponent(finalPlayUrl)}&referer=${encodeURIComponent(referer)}`;
   return {
     playUrl: finalPlayUrl,
     proxyUrl,
     referer,
-    format: format2,
+    format,
     headers: result.headers,
     diagnostics: [
       `\u6210\u529F\u89E3\u6790\u82B1\u5B50\u52A8\u6F2B\u7EBF\u8DEF (${sourceCode || "\u9ED8\u8BA4"}): ${finalPlayUrl}`
@@ -35193,12 +35193,12 @@ async function resolveNeosek(rule, pageUrl) {
       }
       if (!assUrl && !vttUrl && flatUrl && !seenUrls.has(flatUrl)) {
         seenUrls.add(flatUrl);
-        const format2 = (sub.format || (flatUrl.endsWith(".ass") ? "ass" : "vtt")).toLowerCase();
+        const format = (sub.format || (flatUrl.endsWith(".ass") ? "ass" : "vtt")).toLowerCase();
         subtitles.push({
           id: baseId,
           label,
           url: flatUrl,
-          format: format2,
+          format,
           default: Boolean(sub.default)
         });
       }
@@ -35330,16 +35330,16 @@ async function searchBimi(rule, keyword) {
 }
 async function chaptersBimi(rule, source) {
   const baseUrl = getBaseUrl(rule);
-  let raw3 = source.trim();
-  if (!/^https?:\/\//i.test(raw3)) {
-    const idMatch = raw3.match(/\d+/);
+  let raw2 = source.trim();
+  if (!/^https?:\/\//i.test(raw2)) {
+    const idMatch = raw2.match(/\d+/);
     if (idMatch) {
-      raw3 = `/bangumi/bi/${idMatch[0]}/`;
+      raw2 = `/bangumi/bi/${idMatch[0]}/`;
     } else {
-      raw3 = `/bangumi/bi/${raw3}/`;
+      raw2 = `/bangumi/bi/${raw2}/`;
     }
   }
-  const detailUrl = assertOwnSourceUrl(raw3, baseUrl, BIMI_ALLOWED_HOSTS);
+  const detailUrl = assertOwnSourceUrl(raw2, baseUrl, BIMI_ALLOWED_HOSTS);
   assertPublicHttpUrl(detailUrl);
   const res = await fetchPublic(
     detailUrl,
@@ -35610,9 +35610,9 @@ async function searchMoonci(rule, keyword) {
       const itemRegex = /href=["'](\/anime\/\d+\.html)["'][^>]*title=["']([^"']+)["']/gi;
       let m2;
       while (m2 = itemRegex.exec(html3)) {
-        const path3 = m2[1];
+        const path2 = m2[1];
         const title = decodeHtml2(m2[2]).trim();
-        const detailUrl = `${MOONCI_BASE_URL}${path3}`;
+        const detailUrl = `${MOONCI_BASE_URL}${path2}`;
         if (title && !seenUrls.has(detailUrl)) {
           seenUrls.add(detailUrl);
           items.push({
@@ -36655,7 +36655,7 @@ async function resolveLzizy(rule, pageUrl) {
   const webBase = getBaseUrl4(rule);
   const isM3u8 = trimmedUrl.toLowerCase().includes(".m3u8");
   const isMp4 = trimmedUrl.toLowerCase().includes(".mp4");
-  const format2 = isMp4 ? "mp4" : "hls";
+  const format = isMp4 ? "mp4" : "hls";
   if (isM3u8 || isMp4) {
     return {
       playUrl: trimmedUrl,
@@ -36663,7 +36663,7 @@ async function resolveLzizy(rule, pageUrl) {
         url: trimmedUrl,
         referer: webBase
       }).toString()}`,
-      format: format2,
+      format,
       requiresProxy: false,
       referer: webBase,
       headers: {
@@ -36679,7 +36679,7 @@ async function resolveLzizy(rule, pageUrl) {
       url: trimmedUrl,
       referer: webBase
     }).toString()}`,
-    format: format2,
+    format,
     requiresProxy: false,
     referer: webBase,
     diagnostics: ["\u91CF\u5B50\u4E91\u515C\u5E95\u8FD4\u56DE\u64AD\u653E\u5730\u5740"]
@@ -37300,12 +37300,12 @@ async function resolveJzacg(rule, pageUrl) {
           );
           if (directMediaUrl && directMediaUrl.startsWith("http")) {
             const isHls = /\.m3u8(\?|$)/i.test(directMediaUrl) || directMediaUrl.includes(".m3u8");
-            const format2 = isHls ? "hls" : "mp4";
+            const format = isHls ? "hls" : "mp4";
             return {
               playUrl: directMediaUrl,
               proxyUrl: isHls ? `/api/media/m3u8?url=${encodeURIComponent(directMediaUrl)}` : `/api/media/proxy?url=${encodeURIComponent(directMediaUrl)}`,
               requiresProxy: false,
-              format: format2,
+              format,
               referer: "",
               headers: {
                 "User-Agent": config.defaultUserAgent
@@ -37622,14 +37622,14 @@ function parseOmofunChaptersHtml(html3, origin) {
   const playRe = /href=["'](\/anime\/[a-f0-9]+\/play\/(\d+)\/(\d+)\.html)["']([^>]*)>/gi;
   let pm;
   while (pm = playRe.exec(html3)) {
-    const path3 = pm[1];
+    const path2 = pm[1];
     const sid = pm[2];
     const nid = Number(pm[3]);
     if (!sid || !Number.isFinite(nid)) continue;
     const attrs = pm[4] || "";
     const title = (attrs.match(/\btitle=["']([^"']+)["']/i) || [])[1] || (attrs.match(/\bdata-num=["']([^"']+)["']/i) || [])[1] || "";
     const name2 = decodeHtml4(title).replace(/\s+/g, " ").trim() || `\u7B2C${nid}\u96C6`;
-    const url = absUrl2(origin, path3);
+    const url = absUrl2(origin, path2);
     if (!bySid.has(sid)) bySid.set(sid, /* @__PURE__ */ new Map());
     const bag = bySid.get(sid);
     if (!bag.has(url)) bag.set(url, { sid, nid, url, name: name2 });
@@ -37791,10 +37791,10 @@ function renderTemplate(template, ctx, extra) {
     return isRaw ? str : encodeURIComponent(str);
   });
 }
-function renderMap(raw3, ctx) {
-  if (!raw3 || typeof raw3 !== "object" || Array.isArray(raw3)) return {};
+function renderMap(raw2, ctx) {
+  if (!raw2 || typeof raw2 !== "object" || Array.isArray(raw2)) return {};
   const out = {};
-  for (const [k2, v2] of Object.entries(raw3)) {
+  for (const [k2, v2] of Object.entries(raw2)) {
     out[k2] = renderTemplate(String(v2 ?? ""), ctx);
   }
   return out;
@@ -37808,9 +37808,9 @@ function toAbsoluteUrl(rawUrl, base) {
     return trimmed;
   }
 }
-function jsonPath(obj, path3) {
-  if (obj == null || !path3) return obj;
-  const parts = path3.replace(/\[(\w+)\]/g, ".$1").replace(/^\./, "").split(".");
+function jsonPath(obj, path2) {
+  if (obj == null || !path2) return obj;
+  const parts = path2.replace(/\[(\w+)\]/g, ".$1").replace(/^\./, "").split(".");
   let cur = obj;
   for (const part of parts) {
     if (cur == null) return void 0;
@@ -38209,13 +38209,13 @@ var init_animaku_adapter = __esm({
       },
       json(step, ctx) {
         const data2 = asJson(ctx.value);
-        const path3 = String(step.path ?? "").trim();
-        let val2 = jsonPath(data2, path3);
-        if ((val2 == null || val2 === "") && path3) {
-          if (path3.startsWith("data.")) {
-            val2 = jsonPath(data2, path3.slice(5));
-          } else if (!path3.includes(".")) {
-            val2 = jsonPath(data2, `data.${path3}`);
+        const path2 = String(step.path ?? "").trim();
+        let val2 = jsonPath(data2, path2);
+        if ((val2 == null || val2 === "") && path2) {
+          if (path2.startsWith("data.")) {
+            val2 = jsonPath(data2, path2.slice(5));
+          } else if (!path2.includes(".")) {
+            val2 = jsonPath(data2, `data.${path2}`);
           }
         }
         ctx.value = val2;
@@ -38376,14 +38376,14 @@ var init_animaku_adapter = __esm({
       },
       jsonSeries(step, ctx) {
         ctx.beginSink();
-        const raw3 = asJson(ctx.value);
-        if (!raw3) return;
+        const raw2 = asJson(ctx.value);
+        if (!raw2) return;
         const listPath = String(step.listPath ?? "");
-        let target = jsonPath(raw3, listPath);
+        let target = jsonPath(raw2, listPath);
         if (!Array.isArray(target)) {
-          if (Array.isArray(raw3)) target = raw3;
-          else if (raw3 && typeof raw3 === "object") {
-            const r2 = raw3;
+          if (Array.isArray(raw2)) target = raw2;
+          else if (raw2 && typeof raw2 === "object") {
+            const r2 = raw2;
             if (Array.isArray(r2.data)) target = r2.data;
             else if (Array.isArray(r2.list)) target = r2.list;
             else if (Array.isArray(r2.videos)) target = r2.videos;
@@ -38571,12 +38571,12 @@ var init_animaku_adapter = __esm({
         });
       },
       videoUrl(step, ctx) {
-        const raw3 = ctx.currentString.trim();
-        if (HTTP_SCHEME_RE.test(raw3) && !raw3.includes("<html") && !raw3.includes("{")) {
-          ctx.value = raw3;
+        const raw2 = ctx.currentString.trim();
+        if (HTTP_SCHEME_RE.test(raw2) && !raw2.includes("<html") && !raw2.includes("{")) {
+          ctx.value = raw2;
           return;
         }
-        const m2 = raw3.match(
+        const m2 = raw2.match(
           /(https?:\/\/[^\s"'<>\\]+?\.(?:m3u8|mp4)(?:\?[^\s"'<>\\]*)?)/i
         );
         ctx.value = m2 ? m2[1].replace(/\\u002F/g, "/").replace(/\\\//g, "/") : "";
@@ -38861,8 +38861,8 @@ __export(api_exports, {
   searchWithApiRule: () => searchWithApiRule,
   validateJsonPath: () => validateJsonPath
 });
-function normalizeEpisodeUrl(baseUrl, raw3) {
-  const trimmed = raw3.trim();
+function normalizeEpisodeUrl(baseUrl, raw2) {
+  const trimmed = raw2.trim();
   if (!trimmed) return "";
   let resolved = null;
   try {
@@ -38881,9 +38881,9 @@ function normalizeEpisodeUrl(baseUrl, raw3) {
     }
   } catch {
   }
-  let path3 = resolved.pathname;
-  while (path3.length > 1 && path3.endsWith("/")) path3 = path3.slice(0, -1);
-  resolved.pathname = path3;
+  let path2 = resolved.pathname;
+  while (path2.length > 1 && path2.endsWith("/")) path2 = path2.slice(0, -1);
+  resolved.pathname = path2;
   return resolved.toString();
 }
 function validateJsonPath(expression) {
@@ -39174,15 +39174,15 @@ function resolveEpisodeUrl(cfg, rootVariables, opts) {
     episodeIndex: opts.episodeIndex,
     episodeNumber: opts.episodeIndex + 1
   };
-  const path3 = renderTemplate2(page.url, variables, true);
+  const path2 = renderTemplate2(page.url, variables, true);
   let uri;
   try {
-    uri = new URL(path3);
+    uri = new URL(path2);
   } catch {
     try {
-      uri = new URL(path3, opts.baseUrl);
+      uri = new URL(path2, opts.baseUrl);
     } catch {
-      throw new ApiRuleError(`\u5267\u96C6\u9875\u9762 URL \u65E0\u6548: ${path3}`);
+      throw new ApiRuleError(`\u5267\u96C6\u9875\u9762 URL \u65E0\u6548: ${path2}`);
     }
   }
   const renderedQuery = renderMap2(page.query, variables);
@@ -39195,11 +39195,11 @@ function parseApiChapters(document2, cfg, source, baseUrl) {
   const diagnostics = [];
   const rootVariables = { source };
   if (cfg.variables) {
-    for (const [key, path3] of Object.entries(cfg.variables)) {
-      validateJsonPath(path3);
-      const value = jsonPathReadFirst(document2, path3);
+    for (const [key, path2] of Object.entries(cfg.variables)) {
+      validateJsonPath(path2);
+      const value = jsonPathReadFirst(document2, path2);
       if (value == null) {
-        throw new ApiRuleError(`\u7AE0\u8282\u54CD\u5E94\u53D8\u91CF ${key} \u672A\u5339\u914D\u5230\u503C: ${path3}`);
+        throw new ApiRuleError(`\u7AE0\u8282\u54CD\u5E94\u53D8\u91CF ${key} \u672A\u5339\u914D\u5230\u503C: ${path2}`);
       }
       rootVariables[key] = value;
     }
@@ -39425,4168 +39425,6 @@ var init_indexnow = __esm({
     init_config();
     init_private_host_edge_stub();
     init_seo_static();
-  }
-});
-
-// node_modules/detect-libc/lib/process.js
-var require_process = __commonJS({
-  "node_modules/detect-libc/lib/process.js"(exports, module) {
-    "use strict";
-    var isLinux = () => process.platform === "linux";
-    var report = null;
-    var getReport = () => {
-      if (!report) {
-        if (isLinux() && process.report) {
-          const orig = process.report.excludeNetwork;
-          process.report.excludeNetwork = true;
-          report = process.report.getReport();
-          process.report.excludeNetwork = orig;
-        } else {
-          report = {};
-        }
-      }
-      return report;
-    };
-    module.exports = { isLinux, getReport };
-  }
-});
-
-// node_modules/detect-libc/lib/filesystem.js
-var require_filesystem = __commonJS({
-  "node_modules/detect-libc/lib/filesystem.js"(exports, module) {
-    "use strict";
-    var fs2 = __require("fs");
-    var LDD_PATH = "/usr/bin/ldd";
-    var SELF_PATH = "/proc/self/exe";
-    var MAX_LENGTH = 2048;
-    var readFileSync4 = (path3) => {
-      const fd = fs2.openSync(path3, "r");
-      const buffer2 = Buffer.alloc(MAX_LENGTH);
-      const bytesRead = fs2.readSync(fd, buffer2, 0, MAX_LENGTH, 0);
-      fs2.close(fd, () => {
-      });
-      return buffer2.subarray(0, bytesRead);
-    };
-    var readFile = (path3) => new Promise((resolve4, reject) => {
-      fs2.open(path3, "r", (err, fd) => {
-        if (err) {
-          reject(err);
-        } else {
-          const buffer2 = Buffer.alloc(MAX_LENGTH);
-          fs2.read(fd, buffer2, 0, MAX_LENGTH, 0, (_2, bytesRead) => {
-            resolve4(buffer2.subarray(0, bytesRead));
-            fs2.close(fd, () => {
-            });
-          });
-        }
-      });
-    });
-    module.exports = {
-      LDD_PATH,
-      SELF_PATH,
-      readFileSync: readFileSync4,
-      readFile
-    };
-  }
-});
-
-// node_modules/detect-libc/lib/elf.js
-var require_elf = __commonJS({
-  "node_modules/detect-libc/lib/elf.js"(exports, module) {
-    "use strict";
-    var interpreterPath = (elf) => {
-      if (elf.length < 64) {
-        return null;
-      }
-      if (elf.readUInt32BE(0) !== 2135247942) {
-        return null;
-      }
-      if (elf.readUInt8(4) !== 2) {
-        return null;
-      }
-      if (elf.readUInt8(5) !== 1) {
-        return null;
-      }
-      const offset = elf.readUInt32LE(32);
-      const size = elf.readUInt16LE(54);
-      const count = elf.readUInt16LE(56);
-      for (let i2 = 0; i2 < count; i2++) {
-        const headerOffset = offset + i2 * size;
-        const type = elf.readUInt32LE(headerOffset);
-        if (type === 3) {
-          const fileOffset = elf.readUInt32LE(headerOffset + 8);
-          const fileSize = elf.readUInt32LE(headerOffset + 32);
-          return elf.subarray(fileOffset, fileOffset + fileSize).toString().replace(/\0.*$/g, "");
-        }
-      }
-      return null;
-    };
-    module.exports = {
-      interpreterPath
-    };
-  }
-});
-
-// node_modules/detect-libc/lib/detect-libc.js
-var require_detect_libc = __commonJS({
-  "node_modules/detect-libc/lib/detect-libc.js"(exports, module) {
-    "use strict";
-    var childProcess = __require("child_process");
-    var { isLinux, getReport } = require_process();
-    var { LDD_PATH, SELF_PATH, readFile, readFileSync: readFileSync4 } = require_filesystem();
-    var { interpreterPath } = require_elf();
-    var cachedFamilyInterpreter;
-    var cachedFamilyFilesystem;
-    var cachedVersionFilesystem;
-    var command = "getconf GNU_LIBC_VERSION 2>&1 || true; ldd --version 2>&1 || true";
-    var commandOut = "";
-    var safeCommand = () => {
-      if (!commandOut) {
-        return new Promise((resolve4) => {
-          childProcess.exec(command, (err, out) => {
-            commandOut = err ? " " : out;
-            resolve4(commandOut);
-          });
-        });
-      }
-      return commandOut;
-    };
-    var safeCommandSync = () => {
-      if (!commandOut) {
-        try {
-          commandOut = childProcess.execSync(command, { encoding: "utf8" });
-        } catch (_err) {
-          commandOut = " ";
-        }
-      }
-      return commandOut;
-    };
-    var GLIBC = "glibc";
-    var RE_GLIBC_VERSION = /LIBC[a-z0-9 \-).]*?(\d+\.\d+)/i;
-    var MUSL = "musl";
-    var isFileMusl = (f2) => f2.includes("libc.musl-") || f2.includes("ld-musl-");
-    var familyFromReport = () => {
-      const report = getReport();
-      if (report.header && report.header.glibcVersionRuntime) {
-        return GLIBC;
-      }
-      if (Array.isArray(report.sharedObjects)) {
-        if (report.sharedObjects.some(isFileMusl)) {
-          return MUSL;
-        }
-      }
-      return null;
-    };
-    var familyFromCommand = (out) => {
-      const [getconf, ldd1] = out.split(/[\r\n]+/);
-      if (getconf && getconf.includes(GLIBC)) {
-        return GLIBC;
-      }
-      if (ldd1 && ldd1.includes(MUSL)) {
-        return MUSL;
-      }
-      return null;
-    };
-    var familyFromInterpreterPath = (path3) => {
-      if (path3) {
-        if (path3.includes("/ld-musl-")) {
-          return MUSL;
-        } else if (path3.includes("/ld-linux-")) {
-          return GLIBC;
-        }
-      }
-      return null;
-    };
-    var getFamilyFromLddContent = (content) => {
-      content = content.toString();
-      if (content.includes("musl")) {
-        return MUSL;
-      }
-      if (content.includes("GNU C Library")) {
-        return GLIBC;
-      }
-      return null;
-    };
-    var familyFromFilesystem = async () => {
-      if (cachedFamilyFilesystem !== void 0) {
-        return cachedFamilyFilesystem;
-      }
-      cachedFamilyFilesystem = null;
-      try {
-        const lddContent = await readFile(LDD_PATH);
-        cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
-      } catch (e2) {
-      }
-      return cachedFamilyFilesystem;
-    };
-    var familyFromFilesystemSync = () => {
-      if (cachedFamilyFilesystem !== void 0) {
-        return cachedFamilyFilesystem;
-      }
-      cachedFamilyFilesystem = null;
-      try {
-        const lddContent = readFileSync4(LDD_PATH);
-        cachedFamilyFilesystem = getFamilyFromLddContent(lddContent);
-      } catch (e2) {
-      }
-      return cachedFamilyFilesystem;
-    };
-    var familyFromInterpreter = async () => {
-      if (cachedFamilyInterpreter !== void 0) {
-        return cachedFamilyInterpreter;
-      }
-      cachedFamilyInterpreter = null;
-      try {
-        const selfContent = await readFile(SELF_PATH);
-        const path3 = interpreterPath(selfContent);
-        cachedFamilyInterpreter = familyFromInterpreterPath(path3);
-      } catch (e2) {
-      }
-      return cachedFamilyInterpreter;
-    };
-    var familyFromInterpreterSync = () => {
-      if (cachedFamilyInterpreter !== void 0) {
-        return cachedFamilyInterpreter;
-      }
-      cachedFamilyInterpreter = null;
-      try {
-        const selfContent = readFileSync4(SELF_PATH);
-        const path3 = interpreterPath(selfContent);
-        cachedFamilyInterpreter = familyFromInterpreterPath(path3);
-      } catch (e2) {
-      }
-      return cachedFamilyInterpreter;
-    };
-    var family = async () => {
-      let family2 = null;
-      if (isLinux()) {
-        family2 = await familyFromInterpreter();
-        if (!family2) {
-          family2 = await familyFromFilesystem();
-          if (!family2) {
-            family2 = familyFromReport();
-          }
-          if (!family2) {
-            const out = await safeCommand();
-            family2 = familyFromCommand(out);
-          }
-        }
-      }
-      return family2;
-    };
-    var familySync2 = () => {
-      let family2 = null;
-      if (isLinux()) {
-        family2 = familyFromInterpreterSync();
-        if (!family2) {
-          family2 = familyFromFilesystemSync();
-          if (!family2) {
-            family2 = familyFromReport();
-          }
-          if (!family2) {
-            const out = safeCommandSync();
-            family2 = familyFromCommand(out);
-          }
-        }
-      }
-      return family2;
-    };
-    var isNonGlibcLinux = async () => isLinux() && await family() !== GLIBC;
-    var isNonGlibcLinuxSync = () => isLinux() && familySync2() !== GLIBC;
-    var versionFromFilesystem = async () => {
-      if (cachedVersionFilesystem !== void 0) {
-        return cachedVersionFilesystem;
-      }
-      cachedVersionFilesystem = null;
-      try {
-        const lddContent = await readFile(LDD_PATH);
-        const versionMatch = lddContent.match(RE_GLIBC_VERSION);
-        if (versionMatch) {
-          cachedVersionFilesystem = versionMatch[1];
-        }
-      } catch (e2) {
-      }
-      return cachedVersionFilesystem;
-    };
-    var versionFromFilesystemSync = () => {
-      if (cachedVersionFilesystem !== void 0) {
-        return cachedVersionFilesystem;
-      }
-      cachedVersionFilesystem = null;
-      try {
-        const lddContent = readFileSync4(LDD_PATH);
-        const versionMatch = lddContent.match(RE_GLIBC_VERSION);
-        if (versionMatch) {
-          cachedVersionFilesystem = versionMatch[1];
-        }
-      } catch (e2) {
-      }
-      return cachedVersionFilesystem;
-    };
-    var versionFromReport = () => {
-      const report = getReport();
-      if (report.header && report.header.glibcVersionRuntime) {
-        return report.header.glibcVersionRuntime;
-      }
-      return null;
-    };
-    var versionSuffix = (s2) => s2.trim().split(/\s+/)[1];
-    var versionFromCommand = (out) => {
-      const [getconf, ldd1, ldd2] = out.split(/[\r\n]+/);
-      if (getconf && getconf.includes(GLIBC)) {
-        return versionSuffix(getconf);
-      }
-      if (ldd1 && ldd2 && ldd1.includes(MUSL)) {
-        return versionSuffix(ldd2);
-      }
-      return null;
-    };
-    var version2 = async () => {
-      let version3 = null;
-      if (isLinux()) {
-        version3 = await versionFromFilesystem();
-        if (!version3) {
-          version3 = versionFromReport();
-        }
-        if (!version3) {
-          const out = await safeCommand();
-          version3 = versionFromCommand(out);
-        }
-      }
-      return version3;
-    };
-    var versionSync2 = () => {
-      let version3 = null;
-      if (isLinux()) {
-        version3 = versionFromFilesystemSync();
-        if (!version3) {
-          version3 = versionFromReport();
-        }
-        if (!version3) {
-          const out = safeCommandSync();
-          version3 = versionFromCommand(out);
-        }
-      }
-      return version3;
-    };
-    module.exports = {
-      GLIBC,
-      MUSL,
-      family,
-      familySync: familySync2,
-      isNonGlibcLinux,
-      isNonGlibcLinuxSync,
-      version: version2,
-      versionSync: versionSync2
-    };
-  }
-});
-
-// node_modules/semver/internal/constants.js
-var require_constants = __commonJS({
-  "node_modules/semver/internal/constants.js"(exports, module) {
-    "use strict";
-    var SEMVER_SPEC_VERSION = "2.0.0";
-    var MAX_LENGTH = 256;
-    var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || /* istanbul ignore next */
-    9007199254740991;
-    var MAX_SAFE_COMPONENT_LENGTH = 16;
-    var MAX_SAFE_BUILD_LENGTH = MAX_LENGTH - 6;
-    var WHITESPACE_CHARACTERS = [
-      "	",
-      "\n",
-      "\v",
-      "\f",
-      "\r",
-      " ",
-      "\xA0",
-      "\u1680",
-      "\u2000",
-      "\u2001",
-      "\u2002",
-      "\u2003",
-      "\u2004",
-      "\u2005",
-      "\u2006",
-      "\u2007",
-      "\u2008",
-      "\u2009",
-      "\u200A",
-      "\u2028",
-      "\u2029",
-      "\u202F",
-      "\u205F",
-      "\u3000",
-      "\uFEFF"
-    ];
-    var RELEASE_TYPES = [
-      "major",
-      "premajor",
-      "minor",
-      "preminor",
-      "patch",
-      "prepatch",
-      "prerelease"
-    ];
-    module.exports = {
-      MAX_LENGTH,
-      MAX_SAFE_COMPONENT_LENGTH,
-      MAX_SAFE_BUILD_LENGTH,
-      MAX_SAFE_INTEGER,
-      WHITESPACE_CHARACTERS,
-      RELEASE_TYPES,
-      SEMVER_SPEC_VERSION,
-      FLAG_INCLUDE_PRERELEASE: 1,
-      FLAG_LOOSE: 2
-    };
-  }
-});
-
-// node_modules/semver/internal/debug.js
-var require_debug = __commonJS({
-  "node_modules/semver/internal/debug.js"(exports, module) {
-    "use strict";
-    var debug = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
-    };
-    module.exports = debug;
-  }
-});
-
-// node_modules/semver/internal/re.js
-var require_re = __commonJS({
-  "node_modules/semver/internal/re.js"(exports, module) {
-    "use strict";
-    var {
-      MAX_SAFE_COMPONENT_LENGTH,
-      MAX_SAFE_BUILD_LENGTH,
-      MAX_LENGTH
-    } = require_constants();
-    var debug = require_debug();
-    exports = module.exports = {};
-    var re = exports.re = [];
-    var safeRe = exports.safeRe = [];
-    var src = exports.src = [];
-    var safeSrc = exports.safeSrc = [];
-    var t2 = exports.t = {};
-    var R = 0;
-    var LETTERDASHNUMBER = "[a-zA-Z0-9-]";
-    var safeRegexReplacements = [
-      ["\\s", 1],
-      ["\\d", MAX_LENGTH],
-      [LETTERDASHNUMBER, MAX_SAFE_BUILD_LENGTH]
-    ];
-    var makeSafeRegex = (value) => {
-      for (const [token, max] of safeRegexReplacements) {
-        value = value.split(`${token}*`).join(`${token}{0,${max}}`).split(`${token}+`).join(`${token}{1,${max}}`);
-      }
-      return value;
-    };
-    var createToken = (name2, value, isGlobal) => {
-      const safe = makeSafeRegex(value);
-      const index2 = R++;
-      debug(name2, index2, value);
-      t2[name2] = index2;
-      src[index2] = value;
-      safeSrc[index2] = safe;
-      re[index2] = new RegExp(value, isGlobal ? "g" : void 0);
-      safeRe[index2] = new RegExp(safe, isGlobal ? "g" : void 0);
-    };
-    createToken("NUMERICIDENTIFIER", "0|[1-9]\\d*");
-    createToken("NUMERICIDENTIFIERLOOSE", "\\d+");
-    createToken("NONNUMERICIDENTIFIER", `\\d*[a-zA-Z-]${LETTERDASHNUMBER}*`);
-    createToken("MAINVERSION", `(${src[t2.NUMERICIDENTIFIER]})\\.(${src[t2.NUMERICIDENTIFIER]})\\.(${src[t2.NUMERICIDENTIFIER]})`);
-    createToken("MAINVERSIONLOOSE", `(${src[t2.NUMERICIDENTIFIERLOOSE]})\\.(${src[t2.NUMERICIDENTIFIERLOOSE]})\\.(${src[t2.NUMERICIDENTIFIERLOOSE]})`);
-    createToken("PRERELEASEIDENTIFIER", `(?:${src[t2.NONNUMERICIDENTIFIER]}|${src[t2.NUMERICIDENTIFIER]})`);
-    createToken("PRERELEASEIDENTIFIERLOOSE", `(?:${src[t2.NONNUMERICIDENTIFIER]}|${src[t2.NUMERICIDENTIFIERLOOSE]})`);
-    createToken("PRERELEASE", `(?:-(${src[t2.PRERELEASEIDENTIFIER]}(?:\\.${src[t2.PRERELEASEIDENTIFIER]})*))`);
-    createToken("PRERELEASELOOSE", `(?:-?(${src[t2.PRERELEASEIDENTIFIERLOOSE]}(?:\\.${src[t2.PRERELEASEIDENTIFIERLOOSE]})*))`);
-    createToken("BUILDIDENTIFIER", `${LETTERDASHNUMBER}+`);
-    createToken("BUILD", `(?:\\+(${src[t2.BUILDIDENTIFIER]}(?:\\.${src[t2.BUILDIDENTIFIER]})*))`);
-    createToken("FULLPLAIN", `v?${src[t2.MAINVERSION]}${src[t2.PRERELEASE]}?${src[t2.BUILD]}?`);
-    createToken("FULL", `^${src[t2.FULLPLAIN]}$`);
-    createToken("LOOSEPLAIN", `[v=\\s]*${src[t2.MAINVERSIONLOOSE]}${src[t2.PRERELEASELOOSE]}?${src[t2.BUILD]}?`);
-    createToken("LOOSE", `^${src[t2.LOOSEPLAIN]}$`);
-    createToken("GTLT", "((?:<|>)?=?)");
-    createToken("XRANGEIDENTIFIERLOOSE", `${src[t2.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
-    createToken("XRANGEIDENTIFIER", `${src[t2.NUMERICIDENTIFIER]}|x|X|\\*`);
-    createToken("XRANGEPLAIN", `[v=\\s]*(${src[t2.XRANGEIDENTIFIER]})(?:\\.(${src[t2.XRANGEIDENTIFIER]})(?:\\.(${src[t2.XRANGEIDENTIFIER]})(?:${src[t2.PRERELEASE]})?${src[t2.BUILD]}?)?)?`);
-    createToken("XRANGEPLAINLOOSE", `[v=\\s]*(${src[t2.XRANGEIDENTIFIERLOOSE]})(?:\\.(${src[t2.XRANGEIDENTIFIERLOOSE]})(?:\\.(${src[t2.XRANGEIDENTIFIERLOOSE]})(?:${src[t2.PRERELEASELOOSE]})?${src[t2.BUILD]}?)?)?`);
-    createToken("XRANGE", `^${src[t2.GTLT]}\\s*${src[t2.XRANGEPLAIN]}$`);
-    createToken("XRANGELOOSE", `^${src[t2.GTLT]}\\s*${src[t2.XRANGEPLAINLOOSE]}$`);
-    createToken("COERCEPLAIN", `${"(^|[^\\d])(\\d{1,"}${MAX_SAFE_COMPONENT_LENGTH}})(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?`);
-    createToken("COERCE", `${src[t2.COERCEPLAIN]}(?:$|[^\\d])`);
-    createToken("COERCEFULL", src[t2.COERCEPLAIN] + `(?:${src[t2.PRERELEASE]})?(?:${src[t2.BUILD]})?(?:$|[^\\d])`);
-    createToken("COERCERTL", src[t2.COERCE], true);
-    createToken("COERCERTLFULL", src[t2.COERCEFULL], true);
-    createToken("LONETILDE", "(?:~>?)");
-    createToken("TILDETRIM", `(\\s*)${src[t2.LONETILDE]}\\s+`, true);
-    exports.tildeTrimReplace = "$1~";
-    createToken("TILDE", `^${src[t2.LONETILDE]}${src[t2.XRANGEPLAIN]}$`);
-    createToken("TILDELOOSE", `^${src[t2.LONETILDE]}${src[t2.XRANGEPLAINLOOSE]}$`);
-    createToken("LONECARET", "(?:\\^)");
-    createToken("CARETTRIM", `(\\s*)${src[t2.LONECARET]}\\s+`, true);
-    exports.caretTrimReplace = "$1^";
-    createToken("CARET", `^${src[t2.LONECARET]}${src[t2.XRANGEPLAIN]}$`);
-    createToken("CARETLOOSE", `^${src[t2.LONECARET]}${src[t2.XRANGEPLAINLOOSE]}$`);
-    createToken("COMPARATORLOOSE", `^${src[t2.GTLT]}\\s*(${src[t2.LOOSEPLAIN]})$|^$`);
-    createToken("COMPARATOR", `^${src[t2.GTLT]}\\s*(${src[t2.FULLPLAIN]})$|^$`);
-    createToken("COMPARATORTRIM", `(\\s*)${src[t2.GTLT]}\\s*(${src[t2.LOOSEPLAIN]}|${src[t2.XRANGEPLAIN]})`, true);
-    exports.comparatorTrimReplace = "$1$2$3";
-    createToken("HYPHENRANGE", `^\\s*(${src[t2.XRANGEPLAIN]})\\s+-\\s+(${src[t2.XRANGEPLAIN]})\\s*$`);
-    createToken("HYPHENRANGELOOSE", `^\\s*(${src[t2.XRANGEPLAINLOOSE]})\\s+-\\s+(${src[t2.XRANGEPLAINLOOSE]})\\s*$`);
-    createToken("STAR", "(<|>)?=?\\s*\\*");
-    createToken("GTE0", "^\\s*>=\\s*0\\.0\\.0\\s*$");
-    createToken("GTE0PRE", "^\\s*>=\\s*0\\.0\\.0-0\\s*$");
-  }
-});
-
-// node_modules/semver/internal/parse-options.js
-var require_parse_options = __commonJS({
-  "node_modules/semver/internal/parse-options.js"(exports, module) {
-    "use strict";
-    var looseOption = Object.freeze({ loose: true });
-    var emptyOpts = Object.freeze({});
-    var parseOptions = (options) => {
-      if (!options) {
-        return emptyOpts;
-      }
-      if (typeof options !== "object") {
-        return looseOption;
-      }
-      return options;
-    };
-    module.exports = parseOptions;
-  }
-});
-
-// node_modules/semver/internal/identifiers.js
-var require_identifiers = __commonJS({
-  "node_modules/semver/internal/identifiers.js"(exports, module) {
-    "use strict";
-    var numeric = /^[0-9]+$/;
-    var compareIdentifiers = (a2, b2) => {
-      if (typeof a2 === "number" && typeof b2 === "number") {
-        return a2 === b2 ? 0 : a2 < b2 ? -1 : 1;
-      }
-      const anum = numeric.test(a2);
-      const bnum = numeric.test(b2);
-      if (anum && bnum) {
-        a2 = +a2;
-        b2 = +b2;
-      }
-      return a2 === b2 ? 0 : anum && !bnum ? -1 : bnum && !anum ? 1 : a2 < b2 ? -1 : 1;
-    };
-    var rcompareIdentifiers = (a2, b2) => compareIdentifiers(b2, a2);
-    module.exports = {
-      compareIdentifiers,
-      rcompareIdentifiers
-    };
-  }
-});
-
-// node_modules/semver/classes/semver.js
-var require_semver = __commonJS({
-  "node_modules/semver/classes/semver.js"(exports, module) {
-    "use strict";
-    var debug = require_debug();
-    var { MAX_LENGTH, MAX_SAFE_INTEGER } = require_constants();
-    var { safeRe: re, t: t2 } = require_re();
-    var parseOptions = require_parse_options();
-    var { compareIdentifiers } = require_identifiers();
-    var isPrereleaseIdentifier = (prerelease, identifier) => {
-      const identifiers = identifier.split(".");
-      if (identifiers.length > prerelease.length) {
-        return false;
-      }
-      for (let i2 = 0; i2 < identifiers.length; i2++) {
-        if (compareIdentifiers(prerelease[i2], identifiers[i2]) !== 0) {
-          return false;
-        }
-      }
-      return true;
-    };
-    var SemVer = class _SemVer {
-      constructor(version2, options) {
-        options = parseOptions(options);
-        if (version2 instanceof _SemVer) {
-          if (version2.loose === !!options.loose && version2.includePrerelease === !!options.includePrerelease) {
-            return version2;
-          } else {
-            version2 = version2.version;
-          }
-        } else if (typeof version2 !== "string") {
-          throw new TypeError(`Invalid version. Must be a string. Got type "${typeof version2}".`);
-        }
-        if (version2.length > MAX_LENGTH) {
-          throw new TypeError(
-            `version is longer than ${MAX_LENGTH} characters`
-          );
-        }
-        debug("SemVer", version2, options);
-        this.options = options;
-        this.loose = !!options.loose;
-        this.includePrerelease = !!options.includePrerelease;
-        const m2 = version2.trim().match(options.loose ? re[t2.LOOSE] : re[t2.FULL]);
-        if (!m2) {
-          throw new TypeError(`Invalid Version: ${version2}`);
-        }
-        this.raw = version2;
-        this.major = +m2[1];
-        this.minor = +m2[2];
-        this.patch = +m2[3];
-        if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
-          throw new TypeError("Invalid major version");
-        }
-        if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
-          throw new TypeError("Invalid minor version");
-        }
-        if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
-          throw new TypeError("Invalid patch version");
-        }
-        if (!m2[4]) {
-          this.prerelease = [];
-        } else {
-          this.prerelease = m2[4].split(".").map((id) => {
-            if (/^[0-9]+$/.test(id)) {
-              const num = +id;
-              if (num >= 0 && num < MAX_SAFE_INTEGER) {
-                return num;
-              }
-            }
-            return id;
-          });
-        }
-        this.build = m2[5] ? m2[5].split(".") : [];
-        this.format();
-      }
-      format() {
-        this.version = `${this.major}.${this.minor}.${this.patch}`;
-        if (this.prerelease.length) {
-          this.version += `-${this.prerelease.join(".")}`;
-        }
-        return this.version;
-      }
-      toString() {
-        return this.version;
-      }
-      compare(other) {
-        debug("SemVer.compare", this.version, this.options, other);
-        if (!(other instanceof _SemVer)) {
-          if (typeof other === "string" && other === this.version) {
-            return 0;
-          }
-          other = new _SemVer(other, this.options);
-        }
-        if (other.version === this.version) {
-          return 0;
-        }
-        return this.compareMain(other) || this.comparePre(other);
-      }
-      compareMain(other) {
-        if (!(other instanceof _SemVer)) {
-          other = new _SemVer(other, this.options);
-        }
-        if (this.major < other.major) {
-          return -1;
-        }
-        if (this.major > other.major) {
-          return 1;
-        }
-        if (this.minor < other.minor) {
-          return -1;
-        }
-        if (this.minor > other.minor) {
-          return 1;
-        }
-        if (this.patch < other.patch) {
-          return -1;
-        }
-        if (this.patch > other.patch) {
-          return 1;
-        }
-        return 0;
-      }
-      comparePre(other) {
-        if (!(other instanceof _SemVer)) {
-          other = new _SemVer(other, this.options);
-        }
-        if (this.prerelease.length && !other.prerelease.length) {
-          return -1;
-        } else if (!this.prerelease.length && other.prerelease.length) {
-          return 1;
-        } else if (!this.prerelease.length && !other.prerelease.length) {
-          return 0;
-        }
-        let i2 = 0;
-        do {
-          const a2 = this.prerelease[i2];
-          const b2 = other.prerelease[i2];
-          debug("prerelease compare", i2, a2, b2);
-          if (a2 === void 0 && b2 === void 0) {
-            return 0;
-          } else if (b2 === void 0) {
-            return 1;
-          } else if (a2 === void 0) {
-            return -1;
-          } else if (a2 === b2) {
-            continue;
-          } else {
-            return compareIdentifiers(a2, b2);
-          }
-        } while (++i2);
-      }
-      compareBuild(other) {
-        if (!(other instanceof _SemVer)) {
-          other = new _SemVer(other, this.options);
-        }
-        let i2 = 0;
-        do {
-          const a2 = this.build[i2];
-          const b2 = other.build[i2];
-          debug("build compare", i2, a2, b2);
-          if (a2 === void 0 && b2 === void 0) {
-            return 0;
-          } else if (b2 === void 0) {
-            return 1;
-          } else if (a2 === void 0) {
-            return -1;
-          } else if (a2 === b2) {
-            continue;
-          } else {
-            return compareIdentifiers(a2, b2);
-          }
-        } while (++i2);
-      }
-      // preminor will bump the version up to the next minor release, and immediately
-      // down to pre-release. premajor and prepatch work the same way.
-      inc(release, identifier, identifierBase) {
-        if (release.startsWith("pre")) {
-          if (!identifier && identifierBase === false) {
-            throw new Error("invalid increment argument: identifier is empty");
-          }
-          if (identifier) {
-            const match2 = `-${identifier}`.match(this.options.loose ? re[t2.PRERELEASELOOSE] : re[t2.PRERELEASE]);
-            if (!match2 || match2[1] !== identifier) {
-              throw new Error(`invalid identifier: ${identifier}`);
-            }
-          }
-        }
-        switch (release) {
-          case "premajor":
-            this.prerelease.length = 0;
-            this.patch = 0;
-            this.minor = 0;
-            this.major++;
-            this.inc("pre", identifier, identifierBase);
-            break;
-          case "preminor":
-            this.prerelease.length = 0;
-            this.patch = 0;
-            this.minor++;
-            this.inc("pre", identifier, identifierBase);
-            break;
-          case "prepatch":
-            this.prerelease.length = 0;
-            this.inc("patch", identifier, identifierBase);
-            this.inc("pre", identifier, identifierBase);
-            break;
-          // If the input is a non-prerelease version, this acts the same as
-          // prepatch.
-          case "prerelease":
-            if (this.prerelease.length === 0) {
-              this.inc("patch", identifier, identifierBase);
-            }
-            this.inc("pre", identifier, identifierBase);
-            break;
-          case "release":
-            if (this.prerelease.length === 0) {
-              throw new Error(`version ${this.raw} is not a prerelease`);
-            }
-            this.prerelease.length = 0;
-            break;
-          case "major":
-            if (this.minor !== 0 || this.patch !== 0 || this.prerelease.length === 0) {
-              this.major++;
-            }
-            this.minor = 0;
-            this.patch = 0;
-            this.prerelease = [];
-            break;
-          case "minor":
-            if (this.patch !== 0 || this.prerelease.length === 0) {
-              this.minor++;
-            }
-            this.patch = 0;
-            this.prerelease = [];
-            break;
-          case "patch":
-            if (this.prerelease.length === 0) {
-              this.patch++;
-            }
-            this.prerelease = [];
-            break;
-          // This probably shouldn't be used publicly.
-          // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
-          case "pre": {
-            const base = Number(identifierBase) ? 1 : 0;
-            if (this.prerelease.length === 0) {
-              this.prerelease = [base];
-            } else {
-              let i2 = this.prerelease.length;
-              while (--i2 >= 0) {
-                if (typeof this.prerelease[i2] === "number") {
-                  this.prerelease[i2]++;
-                  i2 = -2;
-                }
-              }
-              if (i2 === -1) {
-                if (identifier === this.prerelease.join(".") && identifierBase === false) {
-                  throw new Error("invalid increment argument: identifier already exists");
-                }
-                this.prerelease.push(base);
-              }
-            }
-            if (identifier) {
-              let prerelease = [identifier, base];
-              if (identifierBase === false) {
-                prerelease = [identifier];
-              }
-              if (isPrereleaseIdentifier(this.prerelease, identifier)) {
-                const prereleaseBase = this.prerelease[identifier.split(".").length];
-                if (isNaN(prereleaseBase)) {
-                  this.prerelease = prerelease;
-                }
-              } else {
-                this.prerelease = prerelease;
-              }
-            }
-            break;
-          }
-          default:
-            throw new Error(`invalid increment argument: ${release}`);
-        }
-        this.raw = this.format();
-        if (this.build.length) {
-          this.raw += `+${this.build.join(".")}`;
-        }
-        return this;
-      }
-    };
-    module.exports = SemVer;
-  }
-});
-
-// node_modules/semver/functions/parse.js
-var require_parse2 = __commonJS({
-  "node_modules/semver/functions/parse.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var parse8 = (version2, options, throwErrors = false) => {
-      if (version2 instanceof SemVer) {
-        return version2;
-      }
-      try {
-        return new SemVer(version2, options);
-      } catch (er) {
-        if (!throwErrors) {
-          return null;
-        }
-        throw er;
-      }
-    };
-    module.exports = parse8;
-  }
-});
-
-// node_modules/semver/functions/valid.js
-var require_valid = __commonJS({
-  "node_modules/semver/functions/valid.js"(exports, module) {
-    "use strict";
-    var parse8 = require_parse2();
-    var valid = (version2, options) => {
-      const v2 = parse8(version2, options);
-      return v2 ? v2.version : null;
-    };
-    module.exports = valid;
-  }
-});
-
-// node_modules/semver/functions/clean.js
-var require_clean = __commonJS({
-  "node_modules/semver/functions/clean.js"(exports, module) {
-    "use strict";
-    var parse8 = require_parse2();
-    var clean = (version2, options) => {
-      const s2 = parse8(version2.trim().replace(/^[=v]+/, ""), options);
-      return s2 ? s2.version : null;
-    };
-    module.exports = clean;
-  }
-});
-
-// node_modules/semver/functions/inc.js
-var require_inc = __commonJS({
-  "node_modules/semver/functions/inc.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var inc = (version2, release, options, identifier, identifierBase) => {
-      if (typeof options === "string") {
-        identifierBase = identifier;
-        identifier = options;
-        options = void 0;
-      }
-      try {
-        return new SemVer(
-          version2 instanceof SemVer ? version2.version : version2,
-          options
-        ).inc(release, identifier, identifierBase).version;
-      } catch (er) {
-        return null;
-      }
-    };
-    module.exports = inc;
-  }
-});
-
-// node_modules/semver/functions/diff.js
-var require_diff = __commonJS({
-  "node_modules/semver/functions/diff.js"(exports, module) {
-    "use strict";
-    var parse8 = require_parse2();
-    var diff = (version1, version2) => {
-      const v1 = parse8(version1, null, true);
-      const v2 = parse8(version2, null, true);
-      const comparison = v1.compare(v2);
-      if (comparison === 0) {
-        return null;
-      }
-      const v1Higher = comparison > 0;
-      const highVersion = v1Higher ? v1 : v2;
-      const lowVersion = v1Higher ? v2 : v1;
-      const highHasPre = !!highVersion.prerelease.length;
-      const lowHasPre = !!lowVersion.prerelease.length;
-      if (lowHasPre && !highHasPre) {
-        if (!lowVersion.patch && !lowVersion.minor) {
-          return "major";
-        }
-        if (lowVersion.compareMain(highVersion) === 0) {
-          if (lowVersion.minor && !lowVersion.patch) {
-            return "minor";
-          }
-          return "patch";
-        }
-      }
-      const prefix = highHasPre ? "pre" : "";
-      if (v1.major !== v2.major) {
-        return prefix + "major";
-      }
-      if (v1.minor !== v2.minor) {
-        return prefix + "minor";
-      }
-      if (v1.patch !== v2.patch) {
-        return prefix + "patch";
-      }
-      return "prerelease";
-    };
-    module.exports = diff;
-  }
-});
-
-// node_modules/semver/functions/major.js
-var require_major = __commonJS({
-  "node_modules/semver/functions/major.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var major = (a2, loose) => new SemVer(a2, loose).major;
-    module.exports = major;
-  }
-});
-
-// node_modules/semver/functions/minor.js
-var require_minor = __commonJS({
-  "node_modules/semver/functions/minor.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var minor = (a2, loose) => new SemVer(a2, loose).minor;
-    module.exports = minor;
-  }
-});
-
-// node_modules/semver/functions/patch.js
-var require_patch = __commonJS({
-  "node_modules/semver/functions/patch.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var patch = (a2, loose) => new SemVer(a2, loose).patch;
-    module.exports = patch;
-  }
-});
-
-// node_modules/semver/functions/prerelease.js
-var require_prerelease = __commonJS({
-  "node_modules/semver/functions/prerelease.js"(exports, module) {
-    "use strict";
-    var parse8 = require_parse2();
-    var prerelease = (version2, options) => {
-      const parsed = parse8(version2, options);
-      return parsed && parsed.prerelease.length ? parsed.prerelease : null;
-    };
-    module.exports = prerelease;
-  }
-});
-
-// node_modules/semver/functions/compare.js
-var require_compare = __commonJS({
-  "node_modules/semver/functions/compare.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var compare = (a2, b2, loose) => new SemVer(a2, loose).compare(new SemVer(b2, loose));
-    module.exports = compare;
-  }
-});
-
-// node_modules/semver/functions/rcompare.js
-var require_rcompare = __commonJS({
-  "node_modules/semver/functions/rcompare.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var rcompare = (a2, b2, loose) => compare(b2, a2, loose);
-    module.exports = rcompare;
-  }
-});
-
-// node_modules/semver/functions/compare-loose.js
-var require_compare_loose = __commonJS({
-  "node_modules/semver/functions/compare-loose.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var compareLoose = (a2, b2) => compare(a2, b2, true);
-    module.exports = compareLoose;
-  }
-});
-
-// node_modules/semver/functions/compare-build.js
-var require_compare_build = __commonJS({
-  "node_modules/semver/functions/compare-build.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var compareBuild = (a2, b2, loose) => {
-      const versionA = new SemVer(a2, loose);
-      const versionB = new SemVer(b2, loose);
-      return versionA.compare(versionB) || versionA.compareBuild(versionB);
-    };
-    module.exports = compareBuild;
-  }
-});
-
-// node_modules/semver/functions/sort.js
-var require_sort = __commonJS({
-  "node_modules/semver/functions/sort.js"(exports, module) {
-    "use strict";
-    var compareBuild = require_compare_build();
-    var sort = (list, loose) => list.sort((a2, b2) => compareBuild(a2, b2, loose));
-    module.exports = sort;
-  }
-});
-
-// node_modules/semver/functions/rsort.js
-var require_rsort = __commonJS({
-  "node_modules/semver/functions/rsort.js"(exports, module) {
-    "use strict";
-    var compareBuild = require_compare_build();
-    var rsort = (list, loose) => list.sort((a2, b2) => compareBuild(b2, a2, loose));
-    module.exports = rsort;
-  }
-});
-
-// node_modules/semver/functions/gt.js
-var require_gt = __commonJS({
-  "node_modules/semver/functions/gt.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var gt = (a2, b2, loose) => compare(a2, b2, loose) > 0;
-    module.exports = gt;
-  }
-});
-
-// node_modules/semver/functions/lt.js
-var require_lt = __commonJS({
-  "node_modules/semver/functions/lt.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var lt = (a2, b2, loose) => compare(a2, b2, loose) < 0;
-    module.exports = lt;
-  }
-});
-
-// node_modules/semver/functions/eq.js
-var require_eq = __commonJS({
-  "node_modules/semver/functions/eq.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var eq2 = (a2, b2, loose) => compare(a2, b2, loose) === 0;
-    module.exports = eq2;
-  }
-});
-
-// node_modules/semver/functions/neq.js
-var require_neq = __commonJS({
-  "node_modules/semver/functions/neq.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var neq = (a2, b2, loose) => compare(a2, b2, loose) !== 0;
-    module.exports = neq;
-  }
-});
-
-// node_modules/semver/functions/gte.js
-var require_gte = __commonJS({
-  "node_modules/semver/functions/gte.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var gte = (a2, b2, loose) => compare(a2, b2, loose) >= 0;
-    module.exports = gte;
-  }
-});
-
-// node_modules/semver/functions/lte.js
-var require_lte = __commonJS({
-  "node_modules/semver/functions/lte.js"(exports, module) {
-    "use strict";
-    var compare = require_compare();
-    var lte = (a2, b2, loose) => compare(a2, b2, loose) <= 0;
-    module.exports = lte;
-  }
-});
-
-// node_modules/semver/functions/cmp.js
-var require_cmp = __commonJS({
-  "node_modules/semver/functions/cmp.js"(exports, module) {
-    "use strict";
-    var eq2 = require_eq();
-    var neq = require_neq();
-    var gt = require_gt();
-    var gte = require_gte();
-    var lt = require_lt();
-    var lte = require_lte();
-    var cmp = (a2, op, b2, loose) => {
-      switch (op) {
-        case "===":
-          if (typeof a2 === "object") {
-            a2 = a2.version;
-          }
-          if (typeof b2 === "object") {
-            b2 = b2.version;
-          }
-          return a2 === b2;
-        case "!==":
-          if (typeof a2 === "object") {
-            a2 = a2.version;
-          }
-          if (typeof b2 === "object") {
-            b2 = b2.version;
-          }
-          return a2 !== b2;
-        case "":
-        case "=":
-        case "==":
-          return eq2(a2, b2, loose);
-        case "!=":
-          return neq(a2, b2, loose);
-        case ">":
-          return gt(a2, b2, loose);
-        case ">=":
-          return gte(a2, b2, loose);
-        case "<":
-          return lt(a2, b2, loose);
-        case "<=":
-          return lte(a2, b2, loose);
-        default:
-          throw new TypeError(`Invalid operator: ${op}`);
-      }
-    };
-    module.exports = cmp;
-  }
-});
-
-// node_modules/semver/functions/coerce.js
-var require_coerce = __commonJS({
-  "node_modules/semver/functions/coerce.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var parse8 = require_parse2();
-    var { safeRe: re, t: t2 } = require_re();
-    var coerce = (version2, options) => {
-      if (version2 instanceof SemVer) {
-        return version2;
-      }
-      if (typeof version2 === "number") {
-        version2 = String(version2);
-      }
-      if (typeof version2 !== "string") {
-        return null;
-      }
-      options = options || {};
-      let match2 = null;
-      if (!options.rtl) {
-        match2 = version2.match(options.includePrerelease ? re[t2.COERCEFULL] : re[t2.COERCE]);
-      } else {
-        const coerceRtlRegex = options.includePrerelease ? re[t2.COERCERTLFULL] : re[t2.COERCERTL];
-        let next2;
-        while ((next2 = coerceRtlRegex.exec(version2)) && (!match2 || match2.index + match2[0].length !== version2.length)) {
-          if (!match2 || next2.index + next2[0].length !== match2.index + match2[0].length) {
-            match2 = next2;
-          }
-          coerceRtlRegex.lastIndex = next2.index + next2[1].length + next2[2].length;
-        }
-        coerceRtlRegex.lastIndex = -1;
-      }
-      if (match2 === null) {
-        return null;
-      }
-      const major = match2[2];
-      const minor = match2[3] || "0";
-      const patch = match2[4] || "0";
-      const prerelease = options.includePrerelease && match2[5] ? `-${match2[5]}` : "";
-      const build = options.includePrerelease && match2[6] ? `+${match2[6]}` : "";
-      return parse8(`${major}.${minor}.${patch}${prerelease}${build}`, options);
-    };
-    module.exports = coerce;
-  }
-});
-
-// node_modules/semver/functions/truncate.js
-var require_truncate = __commonJS({
-  "node_modules/semver/functions/truncate.js"(exports, module) {
-    "use strict";
-    var parse8 = require_parse2();
-    var constants = require_constants();
-    var SemVer = require_semver();
-    var truncate = (version2, truncation, options) => {
-      if (!constants.RELEASE_TYPES.includes(truncation)) {
-        return null;
-      }
-      const clonedVersion = cloneInputVersion(version2, options);
-      return clonedVersion && doTruncation(clonedVersion, truncation);
-    };
-    var cloneInputVersion = (version2, options) => {
-      const versionStringToParse = version2 instanceof SemVer ? version2.version : version2;
-      return parse8(versionStringToParse, options);
-    };
-    var doTruncation = (version2, truncation) => {
-      if (isPrerelease(truncation)) {
-        return version2.version;
-      }
-      version2.prerelease = [];
-      switch (truncation) {
-        case "major":
-          version2.minor = 0;
-          version2.patch = 0;
-          break;
-        case "minor":
-          version2.patch = 0;
-          break;
-      }
-      return version2.format();
-    };
-    var isPrerelease = (type) => {
-      return type.startsWith("pre");
-    };
-    module.exports = truncate;
-  }
-});
-
-// node_modules/semver/internal/lrucache.js
-var require_lrucache = __commonJS({
-  "node_modules/semver/internal/lrucache.js"(exports, module) {
-    "use strict";
-    var LRUCache = class {
-      constructor() {
-        this.max = 1e3;
-        this.map = /* @__PURE__ */ new Map();
-      }
-      get(key) {
-        const value = this.map.get(key);
-        if (value === void 0) {
-          return void 0;
-        } else {
-          this.map.delete(key);
-          this.map.set(key, value);
-          return value;
-        }
-      }
-      delete(key) {
-        return this.map.delete(key);
-      }
-      set(key, value) {
-        const deleted = this.delete(key);
-        if (!deleted && value !== void 0) {
-          if (this.map.size >= this.max) {
-            const firstKey = this.map.keys().next().value;
-            this.delete(firstKey);
-          }
-          this.map.set(key, value);
-        }
-        return this;
-      }
-    };
-    module.exports = LRUCache;
-  }
-});
-
-// node_modules/semver/internal/trim-comparator-whitespace.js
-var require_trim_comparator_whitespace = __commonJS({
-  "node_modules/semver/internal/trim-comparator-whitespace.js"(exports, module) {
-    "use strict";
-    var {
-      MAX_LENGTH,
-      MAX_SAFE_BUILD_LENGTH,
-      WHITESPACE_CHARACTERS
-    } = require_constants();
-    var whitespace2 = new Uint8Array(65536);
-    for (const char of WHITESPACE_CHARACTERS) {
-      whitespace2[char.charCodeAt(0)] = 1;
-    }
-    var isWhitespace3 = (char) => char !== void 0 && whitespace2[char.charCodeAt(0)] === 1;
-    var isVersionPrefix = (char) => char === "v" || char === "=" || isWhitespace3(char);
-    var isDigit = (char) => char !== void 0 && char >= "0" && char <= "9";
-    var isLetter = (char) => char !== void 0 && (char >= "a" && char <= "z" || char >= "A" && char <= "Z");
-    var isIdentifierCharacter = (char) => isDigit(char) || isLetter(char) || char === "-";
-    var isVersionStart = (char) => isDigit(char) || char === "x" || char === "X" || char === "*";
-    var findDigitsEndIndex = (range, start, limit, digitRuns) => {
-      if (!isDigit(range[start])) {
-        return start;
-      }
-      if (start >= digitRuns.start && start < digitRuns.end) {
-        return Math.min(start + limit, digitRuns.end);
-      }
-      if (start >= digitRuns.previousStart && start < digitRuns.previousEnd) {
-        return Math.min(start + limit, digitRuns.previousEnd);
-      }
-      let end2 = start + 1;
-      while (isDigit(range[end2])) {
-        end2++;
-      }
-      digitRuns.previousStart = digitRuns.start;
-      digitRuns.previousEnd = digitRuns.end;
-      digitRuns.start = start;
-      digitRuns.end = end2;
-      return Math.min(start + limit, end2);
-    };
-    var findVersionNumberEndIndex = (range, start, loose, digitRuns) => {
-      if (!loose && range[start] === "0") {
-        return start + 1;
-      }
-      return findDigitsEndIndex(range, start, loose ? MAX_LENGTH : MAX_LENGTH + 1, digitRuns);
-    };
-    var findPrereleaseIdentifierEndIndex = (range, start, loose, digitRuns) => {
-      const digitsEnd = findDigitsEndIndex(range, start, MAX_LENGTH, digitRuns);
-      if (isLetter(range[digitsEnd]) || range[digitsEnd] === "-") {
-        let end2 = digitsEnd + 1;
-        const limit = end2 + MAX_SAFE_BUILD_LENGTH;
-        while (end2 < limit && isIdentifierCharacter(range[end2])) {
-          end2++;
-        }
-        return end2;
-      }
-      return findVersionNumberEndIndex(range, start, loose, digitRuns);
-    };
-    var findPrereleaseEndIndex = (range, start, loose, digitRuns) => {
-      const hyphen = range[start] === "-";
-      if (!loose && !hyphen) {
-        return start;
-      }
-      const identifierStart = start + (hyphen ? 1 : 0);
-      let end2 = findPrereleaseIdentifierEndIndex(range, identifierStart, loose, digitRuns);
-      if (end2 === identifierStart) {
-        if (!loose || !hyphen) {
-          return start;
-        }
-        end2 = findPrereleaseIdentifierEndIndex(range, start, loose, digitRuns);
-      }
-      while (range[end2] === ".") {
-        const next2 = findPrereleaseIdentifierEndIndex(range, end2 + 1, loose, digitRuns);
-        if (next2 === end2 + 1) {
-          break;
-        }
-        end2 = next2;
-      }
-      return end2;
-    };
-    var findBuildIdentifierEndIndex = (range, start) => {
-      let end2 = start;
-      while (end2 - start < MAX_SAFE_BUILD_LENGTH && isIdentifierCharacter(range[end2])) {
-        end2++;
-      }
-      return end2;
-    };
-    var findBuildEndIndex = (range, start) => {
-      if (range[start] !== "+") {
-        return start;
-      }
-      let end2 = findBuildIdentifierEndIndex(range, start + 1);
-      if (end2 === start + 1) {
-        return start;
-      }
-      while (range[end2] === ".") {
-        const next2 = findBuildIdentifierEndIndex(range, end2 + 1);
-        if (next2 === end2 + 1) {
-          break;
-        }
-        end2 = next2;
-      }
-      return end2;
-    };
-    var findLooseFullVersionEndIndex = (range, start, digitRuns) => {
-      let end2 = start;
-      for (let component = 0; component < 3; component++) {
-        const next2 = findVersionNumberEndIndex(range, end2, true, digitRuns);
-        if (next2 === end2) {
-          return start;
-        }
-        end2 = next2;
-        if (component < 2) {
-          if (range[end2] !== ".") {
-            return start;
-          }
-          end2++;
-        }
-      }
-      const prereleaseEnd = findPrereleaseEndIndex(range, end2, true, digitRuns);
-      return findBuildEndIndex(range, prereleaseEnd);
-    };
-    var findPartialVersionComponentEndIndex = (range, start, digitRuns) => {
-      if (isDigit(range[start])) {
-        return findVersionNumberEndIndex(range, start, false, digitRuns);
-      }
-      return isVersionStart(range[start]) ? start + 1 : start;
-    };
-    var findPartialVersionEndIndex = (range, start, digitRuns) => {
-      let end2 = findPartialVersionComponentEndIndex(range, start, digitRuns);
-      for (let component = 0; component < 2; component++) {
-        if (range[end2] !== ".") {
-          return end2;
-        }
-        const next2 = findPartialVersionComponentEndIndex(range, end2 + 1, digitRuns);
-        if (next2 === end2 + 1) {
-          return end2;
-        }
-        end2 = next2;
-      }
-      const prereleaseEnd = findPrereleaseEndIndex(range, end2, false, digitRuns);
-      return findBuildEndIndex(range, prereleaseEnd);
-    };
-    var findVersionEndIndex = (range, start, digitRuns) => {
-      const fullVersionEnd = findLooseFullVersionEndIndex(range, start, digitRuns);
-      return fullVersionEnd !== start ? fullVersionEnd : findPartialVersionEndIndex(range, start, digitRuns);
-    };
-    var findRemovableWhitespaceIndex = (range, matchStart) => {
-      let position2 = matchStart;
-      if (isWhitespace3(range[position2])) {
-        position2++;
-      }
-      if (range[position2] === "<" || range[position2] === ">") {
-        position2++;
-      }
-      if (range[position2] === "=") {
-        position2++;
-      }
-      return isWhitespace3(range[position2]) ? position2 : -1;
-    };
-    var trimComparatorWhitespace = (range) => {
-      let result = "";
-      let copyFrom = 0;
-      let cursor = 0;
-      const digitRuns = { start: -1, end: -1, previousStart: -1, previousEnd: -1 };
-      while (cursor < range.length) {
-        const matchStart = cursor;
-        if (range[cursor] === "<" || range[cursor] === ">") {
-          cursor++;
-        } else if (!isVersionPrefix(range[cursor]) && !isVersionStart(range[cursor])) {
-          cursor++;
-          continue;
-        }
-        while (cursor < range.length && isVersionPrefix(range[cursor])) {
-          cursor++;
-        }
-        if (!isVersionStart(range[cursor])) {
-          continue;
-        }
-        const whitespacePosition = findRemovableWhitespaceIndex(range, matchStart);
-        if (whitespacePosition !== -1) {
-          result += range.slice(copyFrom, whitespacePosition);
-          copyFrom = whitespacePosition + 1;
-        }
-        cursor = findVersionEndIndex(range, cursor, digitRuns);
-      }
-      return result + range.slice(copyFrom);
-    };
-    module.exports = trimComparatorWhitespace;
-  }
-});
-
-// node_modules/semver/classes/range.js
-var require_range = __commonJS({
-  "node_modules/semver/classes/range.js"(exports, module) {
-    "use strict";
-    var SPACE_CHARACTERS2 = /\s+/g;
-    var Range = class _Range {
-      constructor(range, options) {
-        options = parseOptions(options);
-        if (range instanceof _Range) {
-          if (range.loose === !!options.loose && range.includePrerelease === !!options.includePrerelease) {
-            return range;
-          } else {
-            return new _Range(range.raw, options);
-          }
-        }
-        if (range instanceof Comparator) {
-          this.raw = range.value;
-          this.set = [[range]];
-          this.formatted = void 0;
-          return this;
-        }
-        this.options = options;
-        this.loose = !!options.loose;
-        this.includePrerelease = !!options.includePrerelease;
-        this.raw = range.trim().replace(SPACE_CHARACTERS2, " ");
-        this.set = this.raw.split("||").map((r2) => this.parseRange(r2.trim())).filter((c2) => c2.length);
-        if (!this.set.length) {
-          throw new TypeError(`Invalid SemVer Range: ${this.raw}`);
-        }
-        if (this.set.length > 1) {
-          const first2 = this.set[0];
-          this.set = this.set.filter((c2) => !isNullSet(c2[0]));
-          if (this.set.length === 0) {
-            this.set = [first2];
-          } else if (this.set.length > 1) {
-            for (const c2 of this.set) {
-              if (c2.length === 1 && isAny(c2[0])) {
-                this.set = [c2];
-                break;
-              }
-            }
-          }
-        }
-        this.formatted = void 0;
-      }
-      get range() {
-        if (this.formatted === void 0) {
-          this.formatted = "";
-          for (let i2 = 0; i2 < this.set.length; i2++) {
-            if (i2 > 0) {
-              this.formatted += "||";
-            }
-            const comps = this.set[i2];
-            for (let k2 = 0; k2 < comps.length; k2++) {
-              if (k2 > 0) {
-                this.formatted += " ";
-              }
-              this.formatted += comps[k2].toString().trim();
-            }
-          }
-        }
-        return this.formatted;
-      }
-      format() {
-        return this.range;
-      }
-      toString() {
-        return this.range;
-      }
-      parseRange(range) {
-        range = range.replace(BUILDSTRIPRE, "");
-        const memoOpts = (this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) | (this.options.loose && FLAG_LOOSE);
-        const memoKey = memoOpts + ":" + range;
-        const cached = cache3.get(memoKey);
-        if (cached) {
-          return cached;
-        }
-        const loose = this.options.loose;
-        const hr = loose ? re[t2.HYPHENRANGELOOSE] : re[t2.HYPHENRANGE];
-        range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
-        debug("hyphen replace", range);
-        range = trimComparatorWhitespace(range);
-        debug("comparator trim", range);
-        range = range.replace(re[t2.TILDETRIM], tildeTrimReplace);
-        debug("tilde trim", range);
-        range = range.replace(re[t2.CARETTRIM], caretTrimReplace);
-        debug("caret trim", range);
-        let rangeList = range.split(" ").map((comp) => parseComparator(comp, this.options)).join(" ").split(/\s+/).map((comp) => replaceGTE0(comp, this.options));
-        if (loose) {
-          rangeList = rangeList.filter((comp) => {
-            debug("loose invalid filter", comp, this.options);
-            return !!comp.match(re[t2.COMPARATORLOOSE]);
-          });
-        }
-        debug("range list", rangeList);
-        const rangeMap = /* @__PURE__ */ new Map();
-        const comparators = rangeList.map((comp) => new Comparator(comp, this.options));
-        for (const comp of comparators) {
-          if (isNullSet(comp)) {
-            return [comp];
-          }
-          rangeMap.set(comp.value, comp);
-        }
-        if (rangeMap.size > 1 && rangeMap.has("")) {
-          rangeMap.delete("");
-        }
-        const result = [...rangeMap.values()];
-        cache3.set(memoKey, result);
-        return result;
-      }
-      intersects(range, options) {
-        if (!(range instanceof _Range)) {
-          throw new TypeError("a Range is required");
-        }
-        return this.set.some((thisComparators) => {
-          return isSatisfiable(thisComparators, options) && range.set.some((rangeComparators) => {
-            return isSatisfiable(rangeComparators, options) && thisComparators.every((thisComparator) => {
-              return rangeComparators.every((rangeComparator) => {
-                return thisComparator.intersects(rangeComparator, options);
-              });
-            });
-          });
-        });
-      }
-      // if ANY of the sets match ALL of its comparators, then pass
-      test(version2) {
-        if (!version2) {
-          return false;
-        }
-        if (typeof version2 === "string") {
-          try {
-            version2 = new SemVer(version2, this.options);
-          } catch (er) {
-            return false;
-          }
-        }
-        for (let i2 = 0; i2 < this.set.length; i2++) {
-          if (testSet(this.set[i2], version2, this.options)) {
-            return true;
-          }
-        }
-        return false;
-      }
-    };
-    module.exports = Range;
-    var LRU = require_lrucache();
-    var cache3 = new LRU();
-    var parseOptions = require_parse_options();
-    var Comparator = require_comparator();
-    var debug = require_debug();
-    var SemVer = require_semver();
-    var trimComparatorWhitespace = require_trim_comparator_whitespace();
-    var {
-      safeRe: re,
-      src,
-      t: t2,
-      tildeTrimReplace,
-      caretTrimReplace
-    } = require_re();
-    var { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = require_constants();
-    var BUILDSTRIPRE = new RegExp(src[t2.BUILD], "g");
-    var isNullSet = (c2) => c2.value === "<0.0.0-0";
-    var isAny = (c2) => c2.value === "";
-    var isSatisfiable = (comparators, options) => {
-      let result = true;
-      const remainingComparators = comparators.slice();
-      let testComparator = remainingComparators.pop();
-      while (result && remainingComparators.length) {
-        result = remainingComparators.every((otherComparator) => {
-          return testComparator.intersects(otherComparator, options);
-        });
-        testComparator = remainingComparators.pop();
-      }
-      return result;
-    };
-    var parseComparator = (comp, options) => {
-      comp = comp.replace(re[t2.BUILD], "");
-      debug("comp", comp, options);
-      comp = replaceCarets(comp, options);
-      debug("caret", comp);
-      comp = replaceTildes(comp, options);
-      debug("tildes", comp);
-      comp = replaceXRanges(comp, options);
-      debug("xrange", comp);
-      comp = replaceStars(comp, options);
-      debug("stars", comp);
-      return comp;
-    };
-    var isX = (id) => !id || id.toLowerCase() === "x" || id === "*";
-    var invalidXRangeOrder = (M2, m2, p2) => isX(M2) && !isX(m2) || isX(m2) && p2 && !isX(p2);
-    var replaceTildes = (comp, options) => {
-      return comp.trim().split(/\s+/).map((c2) => replaceTilde(c2, options)).join(" ");
-    };
-    var replaceTilde = (comp, options) => {
-      const r2 = options.loose ? re[t2.TILDELOOSE] : re[t2.TILDE];
-      const z2 = options.includePrerelease ? "-0" : "";
-      return comp.replace(r2, (_2, M2, m2, p2, pr) => {
-        debug("tilde", comp, _2, M2, m2, p2, pr);
-        let ret;
-        if (isX(M2)) {
-          ret = "";
-        } else if (isX(m2)) {
-          ret = `>=${M2}.0.0${z2} <${+M2 + 1}.0.0-0`;
-        } else if (isX(p2)) {
-          ret = `>=${M2}.${m2}.0${z2} <${M2}.${+m2 + 1}.0-0`;
-        } else if (pr) {
-          debug("replaceTilde pr", pr);
-          ret = `>=${M2}.${m2}.${p2}-${pr} <${M2}.${+m2 + 1}.0-0`;
-        } else {
-          ret = `>=${M2}.${m2}.${p2} <${M2}.${+m2 + 1}.0-0`;
-        }
-        debug("tilde return", ret);
-        return ret;
-      });
-    };
-    var replaceCarets = (comp, options) => {
-      return comp.trim().split(/\s+/).map((c2) => replaceCaret(c2, options)).join(" ");
-    };
-    var replaceCaret = (comp, options) => {
-      debug("caret", comp, options);
-      const r2 = options.loose ? re[t2.CARETLOOSE] : re[t2.CARET];
-      const z2 = options.includePrerelease ? "-0" : "";
-      return comp.replace(r2, (_2, M2, m2, p2, pr) => {
-        debug("caret", comp, _2, M2, m2, p2, pr);
-        let ret;
-        if (isX(M2)) {
-          ret = "";
-        } else if (isX(m2)) {
-          ret = `>=${M2}.0.0${z2} <${+M2 + 1}.0.0-0`;
-        } else if (isX(p2)) {
-          if (M2 === "0") {
-            ret = `>=${M2}.${m2}.0${z2} <${M2}.${+m2 + 1}.0-0`;
-          } else {
-            ret = `>=${M2}.${m2}.0${z2} <${+M2 + 1}.0.0-0`;
-          }
-        } else if (pr) {
-          debug("replaceCaret pr", pr);
-          if (M2 === "0") {
-            if (m2 === "0") {
-              ret = `>=${M2}.${m2}.${p2}-${pr} <${M2}.${m2}.${+p2 + 1}-0`;
-            } else {
-              ret = `>=${M2}.${m2}.${p2}-${pr} <${M2}.${+m2 + 1}.0-0`;
-            }
-          } else {
-            ret = `>=${M2}.${m2}.${p2}-${pr} <${+M2 + 1}.0.0-0`;
-          }
-        } else {
-          debug("no pr");
-          if (M2 === "0") {
-            if (m2 === "0") {
-              ret = `>=${M2}.${m2}.${p2} <${M2}.${m2}.${+p2 + 1}-0`;
-            } else {
-              ret = `>=${M2}.${m2}.${p2} <${M2}.${+m2 + 1}.0-0`;
-            }
-          } else {
-            ret = `>=${M2}.${m2}.${p2} <${+M2 + 1}.0.0-0`;
-          }
-        }
-        debug("caret return", ret);
-        return ret;
-      });
-    };
-    var replaceXRanges = (comp, options) => {
-      debug("replaceXRanges", comp, options);
-      return comp.split(/\s+/).map((c2) => replaceXRange(c2, options)).join(" ");
-    };
-    var replaceXRange = (comp, options) => {
-      comp = comp.trim();
-      const r2 = options.loose ? re[t2.XRANGELOOSE] : re[t2.XRANGE];
-      return comp.replace(r2, (ret, gtlt, M2, m2, p2, pr) => {
-        debug("xRange", comp, ret, gtlt, M2, m2, p2, pr);
-        if (invalidXRangeOrder(M2, m2, p2)) {
-          return comp;
-        }
-        const xM = isX(M2);
-        const xm = xM || isX(m2);
-        const xp = xm || isX(p2);
-        const anyX = xp;
-        if (gtlt === "=" && anyX) {
-          gtlt = "";
-        }
-        pr = options.includePrerelease ? "-0" : "";
-        if (xM) {
-          if (gtlt === ">" || gtlt === "<") {
-            ret = "<0.0.0-0";
-          } else {
-            ret = "*";
-          }
-        } else if (gtlt && anyX) {
-          if (xm) {
-            m2 = 0;
-          }
-          p2 = 0;
-          if (gtlt === ">") {
-            gtlt = ">=";
-            if (xm) {
-              M2 = +M2 + 1;
-              m2 = 0;
-              p2 = 0;
-            } else {
-              m2 = +m2 + 1;
-              p2 = 0;
-            }
-          } else if (gtlt === "<=") {
-            gtlt = "<";
-            if (xm) {
-              M2 = +M2 + 1;
-            } else {
-              m2 = +m2 + 1;
-            }
-          }
-          if (gtlt === "<") {
-            pr = "-0";
-          }
-          ret = `${gtlt + M2}.${m2}.${p2}${pr}`;
-        } else if (xm) {
-          ret = `>=${M2}.0.0${pr} <${+M2 + 1}.0.0-0`;
-        } else if (xp) {
-          ret = `>=${M2}.${m2}.0${pr} <${M2}.${+m2 + 1}.0-0`;
-        }
-        debug("xRange return", ret);
-        return ret;
-      });
-    };
-    var replaceStars = (comp, options) => {
-      debug("replaceStars", comp, options);
-      return comp.trim().replace(re[t2.STAR], "");
-    };
-    var replaceGTE0 = (comp, options) => {
-      debug("replaceGTE0", comp, options);
-      return comp.trim().replace(re[options.includePrerelease ? t2.GTE0PRE : t2.GTE0], "");
-    };
-    var hyphenReplace = (incPr) => ($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr) => {
-      if (isX(fM)) {
-        from = "";
-      } else if (isX(fm)) {
-        from = `>=${fM}.0.0${incPr ? "-0" : ""}`;
-      } else if (isX(fp)) {
-        from = `>=${fM}.${fm}.0${incPr ? "-0" : ""}`;
-      } else if (fpr) {
-        from = `>=${from}`;
-      } else {
-        from = `>=${from}${incPr ? "-0" : ""}`;
-      }
-      if (isX(tM)) {
-        to = "";
-      } else if (isX(tm)) {
-        to = `<${+tM + 1}.0.0-0`;
-      } else if (isX(tp)) {
-        to = `<${tM}.${+tm + 1}.0-0`;
-      } else if (tpr) {
-        to = `<=${tM}.${tm}.${tp}-${tpr}`;
-      } else if (incPr) {
-        to = `<${tM}.${tm}.${+tp + 1}-0`;
-      } else {
-        to = `<=${to}`;
-      }
-      return `${from} ${to}`.trim();
-    };
-    var testSet = (set, version2, options) => {
-      for (let i2 = 0; i2 < set.length; i2++) {
-        if (!set[i2].test(version2)) {
-          return false;
-        }
-      }
-      if (version2.prerelease.length && !options.includePrerelease) {
-        for (let i2 = 0; i2 < set.length; i2++) {
-          debug(set[i2].semver);
-          if (set[i2].semver === Comparator.ANY) {
-            continue;
-          }
-          if (set[i2].semver.prerelease.length > 0) {
-            const allowed = set[i2].semver;
-            if (allowed.major === version2.major && allowed.minor === version2.minor && allowed.patch === version2.patch) {
-              return true;
-            }
-          }
-        }
-        return false;
-      }
-      return true;
-    };
-  }
-});
-
-// node_modules/semver/classes/comparator.js
-var require_comparator = __commonJS({
-  "node_modules/semver/classes/comparator.js"(exports, module) {
-    "use strict";
-    var ANY = Symbol("SemVer ANY");
-    var Comparator = class _Comparator {
-      static get ANY() {
-        return ANY;
-      }
-      constructor(comp, options) {
-        options = parseOptions(options);
-        if (comp instanceof _Comparator) {
-          if (comp.loose === !!options.loose) {
-            return comp;
-          } else {
-            comp = comp.value;
-          }
-        }
-        comp = comp.trim().split(/\s+/).join(" ");
-        debug("comparator", comp, options);
-        this.options = options;
-        this.loose = !!options.loose;
-        this.parse(comp);
-        if (this.semver === ANY) {
-          this.value = "";
-        } else {
-          this.value = this.operator + this.semver.version;
-        }
-        debug("comp", this);
-      }
-      parse(comp) {
-        const r2 = this.options.loose ? re[t2.COMPARATORLOOSE] : re[t2.COMPARATOR];
-        const m2 = comp.match(r2);
-        if (!m2) {
-          throw new TypeError(`Invalid comparator: ${comp}`);
-        }
-        this.operator = m2[1] !== void 0 ? m2[1] : "";
-        if (this.operator === "=") {
-          this.operator = "";
-        }
-        if (!m2[2]) {
-          this.semver = ANY;
-        } else {
-          this.semver = new SemVer(m2[2], this.options.loose);
-        }
-      }
-      toString() {
-        return this.value;
-      }
-      test(version2) {
-        debug("Comparator.test", version2, this.options.loose);
-        if (this.semver === ANY || version2 === ANY) {
-          return true;
-        }
-        if (typeof version2 === "string") {
-          try {
-            version2 = new SemVer(version2, this.options);
-          } catch (er) {
-            return false;
-          }
-        }
-        return cmp(version2, this.operator, this.semver, this.options);
-      }
-      intersects(comp, options) {
-        if (!(comp instanceof _Comparator)) {
-          throw new TypeError("a Comparator is required");
-        }
-        if (this.operator === "") {
-          if (this.value === "") {
-            return true;
-          }
-          return new Range(comp.value, options).test(this.value);
-        } else if (comp.operator === "") {
-          if (comp.value === "") {
-            return true;
-          }
-          return new Range(this.value, options).test(comp.semver);
-        }
-        options = parseOptions(options);
-        if (options.includePrerelease && (this.value === "<0.0.0-0" || comp.value === "<0.0.0-0")) {
-          return false;
-        }
-        if (!options.includePrerelease && (this.value.startsWith("<0.0.0") || comp.value.startsWith("<0.0.0"))) {
-          return false;
-        }
-        if (this.operator.startsWith(">") && comp.operator.startsWith(">")) {
-          return true;
-        }
-        if (this.operator.startsWith("<") && comp.operator.startsWith("<")) {
-          return true;
-        }
-        if (this.semver.version === comp.semver.version && this.operator.includes("=") && comp.operator.includes("=")) {
-          return true;
-        }
-        if (cmp(this.semver, "<", comp.semver, options) && this.operator.startsWith(">") && comp.operator.startsWith("<")) {
-          return true;
-        }
-        if (cmp(this.semver, ">", comp.semver, options) && this.operator.startsWith("<") && comp.operator.startsWith(">")) {
-          return true;
-        }
-        return false;
-      }
-    };
-    module.exports = Comparator;
-    var parseOptions = require_parse_options();
-    var { safeRe: re, t: t2 } = require_re();
-    var cmp = require_cmp();
-    var debug = require_debug();
-    var SemVer = require_semver();
-    var Range = require_range();
-  }
-});
-
-// node_modules/semver/functions/satisfies.js
-var require_satisfies = __commonJS({
-  "node_modules/semver/functions/satisfies.js"(exports, module) {
-    "use strict";
-    var Range = require_range();
-    var satisfies = (version2, range, options) => {
-      try {
-        range = new Range(range, options);
-      } catch (er) {
-        return false;
-      }
-      return range.test(version2);
-    };
-    module.exports = satisfies;
-  }
-});
-
-// node_modules/semver/ranges/to-comparators.js
-var require_to_comparators = __commonJS({
-  "node_modules/semver/ranges/to-comparators.js"(exports, module) {
-    "use strict";
-    var Range = require_range();
-    var toComparators = (range, options) => new Range(range, options).set.map((comp) => comp.map((c2) => c2.value).join(" ").trim().split(" "));
-    module.exports = toComparators;
-  }
-});
-
-// node_modules/semver/ranges/max-satisfying.js
-var require_max_satisfying = __commonJS({
-  "node_modules/semver/ranges/max-satisfying.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var Range = require_range();
-    var maxSatisfying = (versions2, range, options) => {
-      let max = null;
-      let maxSV = null;
-      let rangeObj = null;
-      try {
-        rangeObj = new Range(range, options);
-      } catch (er) {
-        return null;
-      }
-      versions2.forEach((v2) => {
-        if (rangeObj.test(v2)) {
-          if (!max || maxSV.compare(v2) === -1) {
-            max = v2;
-            maxSV = new SemVer(max, options);
-          }
-        }
-      });
-      return max;
-    };
-    module.exports = maxSatisfying;
-  }
-});
-
-// node_modules/semver/ranges/min-satisfying.js
-var require_min_satisfying = __commonJS({
-  "node_modules/semver/ranges/min-satisfying.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var Range = require_range();
-    var minSatisfying = (versions2, range, options) => {
-      let min = null;
-      let minSV = null;
-      let rangeObj = null;
-      try {
-        rangeObj = new Range(range, options);
-      } catch (er) {
-        return null;
-      }
-      versions2.forEach((v2) => {
-        if (rangeObj.test(v2)) {
-          if (!min || minSV.compare(v2) === 1) {
-            min = v2;
-            minSV = new SemVer(min, options);
-          }
-        }
-      });
-      return min;
-    };
-    module.exports = minSatisfying;
-  }
-});
-
-// node_modules/semver/ranges/min-version.js
-var require_min_version = __commonJS({
-  "node_modules/semver/ranges/min-version.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var Range = require_range();
-    var gt = require_gt();
-    var minVersion = (range, loose) => {
-      range = new Range(range, loose);
-      let minver = new SemVer("0.0.0");
-      if (range.test(minver)) {
-        return minver;
-      }
-      minver = new SemVer("0.0.0-0");
-      if (range.test(minver)) {
-        return minver;
-      }
-      minver = null;
-      for (let i2 = 0; i2 < range.set.length; ++i2) {
-        const comparators = range.set[i2];
-        let setMin = null;
-        comparators.forEach((comparator) => {
-          const compver = new SemVer(comparator.semver.version);
-          switch (comparator.operator) {
-            case ">":
-              if (compver.prerelease.length === 0) {
-                compver.patch++;
-              } else {
-                compver.prerelease.push(0);
-              }
-              compver.raw = compver.format();
-            /* fallthrough */
-            case "":
-            case ">=":
-              if (!setMin || gt(compver, setMin)) {
-                setMin = compver;
-              }
-              break;
-            case "<":
-            case "<=":
-              break;
-            /* istanbul ignore next */
-            default:
-              throw new Error(`Unexpected operation: ${comparator.operator}`);
-          }
-        });
-        if (setMin && (!minver || gt(minver, setMin))) {
-          minver = setMin;
-        }
-      }
-      if (minver && range.test(minver)) {
-        return minver;
-      }
-      return null;
-    };
-    module.exports = minVersion;
-  }
-});
-
-// node_modules/semver/ranges/valid.js
-var require_valid2 = __commonJS({
-  "node_modules/semver/ranges/valid.js"(exports, module) {
-    "use strict";
-    var Range = require_range();
-    var validRange = (range, options) => {
-      try {
-        return new Range(range, options).range || "*";
-      } catch (er) {
-        return null;
-      }
-    };
-    module.exports = validRange;
-  }
-});
-
-// node_modules/semver/ranges/outside.js
-var require_outside = __commonJS({
-  "node_modules/semver/ranges/outside.js"(exports, module) {
-    "use strict";
-    var SemVer = require_semver();
-    var Comparator = require_comparator();
-    var { ANY } = Comparator;
-    var Range = require_range();
-    var satisfies = require_satisfies();
-    var gt = require_gt();
-    var lt = require_lt();
-    var lte = require_lte();
-    var gte = require_gte();
-    var outside = (version2, range, hilo, options) => {
-      version2 = new SemVer(version2, options);
-      range = new Range(range, options);
-      let gtfn, ltefn, ltfn, comp, ecomp;
-      switch (hilo) {
-        case ">":
-          gtfn = gt;
-          ltefn = lte;
-          ltfn = lt;
-          comp = ">";
-          ecomp = ">=";
-          break;
-        case "<":
-          gtfn = lt;
-          ltefn = gte;
-          ltfn = gt;
-          comp = "<";
-          ecomp = "<=";
-          break;
-        default:
-          throw new TypeError('Must provide a hilo val of "<" or ">"');
-      }
-      if (satisfies(version2, range, options)) {
-        return false;
-      }
-      for (let i2 = 0; i2 < range.set.length; ++i2) {
-        const comparators = range.set[i2];
-        let high = null;
-        let low = null;
-        comparators.forEach((comparator) => {
-          if (comparator.semver === ANY) {
-            comparator = new Comparator(">=0.0.0");
-          }
-          high = high || comparator;
-          low = low || comparator;
-          if (gtfn(comparator.semver, high.semver, options)) {
-            high = comparator;
-          } else if (ltfn(comparator.semver, low.semver, options)) {
-            low = comparator;
-          }
-        });
-        if (high.operator === comp || high.operator === ecomp) {
-          return false;
-        }
-        if ((!low.operator || low.operator === comp) && ltefn(version2, low.semver)) {
-          return false;
-        } else if (low.operator === ecomp && ltfn(version2, low.semver)) {
-          return false;
-        }
-      }
-      return true;
-    };
-    module.exports = outside;
-  }
-});
-
-// node_modules/semver/ranges/gtr.js
-var require_gtr = __commonJS({
-  "node_modules/semver/ranges/gtr.js"(exports, module) {
-    "use strict";
-    var outside = require_outside();
-    var gtr = (version2, range, options) => outside(version2, range, ">", options);
-    module.exports = gtr;
-  }
-});
-
-// node_modules/semver/ranges/ltr.js
-var require_ltr = __commonJS({
-  "node_modules/semver/ranges/ltr.js"(exports, module) {
-    "use strict";
-    var outside = require_outside();
-    var ltr = (version2, range, options) => outside(version2, range, "<", options);
-    module.exports = ltr;
-  }
-});
-
-// node_modules/semver/ranges/intersects.js
-var require_intersects = __commonJS({
-  "node_modules/semver/ranges/intersects.js"(exports, module) {
-    "use strict";
-    var Range = require_range();
-    var intersects = (r1, r2, options) => {
-      r1 = new Range(r1, options);
-      r2 = new Range(r2, options);
-      return r1.intersects(r2, options);
-    };
-    module.exports = intersects;
-  }
-});
-
-// node_modules/semver/ranges/simplify.js
-var require_simplify = __commonJS({
-  "node_modules/semver/ranges/simplify.js"(exports, module) {
-    "use strict";
-    var satisfies = require_satisfies();
-    var compare = require_compare();
-    module.exports = (versions2, range, options) => {
-      const set = [];
-      let first2 = null;
-      let prev2 = null;
-      const v2 = versions2.sort((a2, b2) => compare(a2, b2, options));
-      for (const version2 of v2) {
-        const included = satisfies(version2, range, options);
-        if (included) {
-          prev2 = version2;
-          if (!first2) {
-            first2 = version2;
-          }
-        } else {
-          if (prev2) {
-            set.push([first2, prev2]);
-          }
-          prev2 = null;
-          first2 = null;
-        }
-      }
-      if (first2) {
-        set.push([first2, null]);
-      }
-      const ranges = [];
-      for (const [min, max] of set) {
-        if (min === max) {
-          ranges.push(min);
-        } else if (!max && min === v2[0]) {
-          ranges.push("*");
-        } else if (!max) {
-          ranges.push(`>=${min}`);
-        } else if (min === v2[0]) {
-          ranges.push(`<=${max}`);
-        } else {
-          ranges.push(`${min} - ${max}`);
-        }
-      }
-      const simplified = ranges.join(" || ");
-      const original = typeof range.raw === "string" ? range.raw : String(range);
-      return simplified.length < original.length ? simplified : range;
-    };
-  }
-});
-
-// node_modules/semver/ranges/subset.js
-var require_subset = __commonJS({
-  "node_modules/semver/ranges/subset.js"(exports, module) {
-    "use strict";
-    var Range = require_range();
-    var Comparator = require_comparator();
-    var { ANY } = Comparator;
-    var satisfies = require_satisfies();
-    var compare = require_compare();
-    var subset = (sub, dom, options = {}) => {
-      if (sub === dom) {
-        return true;
-      }
-      sub = new Range(sub, options);
-      dom = new Range(dom, options);
-      let sawNonNull = false;
-      OUTER: for (const simpleSub of sub.set) {
-        for (const simpleDom of dom.set) {
-          const isSub = simpleSubset(simpleSub, simpleDom, options);
-          sawNonNull = sawNonNull || isSub !== null;
-          if (isSub) {
-            continue OUTER;
-          }
-        }
-        if (sawNonNull) {
-          return false;
-        }
-      }
-      return true;
-    };
-    var minimumVersionWithPreRelease = [new Comparator(">=0.0.0-0")];
-    var minimumVersion = [new Comparator(">=0.0.0")];
-    var simpleSubset = (sub, dom, options) => {
-      if (sub === dom) {
-        return true;
-      }
-      if (sub.length === 1 && sub[0].semver === ANY) {
-        if (dom.length === 1 && dom[0].semver === ANY) {
-          return true;
-        } else if (options.includePrerelease) {
-          sub = minimumVersionWithPreRelease;
-        } else {
-          sub = minimumVersion;
-        }
-      }
-      if (dom.length === 1 && dom[0].semver === ANY) {
-        if (options.includePrerelease) {
-          return true;
-        } else {
-          dom = minimumVersion;
-        }
-      }
-      const eqSet = /* @__PURE__ */ new Set();
-      let gt, lt;
-      for (const c2 of sub) {
-        if (c2.operator === ">" || c2.operator === ">=") {
-          gt = higherGT(gt, c2, options);
-        } else if (c2.operator === "<" || c2.operator === "<=") {
-          lt = lowerLT(lt, c2, options);
-        } else {
-          eqSet.add(c2.semver);
-        }
-      }
-      if (eqSet.size > 1) {
-        return null;
-      }
-      let gtltComp;
-      if (gt && lt) {
-        gtltComp = compare(gt.semver, lt.semver, options);
-        if (gtltComp > 0) {
-          return null;
-        } else if (gtltComp === 0 && (gt.operator !== ">=" || lt.operator !== "<=")) {
-          return null;
-        }
-      }
-      for (const eq2 of eqSet) {
-        if (gt && !satisfies(eq2, String(gt), options)) {
-          return null;
-        }
-        if (lt && !satisfies(eq2, String(lt), options)) {
-          return null;
-        }
-        for (const c2 of dom) {
-          if (!satisfies(eq2, String(c2), options)) {
-            return false;
-          }
-        }
-        return true;
-      }
-      let higher, lower;
-      let hasDomLT, hasDomGT;
-      let needDomLTPre = lt && !options.includePrerelease && lt.semver.prerelease.length ? lt.semver : false;
-      let needDomGTPre = gt && !options.includePrerelease && gt.semver.prerelease.length ? gt.semver : false;
-      if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt.operator === "<" && needDomLTPre.prerelease[0] === 0) {
-        needDomLTPre = false;
-      }
-      for (const c2 of dom) {
-        hasDomGT = hasDomGT || c2.operator === ">" || c2.operator === ">=";
-        hasDomLT = hasDomLT || c2.operator === "<" || c2.operator === "<=";
-        if (gt) {
-          if (needDomGTPre) {
-            if (c2.semver.prerelease && c2.semver.prerelease.length && c2.semver.major === needDomGTPre.major && c2.semver.minor === needDomGTPre.minor && c2.semver.patch === needDomGTPre.patch) {
-              needDomGTPre = false;
-            }
-          }
-          if (c2.operator === ">" || c2.operator === ">=") {
-            higher = higherGT(gt, c2, options);
-            if (higher === c2 && higher !== gt) {
-              return false;
-            }
-          } else if (gt.operator === ">=" && !c2.test(gt.semver)) {
-            return false;
-          }
-        }
-        if (lt) {
-          if (needDomLTPre) {
-            if (c2.semver.prerelease && c2.semver.prerelease.length && c2.semver.major === needDomLTPre.major && c2.semver.minor === needDomLTPre.minor && c2.semver.patch === needDomLTPre.patch) {
-              needDomLTPre = false;
-            }
-          }
-          if (c2.operator === "<" || c2.operator === "<=") {
-            lower = lowerLT(lt, c2, options);
-            if (lower === c2 && lower !== lt) {
-              return false;
-            }
-          } else if (lt.operator === "<=" && !c2.test(lt.semver)) {
-            return false;
-          }
-        }
-        if (!c2.operator && (lt || gt) && gtltComp !== 0) {
-          return false;
-        }
-      }
-      if (gt && hasDomLT && !lt && gtltComp !== 0) {
-        return false;
-      }
-      if (lt && hasDomGT && !gt && gtltComp !== 0) {
-        return false;
-      }
-      if (needDomGTPre || needDomLTPre) {
-        return false;
-      }
-      return true;
-    };
-    var higherGT = (a2, b2, options) => {
-      if (!a2) {
-        return b2;
-      }
-      const comp = compare(a2.semver, b2.semver, options);
-      return comp > 0 ? a2 : comp < 0 ? b2 : b2.operator === ">" && a2.operator === ">=" ? b2 : a2;
-    };
-    var lowerLT = (a2, b2, options) => {
-      if (!a2) {
-        return b2;
-      }
-      const comp = compare(a2.semver, b2.semver, options);
-      return comp < 0 ? a2 : comp > 0 ? b2 : b2.operator === "<" && a2.operator === "<=" ? b2 : a2;
-    };
-    module.exports = subset;
-  }
-});
-
-// node_modules/semver/index.js
-var require_semver2 = __commonJS({
-  "node_modules/semver/index.js"(exports, module) {
-    "use strict";
-    var internalRe = require_re();
-    var constants = require_constants();
-    var SemVer = require_semver();
-    var identifiers = require_identifiers();
-    var parse8 = require_parse2();
-    var valid = require_valid();
-    var clean = require_clean();
-    var inc = require_inc();
-    var diff = require_diff();
-    var major = require_major();
-    var minor = require_minor();
-    var patch = require_patch();
-    var prerelease = require_prerelease();
-    var compare = require_compare();
-    var rcompare = require_rcompare();
-    var compareLoose = require_compare_loose();
-    var compareBuild = require_compare_build();
-    var sort = require_sort();
-    var rsort = require_rsort();
-    var gt = require_gt();
-    var lt = require_lt();
-    var eq2 = require_eq();
-    var neq = require_neq();
-    var gte = require_gte();
-    var lte = require_lte();
-    var cmp = require_cmp();
-    var coerce = require_coerce();
-    var truncate = require_truncate();
-    var Comparator = require_comparator();
-    var Range = require_range();
-    var satisfies = require_satisfies();
-    var toComparators = require_to_comparators();
-    var maxSatisfying = require_max_satisfying();
-    var minSatisfying = require_min_satisfying();
-    var minVersion = require_min_version();
-    var validRange = require_valid2();
-    var outside = require_outside();
-    var gtr = require_gtr();
-    var ltr = require_ltr();
-    var intersects = require_intersects();
-    var simplifyRange = require_simplify();
-    var subset = require_subset();
-    module.exports = {
-      parse: parse8,
-      valid,
-      clean,
-      inc,
-      diff,
-      major,
-      minor,
-      patch,
-      prerelease,
-      compare,
-      rcompare,
-      compareLoose,
-      compareBuild,
-      sort,
-      rsort,
-      gt,
-      lt,
-      eq: eq2,
-      neq,
-      gte,
-      lte,
-      cmp,
-      coerce,
-      truncate,
-      Comparator,
-      Range,
-      satisfies,
-      toComparators,
-      maxSatisfying,
-      minSatisfying,
-      minVersion,
-      validRange,
-      outside,
-      gtr,
-      ltr,
-      intersects,
-      simplifyRange,
-      subset,
-      SemVer,
-      re: internalRe.re,
-      src: internalRe.src,
-      tokens: internalRe.t,
-      SEMVER_SPEC_VERSION: constants.SEMVER_SPEC_VERSION,
-      RELEASE_TYPES: constants.RELEASE_TYPES,
-      compareIdentifiers: identifiers.compareIdentifiers,
-      rcompareIdentifiers: identifiers.rcompareIdentifiers
-    };
-  }
-});
-
-// node_modules/@img/colour/color.cjs
-var require_color = __commonJS({
-  "node_modules/@img/colour/color.cjs"(exports, module) {
-    var __defProp2 = Object.defineProperty;
-    var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
-    var __getOwnPropNames2 = Object.getOwnPropertyNames;
-    var __hasOwnProp2 = Object.prototype.hasOwnProperty;
-    var __export2 = (target, all) => {
-      for (var name2 in all)
-        __defProp2(target, name2, { get: all[name2], enumerable: true });
-    };
-    var __copyProps2 = (to, from, except, desc) => {
-      if (from && typeof from === "object" || typeof from === "function") {
-        for (let key of __getOwnPropNames2(from))
-          if (!__hasOwnProp2.call(to, key) && key !== except)
-            __defProp2(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc2(from, key)) || desc.enumerable });
-      }
-      return to;
-    };
-    var __toCommonJS = (mod) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod);
-    var index_exports = {};
-    __export2(index_exports, {
-      default: () => index_default
-    });
-    module.exports = __toCommonJS(index_exports);
-    var colors = {
-      aliceblue: [240, 248, 255],
-      antiquewhite: [250, 235, 215],
-      aqua: [0, 255, 255],
-      aquamarine: [127, 255, 212],
-      azure: [240, 255, 255],
-      beige: [245, 245, 220],
-      bisque: [255, 228, 196],
-      black: [0, 0, 0],
-      blanchedalmond: [255, 235, 205],
-      blue: [0, 0, 255],
-      blueviolet: [138, 43, 226],
-      brown: [165, 42, 42],
-      burlywood: [222, 184, 135],
-      cadetblue: [95, 158, 160],
-      chartreuse: [127, 255, 0],
-      chocolate: [210, 105, 30],
-      coral: [255, 127, 80],
-      cornflowerblue: [100, 149, 237],
-      cornsilk: [255, 248, 220],
-      crimson: [220, 20, 60],
-      cyan: [0, 255, 255],
-      darkblue: [0, 0, 139],
-      darkcyan: [0, 139, 139],
-      darkgoldenrod: [184, 134, 11],
-      darkgray: [169, 169, 169],
-      darkgreen: [0, 100, 0],
-      darkgrey: [169, 169, 169],
-      darkkhaki: [189, 183, 107],
-      darkmagenta: [139, 0, 139],
-      darkolivegreen: [85, 107, 47],
-      darkorange: [255, 140, 0],
-      darkorchid: [153, 50, 204],
-      darkred: [139, 0, 0],
-      darksalmon: [233, 150, 122],
-      darkseagreen: [143, 188, 143],
-      darkslateblue: [72, 61, 139],
-      darkslategray: [47, 79, 79],
-      darkslategrey: [47, 79, 79],
-      darkturquoise: [0, 206, 209],
-      darkviolet: [148, 0, 211],
-      deeppink: [255, 20, 147],
-      deepskyblue: [0, 191, 255],
-      dimgray: [105, 105, 105],
-      dimgrey: [105, 105, 105],
-      dodgerblue: [30, 144, 255],
-      firebrick: [178, 34, 34],
-      floralwhite: [255, 250, 240],
-      forestgreen: [34, 139, 34],
-      fuchsia: [255, 0, 255],
-      gainsboro: [220, 220, 220],
-      ghostwhite: [248, 248, 255],
-      gold: [255, 215, 0],
-      goldenrod: [218, 165, 32],
-      gray: [128, 128, 128],
-      green: [0, 128, 0],
-      greenyellow: [173, 255, 47],
-      grey: [128, 128, 128],
-      honeydew: [240, 255, 240],
-      hotpink: [255, 105, 180],
-      indianred: [205, 92, 92],
-      indigo: [75, 0, 130],
-      ivory: [255, 255, 240],
-      khaki: [240, 230, 140],
-      lavender: [230, 230, 250],
-      lavenderblush: [255, 240, 245],
-      lawngreen: [124, 252, 0],
-      lemonchiffon: [255, 250, 205],
-      lightblue: [173, 216, 230],
-      lightcoral: [240, 128, 128],
-      lightcyan: [224, 255, 255],
-      lightgoldenrodyellow: [250, 250, 210],
-      lightgray: [211, 211, 211],
-      lightgreen: [144, 238, 144],
-      lightgrey: [211, 211, 211],
-      lightpink: [255, 182, 193],
-      lightsalmon: [255, 160, 122],
-      lightseagreen: [32, 178, 170],
-      lightskyblue: [135, 206, 250],
-      lightslategray: [119, 136, 153],
-      lightslategrey: [119, 136, 153],
-      lightsteelblue: [176, 196, 222],
-      lightyellow: [255, 255, 224],
-      lime: [0, 255, 0],
-      limegreen: [50, 205, 50],
-      linen: [250, 240, 230],
-      magenta: [255, 0, 255],
-      maroon: [128, 0, 0],
-      mediumaquamarine: [102, 205, 170],
-      mediumblue: [0, 0, 205],
-      mediumorchid: [186, 85, 211],
-      mediumpurple: [147, 112, 219],
-      mediumseagreen: [60, 179, 113],
-      mediumslateblue: [123, 104, 238],
-      mediumspringgreen: [0, 250, 154],
-      mediumturquoise: [72, 209, 204],
-      mediumvioletred: [199, 21, 133],
-      midnightblue: [25, 25, 112],
-      mintcream: [245, 255, 250],
-      mistyrose: [255, 228, 225],
-      moccasin: [255, 228, 181],
-      navajowhite: [255, 222, 173],
-      navy: [0, 0, 128],
-      oldlace: [253, 245, 230],
-      olive: [128, 128, 0],
-      olivedrab: [107, 142, 35],
-      orange: [255, 165, 0],
-      orangered: [255, 69, 0],
-      orchid: [218, 112, 214],
-      palegoldenrod: [238, 232, 170],
-      palegreen: [152, 251, 152],
-      paleturquoise: [175, 238, 238],
-      palevioletred: [219, 112, 147],
-      papayawhip: [255, 239, 213],
-      peachpuff: [255, 218, 185],
-      peru: [205, 133, 63],
-      pink: [255, 192, 203],
-      plum: [221, 160, 221],
-      powderblue: [176, 224, 230],
-      purple: [128, 0, 128],
-      rebeccapurple: [102, 51, 153],
-      red: [255, 0, 0],
-      rosybrown: [188, 143, 143],
-      royalblue: [65, 105, 225],
-      saddlebrown: [139, 69, 19],
-      salmon: [250, 128, 114],
-      sandybrown: [244, 164, 96],
-      seagreen: [46, 139, 87],
-      seashell: [255, 245, 238],
-      sienna: [160, 82, 45],
-      silver: [192, 192, 192],
-      skyblue: [135, 206, 235],
-      slateblue: [106, 90, 205],
-      slategray: [112, 128, 144],
-      slategrey: [112, 128, 144],
-      snow: [255, 250, 250],
-      springgreen: [0, 255, 127],
-      steelblue: [70, 130, 180],
-      tan: [210, 180, 140],
-      teal: [0, 128, 128],
-      thistle: [216, 191, 216],
-      tomato: [255, 99, 71],
-      turquoise: [64, 224, 208],
-      violet: [238, 130, 238],
-      wheat: [245, 222, 179],
-      white: [255, 255, 255],
-      whitesmoke: [245, 245, 245],
-      yellow: [255, 255, 0],
-      yellowgreen: [154, 205, 50]
-    };
-    for (const key in colors) Object.freeze(colors[key]);
-    var color_name_default = Object.freeze(colors);
-    var reverseNames = /* @__PURE__ */ Object.create(null);
-    for (const name2 in color_name_default) {
-      if (Object.hasOwn(color_name_default, name2)) {
-        reverseNames[color_name_default[name2]] = name2;
-      }
-    }
-    var cs = {
-      to: {},
-      get: {}
-    };
-    cs.get = function(string2) {
-      const prefix = string2.slice(0, 3).toLowerCase();
-      let value;
-      let model;
-      switch (prefix) {
-        case "hsl": {
-          value = cs.get.hsl(string2);
-          model = "hsl";
-          break;
-        }
-        case "hwb": {
-          value = cs.get.hwb(string2);
-          model = "hwb";
-          break;
-        }
-        default: {
-          value = cs.get.rgb(string2);
-          model = "rgb";
-          break;
-        }
-      }
-      if (!value) {
-        return null;
-      }
-      return { model, value };
-    };
-    cs.get.rgb = function(string2) {
-      if (!string2) {
-        return null;
-      }
-      const abbr = /^#([a-f\d]{3,4})$/i;
-      const hex = /^#([a-f\d]{6})([a-f\d]{2})?$/i;
-      const rgba = /^rgba?\(\s*([+-]?(?:\d*\.)?\d+(?:e\d+)?)(?=[\s,])\s*(?:,\s*)?([+-]?(?:\d*\.)?\d+(?:e\d+)?)(?=[\s,])\s*(?:,\s*)?([+-]?(?:\d*\.)?\d+(?:e\d+)?)\s*(?:[\s,|/]\s*([+-]?(?:\d*\.)?\d+(?:e\d+)?)(%?)\s*)?\)$/i;
-      const per = /^rgba?\(\s*([+-]?[\d.]+)%\s*,?\s*([+-]?[\d.]+)%\s*,?\s*([+-]?[\d.]+)%\s*(?:[\s,|/]\s*([+-]?[\d.]+)(%?)\s*)?\)$/i;
-      const keyword = /^(\w+)$/;
-      let rgb = [0, 0, 0, 1];
-      let match2;
-      let i2;
-      let hexAlpha;
-      if (match2 = string2.match(hex)) {
-        hexAlpha = match2[2];
-        match2 = match2[1];
-        for (i2 = 0; i2 < 3; i2++) {
-          const i22 = i2 * 2;
-          rgb[i2] = Number.parseInt(match2.slice(i22, i22 + 2), 16);
-        }
-        if (hexAlpha) {
-          rgb[3] = Number.parseInt(hexAlpha, 16) / 255;
-        }
-      } else if (match2 = string2.match(abbr)) {
-        match2 = match2[1];
-        hexAlpha = match2[3];
-        for (i2 = 0; i2 < 3; i2++) {
-          rgb[i2] = Number.parseInt(match2[i2] + match2[i2], 16);
-        }
-        if (hexAlpha) {
-          rgb[3] = Number.parseInt(hexAlpha + hexAlpha, 16) / 255;
-        }
-      } else if (match2 = string2.match(rgba)) {
-        for (i2 = 0; i2 < 3; i2++) {
-          rgb[i2] = Number.parseFloat(match2[i2 + 1]);
-        }
-        if (match2[4]) {
-          rgb[3] = match2[5] ? Number.parseFloat(match2[4]) * 0.01 : Number.parseFloat(match2[4]);
-        }
-      } else if (match2 = string2.match(per)) {
-        for (i2 = 0; i2 < 3; i2++) {
-          rgb[i2] = Math.round(Number.parseFloat(match2[i2 + 1]) * 2.55);
-        }
-        if (match2[4]) {
-          rgb[3] = match2[5] ? Number.parseFloat(match2[4]) * 0.01 : Number.parseFloat(match2[4]);
-        }
-      } else if (match2 = string2.toLowerCase().match(keyword)) {
-        if (match2[1] === "transparent") {
-          return [0, 0, 0, 0];
-        }
-        if (!Object.hasOwn(color_name_default, match2[1])) {
-          return null;
-        }
-        rgb = color_name_default[match2[1]].slice();
-        rgb[3] = 1;
-        return rgb;
-      } else {
-        return null;
-      }
-      for (i2 = 0; i2 < 3; i2++) {
-        rgb[i2] = clamp(rgb[i2], 0, 255);
-      }
-      rgb[3] = clamp(rgb[3], 0, 1);
-      return rgb;
-    };
-    cs.get.hsl = function(string2) {
-      if (!string2) {
-        return null;
-      }
-      const hsl = /^hsla?\(\s*([+-]?(?:\d{0,3}\.)?\d+)(?:deg)?\s*,?\s*([+-]?[\d.]+)%\s*,?\s*([+-]?[\d.]+)%\s*(?:[,|/]\s*([+-]?(?=\.\d|\d)(?:0|[1-9]\d*)?(?:\.\d*)?(?:e[+-]?\d+)?)\s*)?\)$/i;
-      const match2 = string2.match(hsl);
-      if (match2) {
-        const alpha = Number.parseFloat(match2[4]);
-        const h2 = (Number.parseFloat(match2[1]) % 360 + 360) % 360;
-        const s2 = clamp(Number.parseFloat(match2[2]), 0, 100);
-        const l2 = clamp(Number.parseFloat(match2[3]), 0, 100);
-        const a2 = clamp(Number.isNaN(alpha) ? 1 : alpha, 0, 1);
-        return [h2, s2, l2, a2];
-      }
-      return null;
-    };
-    cs.get.hwb = function(string2) {
-      if (!string2) {
-        return null;
-      }
-      const hwb = /^hwb\(\s*([+-]?\d{0,3}(?:\.\d+)?)(?:deg)?\s*[\s,]\s*([+-]?[\d.]+)%\s*[\s,]\s*([+-]?[\d.]+)%\s*(?:[\s,]\s*([+-]?(?=\.\d|\d)(?:0|[1-9]\d*)?(?:\.\d*)?(?:e[+-]?\d+)?)\s*)?\)$/i;
-      const match2 = string2.match(hwb);
-      if (match2) {
-        const alpha = Number.parseFloat(match2[4]);
-        const h2 = (Number.parseFloat(match2[1]) % 360 + 360) % 360;
-        const w2 = clamp(Number.parseFloat(match2[2]), 0, 100);
-        const b2 = clamp(Number.parseFloat(match2[3]), 0, 100);
-        const a2 = clamp(Number.isNaN(alpha) ? 1 : alpha, 0, 1);
-        return [h2, w2, b2, a2];
-      }
-      return null;
-    };
-    cs.to.hex = function(...rgba) {
-      return "#" + hexDouble(rgba[0]) + hexDouble(rgba[1]) + hexDouble(rgba[2]) + (rgba[3] < 1 ? hexDouble(Math.round(rgba[3] * 255)) : "");
-    };
-    cs.to.rgb = function(...rgba) {
-      return rgba.length < 4 || rgba[3] === 1 ? "rgb(" + Math.round(rgba[0]) + ", " + Math.round(rgba[1]) + ", " + Math.round(rgba[2]) + ")" : "rgba(" + Math.round(rgba[0]) + ", " + Math.round(rgba[1]) + ", " + Math.round(rgba[2]) + ", " + rgba[3] + ")";
-    };
-    cs.to.rgb.percent = function(...rgba) {
-      const r2 = Math.round(rgba[0] / 255 * 100);
-      const g2 = Math.round(rgba[1] / 255 * 100);
-      const b2 = Math.round(rgba[2] / 255 * 100);
-      return rgba.length < 4 || rgba[3] === 1 ? "rgb(" + r2 + "%, " + g2 + "%, " + b2 + "%)" : "rgba(" + r2 + "%, " + g2 + "%, " + b2 + "%, " + rgba[3] + ")";
-    };
-    cs.to.hsl = function(...hsla) {
-      return hsla.length < 4 || hsla[3] === 1 ? "hsl(" + hsla[0] + ", " + hsla[1] + "%, " + hsla[2] + "%)" : "hsla(" + hsla[0] + ", " + hsla[1] + "%, " + hsla[2] + "%, " + hsla[3] + ")";
-    };
-    cs.to.hwb = function(...hwba) {
-      let a2 = "";
-      if (hwba.length >= 4 && hwba[3] !== 1) {
-        a2 = ", " + hwba[3];
-      }
-      return "hwb(" + hwba[0] + ", " + hwba[1] + "%, " + hwba[2] + "%" + a2 + ")";
-    };
-    cs.to.keyword = function(...rgb) {
-      return reverseNames[rgb.slice(0, 3)];
-    };
-    function clamp(number_, min, max) {
-      return Math.min(Math.max(min, number_), max);
-    }
-    function hexDouble(number_) {
-      const string_ = Math.round(number_).toString(16).toUpperCase();
-      return string_.length < 2 ? "0" + string_ : string_;
-    }
-    var color_string_default = cs;
-    var reverseKeywords = {};
-    for (const key of Object.keys(color_name_default)) {
-      reverseKeywords[color_name_default[key]] = key;
-    }
-    var convert = {
-      rgb: { channels: 3, labels: "rgb" },
-      hsl: { channels: 3, labels: "hsl" },
-      hsv: { channels: 3, labels: "hsv" },
-      hwb: { channels: 3, labels: "hwb" },
-      cmyk: { channels: 4, labels: "cmyk" },
-      xyz: { channels: 3, labels: "xyz" },
-      lab: { channels: 3, labels: "lab" },
-      oklab: { channels: 3, labels: ["okl", "oka", "okb"] },
-      lch: { channels: 3, labels: "lch" },
-      oklch: { channels: 3, labels: ["okl", "okc", "okh"] },
-      hex: { channels: 1, labels: ["hex"] },
-      keyword: { channels: 1, labels: ["keyword"] },
-      ansi16: { channels: 1, labels: ["ansi16"] },
-      ansi256: { channels: 1, labels: ["ansi256"] },
-      hcg: { channels: 3, labels: ["h", "c", "g"] },
-      apple: { channels: 3, labels: ["r16", "g16", "b16"] },
-      gray: { channels: 1, labels: ["gray"] }
-    };
-    var conversions_default = convert;
-    var LAB_FT = (6 / 29) ** 3;
-    function srgbNonlinearTransform(c2) {
-      const cc = c2 > 31308e-7 ? 1.055 * c2 ** (1 / 2.4) - 0.055 : c2 * 12.92;
-      return Math.min(Math.max(0, cc), 1);
-    }
-    function srgbNonlinearTransformInv(c2) {
-      return c2 > 0.04045 ? ((c2 + 0.055) / 1.055) ** 2.4 : c2 / 12.92;
-    }
-    for (const model of Object.keys(convert)) {
-      if (!("channels" in convert[model])) {
-        throw new Error("missing channels property: " + model);
-      }
-      if (!("labels" in convert[model])) {
-        throw new Error("missing channel labels property: " + model);
-      }
-      if (convert[model].labels.length !== convert[model].channels) {
-        throw new Error("channel and label counts mismatch: " + model);
-      }
-      const { channels, labels } = convert[model];
-      delete convert[model].channels;
-      delete convert[model].labels;
-      Object.defineProperty(convert[model], "channels", { value: channels });
-      Object.defineProperty(convert[model], "labels", { value: labels });
-    }
-    convert.rgb.hsl = function(rgb) {
-      const r2 = rgb[0] / 255;
-      const g2 = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const min = Math.min(r2, g2, b2);
-      const max = Math.max(r2, g2, b2);
-      const delta = max - min;
-      let h2;
-      let s2;
-      switch (max) {
-        case min: {
-          h2 = 0;
-          break;
-        }
-        case r2: {
-          h2 = (g2 - b2) / delta;
-          break;
-        }
-        case g2: {
-          h2 = 2 + (b2 - r2) / delta;
-          break;
-        }
-        case b2: {
-          h2 = 4 + (r2 - g2) / delta;
-          break;
-        }
-      }
-      h2 = Math.min(h2 * 60, 360);
-      if (h2 < 0) {
-        h2 += 360;
-      }
-      const l2 = (min + max) / 2;
-      if (max === min) {
-        s2 = 0;
-      } else if (l2 <= 0.5) {
-        s2 = delta / (max + min);
-      } else {
-        s2 = delta / (2 - max - min);
-      }
-      return [h2, s2 * 100, l2 * 100];
-    };
-    convert.rgb.hsv = function(rgb) {
-      let rdif;
-      let gdif;
-      let bdif;
-      let h2;
-      let s2;
-      const r2 = rgb[0] / 255;
-      const g2 = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const v2 = Math.max(r2, g2, b2);
-      const diff = v2 - Math.min(r2, g2, b2);
-      const diffc = function(c2) {
-        return (v2 - c2) / 6 / diff + 1 / 2;
-      };
-      if (diff === 0) {
-        h2 = 0;
-        s2 = 0;
-      } else {
-        s2 = diff / v2;
-        rdif = diffc(r2);
-        gdif = diffc(g2);
-        bdif = diffc(b2);
-        switch (v2) {
-          case r2: {
-            h2 = bdif - gdif;
-            break;
-          }
-          case g2: {
-            h2 = 1 / 3 + rdif - bdif;
-            break;
-          }
-          case b2: {
-            h2 = 2 / 3 + gdif - rdif;
-            break;
-          }
-        }
-        if (h2 < 0) {
-          h2 += 1;
-        } else if (h2 > 1) {
-          h2 -= 1;
-        }
-      }
-      return [
-        h2 * 360,
-        s2 * 100,
-        v2 * 100
-      ];
-    };
-    convert.rgb.hwb = function(rgb) {
-      const r2 = rgb[0];
-      const g2 = rgb[1];
-      let b2 = rgb[2];
-      const h2 = convert.rgb.hsl(rgb)[0];
-      const w2 = 1 / 255 * Math.min(r2, Math.min(g2, b2));
-      b2 = 1 - 1 / 255 * Math.max(r2, Math.max(g2, b2));
-      return [h2, w2 * 100, b2 * 100];
-    };
-    convert.rgb.oklab = function(rgb) {
-      const r2 = srgbNonlinearTransformInv(rgb[0] / 255);
-      const g2 = srgbNonlinearTransformInv(rgb[1] / 255);
-      const b2 = srgbNonlinearTransformInv(rgb[2] / 255);
-      const lp = Math.cbrt(0.4122214708 * r2 + 0.5363325363 * g2 + 0.0514459929 * b2);
-      const mp = Math.cbrt(0.2119034982 * r2 + 0.6806995451 * g2 + 0.1073969566 * b2);
-      const sp = Math.cbrt(0.0883024619 * r2 + 0.2817188376 * g2 + 0.6299787005 * b2);
-      const l2 = 0.2104542553 * lp + 0.793617785 * mp - 0.0040720468 * sp;
-      const aa = 1.9779984951 * lp - 2.428592205 * mp + 0.4505937099 * sp;
-      const bb = 0.0259040371 * lp + 0.7827717662 * mp - 0.808675766 * sp;
-      return [l2 * 100, aa * 100, bb * 100];
-    };
-    convert.rgb.cmyk = function(rgb) {
-      const r2 = rgb[0] / 255;
-      const g2 = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const k2 = Math.min(1 - r2, 1 - g2, 1 - b2);
-      const c2 = (1 - r2 - k2) / (1 - k2) || 0;
-      const m2 = (1 - g2 - k2) / (1 - k2) || 0;
-      const y2 = (1 - b2 - k2) / (1 - k2) || 0;
-      return [c2 * 100, m2 * 100, y2 * 100, k2 * 100];
-    };
-    function comparativeDistance(x2, y2) {
-      return (x2[0] - y2[0]) ** 2 + (x2[1] - y2[1]) ** 2 + (x2[2] - y2[2]) ** 2;
-    }
-    convert.rgb.keyword = function(rgb) {
-      const reversed = reverseKeywords[rgb];
-      if (reversed) {
-        return reversed;
-      }
-      let currentClosestDistance = Number.POSITIVE_INFINITY;
-      let currentClosestKeyword;
-      for (const keyword of Object.keys(color_name_default)) {
-        const value = color_name_default[keyword];
-        const distance = comparativeDistance(rgb, value);
-        if (distance < currentClosestDistance) {
-          currentClosestDistance = distance;
-          currentClosestKeyword = keyword;
-        }
-      }
-      return currentClosestKeyword;
-    };
-    convert.keyword.rgb = function(keyword) {
-      return [...color_name_default[keyword]];
-    };
-    convert.rgb.xyz = function(rgb) {
-      const r2 = srgbNonlinearTransformInv(rgb[0] / 255);
-      const g2 = srgbNonlinearTransformInv(rgb[1] / 255);
-      const b2 = srgbNonlinearTransformInv(rgb[2] / 255);
-      const x2 = r2 * 0.4124564 + g2 * 0.3575761 + b2 * 0.1804375;
-      const y2 = r2 * 0.2126729 + g2 * 0.7151522 + b2 * 0.072175;
-      const z2 = r2 * 0.0193339 + g2 * 0.119192 + b2 * 0.9503041;
-      return [x2 * 100, y2 * 100, z2 * 100];
-    };
-    convert.rgb.lab = function(rgb) {
-      const xyz = convert.rgb.xyz(rgb);
-      let x2 = xyz[0];
-      let y2 = xyz[1];
-      let z2 = xyz[2];
-      x2 /= 95.047;
-      y2 /= 100;
-      z2 /= 108.883;
-      x2 = x2 > LAB_FT ? x2 ** (1 / 3) : 7.787 * x2 + 16 / 116;
-      y2 = y2 > LAB_FT ? y2 ** (1 / 3) : 7.787 * y2 + 16 / 116;
-      z2 = z2 > LAB_FT ? z2 ** (1 / 3) : 7.787 * z2 + 16 / 116;
-      const l2 = 116 * y2 - 16;
-      const a2 = 500 * (x2 - y2);
-      const b2 = 200 * (y2 - z2);
-      return [l2, a2, b2];
-    };
-    convert.hsl.rgb = function(hsl) {
-      const h2 = hsl[0] / 360;
-      const s2 = hsl[1] / 100;
-      const l2 = hsl[2] / 100;
-      let t3;
-      let value;
-      if (s2 === 0) {
-        value = l2 * 255;
-        return [value, value, value];
-      }
-      const t2 = l2 < 0.5 ? l2 * (1 + s2) : l2 + s2 - l2 * s2;
-      const t1 = 2 * l2 - t2;
-      const rgb = [0, 0, 0];
-      for (let i2 = 0; i2 < 3; i2++) {
-        t3 = h2 + 1 / 3 * -(i2 - 1);
-        if (t3 < 0) {
-          t3++;
-        }
-        if (t3 > 1) {
-          t3--;
-        }
-        if (6 * t3 < 1) {
-          value = t1 + (t2 - t1) * 6 * t3;
-        } else if (2 * t3 < 1) {
-          value = t2;
-        } else if (3 * t3 < 2) {
-          value = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
-        } else {
-          value = t1;
-        }
-        rgb[i2] = value * 255;
-      }
-      return rgb;
-    };
-    convert.hsl.hsv = function(hsl) {
-      const h2 = hsl[0];
-      let s2 = hsl[1] / 100;
-      let l2 = hsl[2] / 100;
-      let smin = s2;
-      const lmin = Math.max(l2, 0.01);
-      l2 *= 2;
-      s2 *= l2 <= 1 ? l2 : 2 - l2;
-      smin *= lmin <= 1 ? lmin : 2 - lmin;
-      const v2 = (l2 + s2) / 2;
-      const sv = l2 === 0 ? 2 * smin / (lmin + smin) : 2 * s2 / (l2 + s2);
-      return [h2, sv * 100, v2 * 100];
-    };
-    convert.hsv.rgb = function(hsv) {
-      const h2 = hsv[0] / 60;
-      const s2 = hsv[1] / 100;
-      let v2 = hsv[2] / 100;
-      const hi = Math.floor(h2) % 6;
-      const f2 = h2 - Math.floor(h2);
-      const p2 = 255 * v2 * (1 - s2);
-      const q = 255 * v2 * (1 - s2 * f2);
-      const t2 = 255 * v2 * (1 - s2 * (1 - f2));
-      v2 *= 255;
-      switch (hi) {
-        case 0: {
-          return [v2, t2, p2];
-        }
-        case 1: {
-          return [q, v2, p2];
-        }
-        case 2: {
-          return [p2, v2, t2];
-        }
-        case 3: {
-          return [p2, q, v2];
-        }
-        case 4: {
-          return [t2, p2, v2];
-        }
-        case 5: {
-          return [v2, p2, q];
-        }
-      }
-    };
-    convert.hsv.hsl = function(hsv) {
-      const h2 = hsv[0];
-      const s2 = hsv[1] / 100;
-      const v2 = hsv[2] / 100;
-      const vmin = Math.max(v2, 0.01);
-      let sl;
-      let l2;
-      l2 = (2 - s2) * v2;
-      const lmin = (2 - s2) * vmin;
-      sl = s2 * vmin;
-      sl /= lmin <= 1 ? lmin : 2 - lmin;
-      sl = sl || 0;
-      l2 /= 2;
-      return [h2, sl * 100, l2 * 100];
-    };
-    convert.hwb.rgb = function(hwb) {
-      const h2 = hwb[0] / 360;
-      let wh = hwb[1] / 100;
-      let bl = hwb[2] / 100;
-      const ratio = wh + bl;
-      let f2;
-      if (ratio > 1) {
-        wh /= ratio;
-        bl /= ratio;
-      }
-      const i2 = Math.floor(6 * h2);
-      const v2 = 1 - bl;
-      f2 = 6 * h2 - i2;
-      if ((i2 & 1) !== 0) {
-        f2 = 1 - f2;
-      }
-      const n2 = wh + f2 * (v2 - wh);
-      let r2;
-      let g2;
-      let b2;
-      switch (i2) {
-        default:
-        case 6:
-        case 0: {
-          r2 = v2;
-          g2 = n2;
-          b2 = wh;
-          break;
-        }
-        case 1: {
-          r2 = n2;
-          g2 = v2;
-          b2 = wh;
-          break;
-        }
-        case 2: {
-          r2 = wh;
-          g2 = v2;
-          b2 = n2;
-          break;
-        }
-        case 3: {
-          r2 = wh;
-          g2 = n2;
-          b2 = v2;
-          break;
-        }
-        case 4: {
-          r2 = n2;
-          g2 = wh;
-          b2 = v2;
-          break;
-        }
-        case 5: {
-          r2 = v2;
-          g2 = wh;
-          b2 = n2;
-          break;
-        }
-      }
-      return [r2 * 255, g2 * 255, b2 * 255];
-    };
-    convert.cmyk.rgb = function(cmyk) {
-      const c2 = cmyk[0] / 100;
-      const m2 = cmyk[1] / 100;
-      const y2 = cmyk[2] / 100;
-      const k2 = cmyk[3] / 100;
-      const r2 = 1 - Math.min(1, c2 * (1 - k2) + k2);
-      const g2 = 1 - Math.min(1, m2 * (1 - k2) + k2);
-      const b2 = 1 - Math.min(1, y2 * (1 - k2) + k2);
-      return [r2 * 255, g2 * 255, b2 * 255];
-    };
-    convert.xyz.rgb = function(xyz) {
-      const x2 = xyz[0] / 100;
-      const y2 = xyz[1] / 100;
-      const z2 = xyz[2] / 100;
-      let r2;
-      let g2;
-      let b2;
-      r2 = x2 * 3.2404542 + y2 * -1.5371385 + z2 * -0.4985314;
-      g2 = x2 * -0.969266 + y2 * 1.8760108 + z2 * 0.041556;
-      b2 = x2 * 0.0556434 + y2 * -0.2040259 + z2 * 1.0572252;
-      r2 = srgbNonlinearTransform(r2);
-      g2 = srgbNonlinearTransform(g2);
-      b2 = srgbNonlinearTransform(b2);
-      return [r2 * 255, g2 * 255, b2 * 255];
-    };
-    convert.xyz.lab = function(xyz) {
-      let x2 = xyz[0];
-      let y2 = xyz[1];
-      let z2 = xyz[2];
-      x2 /= 95.047;
-      y2 /= 100;
-      z2 /= 108.883;
-      x2 = x2 > LAB_FT ? x2 ** (1 / 3) : 7.787 * x2 + 16 / 116;
-      y2 = y2 > LAB_FT ? y2 ** (1 / 3) : 7.787 * y2 + 16 / 116;
-      z2 = z2 > LAB_FT ? z2 ** (1 / 3) : 7.787 * z2 + 16 / 116;
-      const l2 = 116 * y2 - 16;
-      const a2 = 500 * (x2 - y2);
-      const b2 = 200 * (y2 - z2);
-      return [l2, a2, b2];
-    };
-    convert.xyz.oklab = function(xyz) {
-      const x2 = xyz[0] / 100;
-      const y2 = xyz[1] / 100;
-      const z2 = xyz[2] / 100;
-      const lp = Math.cbrt(0.8189330101 * x2 + 0.3618667424 * y2 - 0.1288597137 * z2);
-      const mp = Math.cbrt(0.0329845436 * x2 + 0.9293118715 * y2 + 0.0361456387 * z2);
-      const sp = Math.cbrt(0.0482003018 * x2 + 0.2643662691 * y2 + 0.633851707 * z2);
-      const l2 = 0.2104542553 * lp + 0.793617785 * mp - 0.0040720468 * sp;
-      const a2 = 1.9779984951 * lp - 2.428592205 * mp + 0.4505937099 * sp;
-      const b2 = 0.0259040371 * lp + 0.7827717662 * mp - 0.808675766 * sp;
-      return [l2 * 100, a2 * 100, b2 * 100];
-    };
-    convert.oklab.oklch = function(oklab) {
-      return convert.lab.lch(oklab);
-    };
-    convert.oklab.xyz = function(oklab) {
-      const ll = oklab[0] / 100;
-      const a2 = oklab[1] / 100;
-      const b2 = oklab[2] / 100;
-      const l2 = (0.999999998 * ll + 0.396337792 * a2 + 0.215803758 * b2) ** 3;
-      const m2 = (1.000000008 * ll - 0.105561342 * a2 - 0.063854175 * b2) ** 3;
-      const s2 = (1.000000055 * ll - 0.089484182 * a2 - 1.291485538 * b2) ** 3;
-      const x2 = 1.227013851 * l2 - 0.55779998 * m2 + 0.281256149 * s2;
-      const y2 = -0.040580178 * l2 + 1.11225687 * m2 - 0.071676679 * s2;
-      const z2 = -0.076381285 * l2 - 0.421481978 * m2 + 1.58616322 * s2;
-      return [x2 * 100, y2 * 100, z2 * 100];
-    };
-    convert.oklab.rgb = function(oklab) {
-      const ll = oklab[0] / 100;
-      const aa = oklab[1] / 100;
-      const bb = oklab[2] / 100;
-      const l2 = (ll + 0.3963377774 * aa + 0.2158037573 * bb) ** 3;
-      const m2 = (ll - 0.1055613458 * aa - 0.0638541728 * bb) ** 3;
-      const s2 = (ll - 0.0894841775 * aa - 1.291485548 * bb) ** 3;
-      const r2 = srgbNonlinearTransform(4.0767416621 * l2 - 3.3077115913 * m2 + 0.2309699292 * s2);
-      const g2 = srgbNonlinearTransform(-1.2684380046 * l2 + 2.6097574011 * m2 - 0.3413193965 * s2);
-      const b2 = srgbNonlinearTransform(-0.0041960863 * l2 - 0.7034186147 * m2 + 1.707614701 * s2);
-      return [r2 * 255, g2 * 255, b2 * 255];
-    };
-    convert.oklch.oklab = function(oklch) {
-      return convert.lch.lab(oklch);
-    };
-    convert.lab.xyz = function(lab) {
-      const l2 = lab[0];
-      const a2 = lab[1];
-      const b2 = lab[2];
-      let x2;
-      let y2;
-      let z2;
-      y2 = (l2 + 16) / 116;
-      x2 = a2 / 500 + y2;
-      z2 = y2 - b2 / 200;
-      const y22 = y2 ** 3;
-      const x22 = x2 ** 3;
-      const z22 = z2 ** 3;
-      y2 = y22 > LAB_FT ? y22 : (y2 - 16 / 116) / 7.787;
-      x2 = x22 > LAB_FT ? x22 : (x2 - 16 / 116) / 7.787;
-      z2 = z22 > LAB_FT ? z22 : (z2 - 16 / 116) / 7.787;
-      x2 *= 95.047;
-      y2 *= 100;
-      z2 *= 108.883;
-      return [x2, y2, z2];
-    };
-    convert.lab.lch = function(lab) {
-      const l2 = lab[0];
-      const a2 = lab[1];
-      const b2 = lab[2];
-      let h2;
-      const hr = Math.atan2(b2, a2);
-      h2 = hr * 360 / 2 / Math.PI;
-      if (h2 < 0) {
-        h2 += 360;
-      }
-      const c2 = Math.sqrt(a2 * a2 + b2 * b2);
-      return [l2, c2, h2];
-    };
-    convert.lch.lab = function(lch) {
-      const l2 = lch[0];
-      const c2 = lch[1];
-      const h2 = lch[2];
-      const hr = h2 / 360 * 2 * Math.PI;
-      const a2 = c2 * Math.cos(hr);
-      const b2 = c2 * Math.sin(hr);
-      return [l2, a2, b2];
-    };
-    convert.rgb.ansi16 = function(args, saturation = null) {
-      const [r2, g2, b2] = args;
-      let value = saturation === null ? convert.rgb.hsv(args)[2] : saturation;
-      value = Math.round(value / 50);
-      if (value === 0) {
-        return 30;
-      }
-      let ansi = 30 + (Math.round(b2 / 255) << 2 | Math.round(g2 / 255) << 1 | Math.round(r2 / 255));
-      if (value === 2) {
-        ansi += 60;
-      }
-      return ansi;
-    };
-    convert.hsv.ansi16 = function(args) {
-      return convert.rgb.ansi16(convert.hsv.rgb(args), args[2]);
-    };
-    convert.rgb.ansi256 = function(args) {
-      const r2 = args[0];
-      const g2 = args[1];
-      const b2 = args[2];
-      if (r2 >> 4 === g2 >> 4 && g2 >> 4 === b2 >> 4) {
-        if (r2 < 8) {
-          return 16;
-        }
-        if (r2 > 248) {
-          return 231;
-        }
-        return Math.round((r2 - 8) / 247 * 24) + 232;
-      }
-      const ansi = 16 + 36 * Math.round(r2 / 255 * 5) + 6 * Math.round(g2 / 255 * 5) + Math.round(b2 / 255 * 5);
-      return ansi;
-    };
-    convert.ansi16.rgb = function(args) {
-      args = args[0];
-      let color2 = args % 10;
-      if (color2 === 0 || color2 === 7) {
-        if (args > 50) {
-          color2 += 3.5;
-        }
-        color2 = color2 / 10.5 * 255;
-        return [color2, color2, color2];
-      }
-      const mult = (Math.trunc(args > 50) + 1) * 0.5;
-      const r2 = (color2 & 1) * mult * 255;
-      const g2 = (color2 >> 1 & 1) * mult * 255;
-      const b2 = (color2 >> 2 & 1) * mult * 255;
-      return [r2, g2, b2];
-    };
-    convert.ansi256.rgb = function(args) {
-      args = args[0];
-      if (args >= 232) {
-        const c2 = (args - 232) * 10 + 8;
-        return [c2, c2, c2];
-      }
-      args -= 16;
-      let rem;
-      const r2 = Math.floor(args / 36) / 5 * 255;
-      const g2 = Math.floor((rem = args % 36) / 6) / 5 * 255;
-      const b2 = rem % 6 / 5 * 255;
-      return [r2, g2, b2];
-    };
-    convert.rgb.hex = function(args) {
-      const integer2 = ((Math.round(args[0]) & 255) << 16) + ((Math.round(args[1]) & 255) << 8) + (Math.round(args[2]) & 255);
-      const string2 = integer2.toString(16).toUpperCase();
-      return "000000".slice(string2.length) + string2;
-    };
-    convert.hex.rgb = function(args) {
-      const match2 = args.toString(16).match(/[a-f\d]{6}|[a-f\d]{3}/i);
-      if (!match2) {
-        return [0, 0, 0];
-      }
-      let colorString = match2[0];
-      if (match2[0].length === 3) {
-        colorString = [...colorString].map((char) => char + char).join("");
-      }
-      const integer2 = Number.parseInt(colorString, 16);
-      const r2 = integer2 >> 16 & 255;
-      const g2 = integer2 >> 8 & 255;
-      const b2 = integer2 & 255;
-      return [r2, g2, b2];
-    };
-    convert.rgb.hcg = function(rgb) {
-      const r2 = rgb[0] / 255;
-      const g2 = rgb[1] / 255;
-      const b2 = rgb[2] / 255;
-      const max = Math.max(Math.max(r2, g2), b2);
-      const min = Math.min(Math.min(r2, g2), b2);
-      const chroma = max - min;
-      let hue;
-      const grayscale2 = chroma < 1 ? min / (1 - chroma) : 0;
-      if (chroma <= 0) {
-        hue = 0;
-      } else if (max === r2) {
-        hue = (g2 - b2) / chroma % 6;
-      } else if (max === g2) {
-        hue = 2 + (b2 - r2) / chroma;
-      } else {
-        hue = 4 + (r2 - g2) / chroma;
-      }
-      hue /= 6;
-      hue %= 1;
-      return [hue * 360, chroma * 100, grayscale2 * 100];
-    };
-    convert.hsl.hcg = function(hsl) {
-      const s2 = hsl[1] / 100;
-      const l2 = hsl[2] / 100;
-      const c2 = l2 < 0.5 ? 2 * s2 * l2 : 2 * s2 * (1 - l2);
-      let f2 = 0;
-      if (c2 < 1) {
-        f2 = (l2 - 0.5 * c2) / (1 - c2);
-      }
-      return [hsl[0], c2 * 100, f2 * 100];
-    };
-    convert.hsv.hcg = function(hsv) {
-      const s2 = hsv[1] / 100;
-      const v2 = hsv[2] / 100;
-      const c2 = s2 * v2;
-      let f2 = 0;
-      if (c2 < 1) {
-        f2 = (v2 - c2) / (1 - c2);
-      }
-      return [hsv[0], c2 * 100, f2 * 100];
-    };
-    convert.hcg.rgb = function(hcg) {
-      const h2 = hcg[0] / 360;
-      const c2 = hcg[1] / 100;
-      const g2 = hcg[2] / 100;
-      if (c2 === 0) {
-        return [g2 * 255, g2 * 255, g2 * 255];
-      }
-      const pure = [0, 0, 0];
-      const hi = h2 % 1 * 6;
-      const v2 = hi % 1;
-      const w2 = 1 - v2;
-      let mg = 0;
-      switch (Math.floor(hi)) {
-        case 0: {
-          pure[0] = 1;
-          pure[1] = v2;
-          pure[2] = 0;
-          break;
-        }
-        case 1: {
-          pure[0] = w2;
-          pure[1] = 1;
-          pure[2] = 0;
-          break;
-        }
-        case 2: {
-          pure[0] = 0;
-          pure[1] = 1;
-          pure[2] = v2;
-          break;
-        }
-        case 3: {
-          pure[0] = 0;
-          pure[1] = w2;
-          pure[2] = 1;
-          break;
-        }
-        case 4: {
-          pure[0] = v2;
-          pure[1] = 0;
-          pure[2] = 1;
-          break;
-        }
-        default: {
-          pure[0] = 1;
-          pure[1] = 0;
-          pure[2] = w2;
-        }
-      }
-      mg = (1 - c2) * g2;
-      return [
-        (c2 * pure[0] + mg) * 255,
-        (c2 * pure[1] + mg) * 255,
-        (c2 * pure[2] + mg) * 255
-      ];
-    };
-    convert.hcg.hsv = function(hcg) {
-      const c2 = hcg[1] / 100;
-      const g2 = hcg[2] / 100;
-      const v2 = c2 + g2 * (1 - c2);
-      let f2 = 0;
-      if (v2 > 0) {
-        f2 = c2 / v2;
-      }
-      return [hcg[0], f2 * 100, v2 * 100];
-    };
-    convert.hcg.hsl = function(hcg) {
-      const c2 = hcg[1] / 100;
-      const g2 = hcg[2] / 100;
-      const l2 = g2 * (1 - c2) + 0.5 * c2;
-      let s2 = 0;
-      if (l2 > 0 && l2 < 0.5) {
-        s2 = c2 / (2 * l2);
-      } else if (l2 >= 0.5 && l2 < 1) {
-        s2 = c2 / (2 * (1 - l2));
-      }
-      return [hcg[0], s2 * 100, l2 * 100];
-    };
-    convert.hcg.hwb = function(hcg) {
-      const c2 = hcg[1] / 100;
-      const g2 = hcg[2] / 100;
-      const v2 = c2 + g2 * (1 - c2);
-      return [hcg[0], (v2 - c2) * 100, (1 - v2) * 100];
-    };
-    convert.hwb.hcg = function(hwb) {
-      const w2 = hwb[1] / 100;
-      const b2 = hwb[2] / 100;
-      const v2 = 1 - b2;
-      const c2 = v2 - w2;
-      let g2 = 0;
-      if (c2 < 1) {
-        g2 = (v2 - c2) / (1 - c2);
-      }
-      return [hwb[0], c2 * 100, g2 * 100];
-    };
-    convert.apple.rgb = function(apple) {
-      return [apple[0] / 65535 * 255, apple[1] / 65535 * 255, apple[2] / 65535 * 255];
-    };
-    convert.rgb.apple = function(rgb) {
-      return [rgb[0] / 255 * 65535, rgb[1] / 255 * 65535, rgb[2] / 255 * 65535];
-    };
-    convert.gray.rgb = function(args) {
-      return [args[0] / 100 * 255, args[0] / 100 * 255, args[0] / 100 * 255];
-    };
-    convert.gray.hsl = function(args) {
-      return [0, 0, args[0]];
-    };
-    convert.gray.hsv = convert.gray.hsl;
-    convert.gray.hwb = function(gray) {
-      return [0, 100, gray[0]];
-    };
-    convert.gray.cmyk = function(gray) {
-      return [0, 0, 0, gray[0]];
-    };
-    convert.gray.lab = function(gray) {
-      return [gray[0], 0, 0];
-    };
-    convert.gray.hex = function(gray) {
-      const value = Math.round(gray[0] / 100 * 255) & 255;
-      const integer2 = (value << 16) + (value << 8) + value;
-      const string2 = integer2.toString(16).toUpperCase();
-      return "000000".slice(string2.length) + string2;
-    };
-    convert.rgb.gray = function(rgb) {
-      const value = (rgb[0] + rgb[1] + rgb[2]) / 3;
-      return [value / 255 * 100];
-    };
-    function buildGraph() {
-      const graph = {};
-      const models2 = Object.keys(conversions_default);
-      for (let { length } = models2, i2 = 0; i2 < length; i2++) {
-        graph[models2[i2]] = {
-          // http://jsperf.com/1-vs-infinity
-          // micro-opt, but this is simple.
-          distance: -1,
-          parent: null
-        };
-      }
-      return graph;
-    }
-    function deriveBFS(fromModel) {
-      const graph = buildGraph();
-      const queue2 = [fromModel];
-      graph[fromModel].distance = 0;
-      while (queue2.length > 0) {
-        const current = queue2.pop();
-        const adjacents = Object.keys(conversions_default[current]);
-        for (let { length } = adjacents, i2 = 0; i2 < length; i2++) {
-          const adjacent = adjacents[i2];
-          const node = graph[adjacent];
-          if (node.distance === -1) {
-            node.distance = graph[current].distance + 1;
-            node.parent = current;
-            queue2.unshift(adjacent);
-          }
-        }
-      }
-      return graph;
-    }
-    function link(from, to) {
-      return function(args) {
-        return to(from(args));
-      };
-    }
-    function wrapConversion(toModel, graph) {
-      const path3 = [graph[toModel].parent, toModel];
-      let fn3 = conversions_default[graph[toModel].parent][toModel];
-      let cur = graph[toModel].parent;
-      while (graph[cur].parent) {
-        path3.unshift(graph[cur].parent);
-        fn3 = link(conversions_default[graph[cur].parent][cur], fn3);
-        cur = graph[cur].parent;
-      }
-      fn3.conversion = path3;
-      return fn3;
-    }
-    function route(fromModel) {
-      const graph = deriveBFS(fromModel);
-      const conversion = {};
-      const models2 = Object.keys(graph);
-      for (let { length } = models2, i2 = 0; i2 < length; i2++) {
-        const toModel = models2[i2];
-        const node = graph[toModel];
-        if (node.parent === null) {
-          continue;
-        }
-        conversion[toModel] = wrapConversion(toModel, graph);
-      }
-      return conversion;
-    }
-    var route_default = route;
-    var convert2 = {};
-    var models = Object.keys(conversions_default);
-    function wrapRaw(fn3) {
-      const wrappedFn = function(...args) {
-        const arg0 = args[0];
-        if (arg0 === void 0 || arg0 === null) {
-          return arg0;
-        }
-        if (arg0.length > 1) {
-          args = arg0;
-        }
-        return fn3(args);
-      };
-      if ("conversion" in fn3) {
-        wrappedFn.conversion = fn3.conversion;
-      }
-      return wrappedFn;
-    }
-    function wrapRounded(fn3) {
-      const wrappedFn = function(...args) {
-        const arg0 = args[0];
-        if (arg0 === void 0 || arg0 === null) {
-          return arg0;
-        }
-        if (arg0.length > 1) {
-          args = arg0;
-        }
-        const result = fn3(args);
-        if (typeof result === "object") {
-          for (let { length } = result, i2 = 0; i2 < length; i2++) {
-            result[i2] = Math.round(result[i2]);
-          }
-        }
-        return result;
-      };
-      if ("conversion" in fn3) {
-        wrappedFn.conversion = fn3.conversion;
-      }
-      return wrappedFn;
-    }
-    for (const fromModel of models) {
-      convert2[fromModel] = {};
-      Object.defineProperty(convert2[fromModel], "channels", { value: conversions_default[fromModel].channels });
-      Object.defineProperty(convert2[fromModel], "labels", { value: conversions_default[fromModel].labels });
-      const routes = route_default(fromModel);
-      const routeModels = Object.keys(routes);
-      for (const toModel of routeModels) {
-        const fn3 = routes[toModel];
-        convert2[fromModel][toModel] = wrapRounded(fn3);
-        convert2[fromModel][toModel].raw = wrapRaw(fn3);
-      }
-    }
-    var color_convert_default = convert2;
-    var skippedModels = [
-      // To be honest, I don't really feel like keyword belongs in color convert, but eh.
-      "keyword",
-      // Gray conflicts with some method names, and has its own method defined.
-      "gray",
-      // Shouldn't really be in color-convert either...
-      "hex"
-    ];
-    var hashedModelKeys = {};
-    for (const model of Object.keys(color_convert_default)) {
-      hashedModelKeys[[...color_convert_default[model].labels].sort().join("")] = model;
-    }
-    var limiters = {};
-    function Color(object2, model) {
-      if (!(this instanceof Color)) {
-        return new Color(object2, model);
-      }
-      if (model && model in skippedModels) {
-        model = null;
-      }
-      if (model && !(model in color_convert_default)) {
-        throw new Error("Unknown model: " + model);
-      }
-      let i2;
-      let channels;
-      if (object2 == null) {
-        this.model = "rgb";
-        this.color = [0, 0, 0];
-        this.valpha = 1;
-      } else if (object2 instanceof Color) {
-        this.model = object2.model;
-        this.color = [...object2.color];
-        this.valpha = object2.valpha;
-      } else if (typeof object2 === "string") {
-        const result = color_string_default.get(object2);
-        if (result === null) {
-          throw new Error("Unable to parse color from string: " + object2);
-        }
-        this.model = result.model;
-        channels = color_convert_default[this.model].channels;
-        this.color = result.value.slice(0, channels);
-        this.valpha = typeof result.value[channels] === "number" ? result.value[channels] : 1;
-      } else if (object2.length > 0) {
-        this.model = model || "rgb";
-        channels = color_convert_default[this.model].channels;
-        const newArray = Array.prototype.slice.call(object2, 0, channels);
-        this.color = zeroArray(newArray, channels);
-        this.valpha = typeof object2[channels] === "number" ? object2[channels] : 1;
-      } else if (typeof object2 === "number") {
-        this.model = "rgb";
-        this.color = [
-          object2 >> 16 & 255,
-          object2 >> 8 & 255,
-          object2 & 255
-        ];
-        this.valpha = 1;
-      } else {
-        this.valpha = 1;
-        const keys = Object.keys(object2);
-        if ("alpha" in object2) {
-          keys.splice(keys.indexOf("alpha"), 1);
-          this.valpha = typeof object2.alpha === "number" ? object2.alpha : 0;
-        }
-        const hashedKeys = keys.sort().join("");
-        if (!(hashedKeys in hashedModelKeys)) {
-          throw new Error("Unable to parse color from object: " + JSON.stringify(object2));
-        }
-        this.model = hashedModelKeys[hashedKeys];
-        const { labels } = color_convert_default[this.model];
-        const color2 = [];
-        for (i2 = 0; i2 < labels.length; i2++) {
-          color2.push(object2[labels[i2]]);
-        }
-        this.color = zeroArray(color2);
-      }
-      if (limiters[this.model]) {
-        channels = color_convert_default[this.model].channels;
-        for (i2 = 0; i2 < channels; i2++) {
-          const limit = limiters[this.model][i2];
-          if (limit) {
-            this.color[i2] = limit(this.color[i2]);
-          }
-        }
-      }
-      this.valpha = Math.max(0, Math.min(1, this.valpha));
-      if (Object.freeze) {
-        Object.freeze(this);
-      }
-    }
-    Color.prototype = {
-      toString() {
-        return this.string();
-      },
-      toJSON() {
-        return this[this.model]();
-      },
-      string(places) {
-        let self = this.model in color_string_default.to ? this : this.rgb();
-        self = self.round(typeof places === "number" ? places : 1);
-        const arguments_ = self.valpha === 1 ? self.color : [...self.color, this.valpha];
-        return color_string_default.to[self.model](...arguments_);
-      },
-      percentString(places) {
-        const self = this.rgb().round(typeof places === "number" ? places : 1);
-        const arguments_ = self.valpha === 1 ? self.color : [...self.color, this.valpha];
-        return color_string_default.to.rgb.percent(...arguments_);
-      },
-      array() {
-        return this.valpha === 1 ? [...this.color] : [...this.color, this.valpha];
-      },
-      object() {
-        const result = {};
-        const { channels } = color_convert_default[this.model];
-        const { labels } = color_convert_default[this.model];
-        for (let i2 = 0; i2 < channels; i2++) {
-          result[labels[i2]] = this.color[i2];
-        }
-        if (this.valpha !== 1) {
-          result.alpha = this.valpha;
-        }
-        return result;
-      },
-      unitArray() {
-        const rgb = this.rgb().color;
-        rgb[0] /= 255;
-        rgb[1] /= 255;
-        rgb[2] /= 255;
-        if (this.valpha !== 1) {
-          rgb.push(this.valpha);
-        }
-        return rgb;
-      },
-      unitObject() {
-        const rgb = this.rgb().object();
-        rgb.r /= 255;
-        rgb.g /= 255;
-        rgb.b /= 255;
-        if (this.valpha !== 1) {
-          rgb.alpha = this.valpha;
-        }
-        return rgb;
-      },
-      round(places) {
-        places = Math.max(places || 0, 0);
-        return new Color([...this.color.map(roundToPlace(places)), this.valpha], this.model);
-      },
-      alpha(value) {
-        if (value !== void 0) {
-          return new Color([...this.color, Math.max(0, Math.min(1, value))], this.model);
-        }
-        return this.valpha;
-      },
-      // Rgb
-      red: getset("rgb", 0, maxfn(255)),
-      green: getset("rgb", 1, maxfn(255)),
-      blue: getset("rgb", 2, maxfn(255)),
-      hue: getset(["hsl", "hsv", "hsl", "hwb", "hcg"], 0, (value) => (value % 360 + 360) % 360),
-      saturationl: getset("hsl", 1, maxfn(100)),
-      lightness: getset("hsl", 2, maxfn(100)),
-      saturationv: getset("hsv", 1, maxfn(100)),
-      value: getset("hsv", 2, maxfn(100)),
-      chroma: getset("hcg", 1, maxfn(100)),
-      gray: getset("hcg", 2, maxfn(100)),
-      white: getset("hwb", 1, maxfn(100)),
-      wblack: getset("hwb", 2, maxfn(100)),
-      cyan: getset("cmyk", 0, maxfn(100)),
-      magenta: getset("cmyk", 1, maxfn(100)),
-      yellow: getset("cmyk", 2, maxfn(100)),
-      black: getset("cmyk", 3, maxfn(100)),
-      x: getset("xyz", 0, maxfn(95.047)),
-      y: getset("xyz", 1, maxfn(100)),
-      z: getset("xyz", 2, maxfn(108.833)),
-      l: getset("lab", 0, maxfn(100)),
-      a: getset("lab", 1),
-      b: getset("lab", 2),
-      keyword(value) {
-        if (value !== void 0) {
-          return new Color(value);
-        }
-        return color_convert_default[this.model].keyword(this.color);
-      },
-      hex(value) {
-        if (value !== void 0) {
-          return new Color(value);
-        }
-        return color_string_default.to.hex(...this.rgb().round().color);
-      },
-      hexa(value) {
-        if (value !== void 0) {
-          return new Color(value);
-        }
-        const rgbArray = this.rgb().round().color;
-        let alphaHex = Math.round(this.valpha * 255).toString(16).toUpperCase();
-        if (alphaHex.length === 1) {
-          alphaHex = "0" + alphaHex;
-        }
-        return color_string_default.to.hex(...rgbArray) + alphaHex;
-      },
-      rgbNumber() {
-        const rgb = this.rgb().color;
-        return (rgb[0] & 255) << 16 | (rgb[1] & 255) << 8 | rgb[2] & 255;
-      },
-      luminosity() {
-        const rgb = this.rgb().color;
-        const lum = [];
-        for (const [i2, element] of rgb.entries()) {
-          const chan = element / 255;
-          lum[i2] = chan <= 0.04045 ? chan / 12.92 : ((chan + 0.055) / 1.055) ** 2.4;
-        }
-        return 0.2126 * lum[0] + 0.7152 * lum[1] + 0.0722 * lum[2];
-      },
-      contrast(color2) {
-        const lum1 = this.luminosity();
-        const lum2 = color2.luminosity();
-        if (lum1 > lum2) {
-          return (lum1 + 0.05) / (lum2 + 0.05);
-        }
-        return (lum2 + 0.05) / (lum1 + 0.05);
-      },
-      level(color2) {
-        const contrastRatio = this.contrast(color2);
-        if (contrastRatio >= 7) {
-          return "AAA";
-        }
-        return contrastRatio >= 4.5 ? "AA" : "";
-      },
-      isDark() {
-        const rgb = this.rgb().color;
-        const yiq = (rgb[0] * 2126 + rgb[1] * 7152 + rgb[2] * 722) / 1e4;
-        return yiq < 128;
-      },
-      isLight() {
-        return !this.isDark();
-      },
-      negate() {
-        const rgb = this.rgb();
-        for (let i2 = 0; i2 < 3; i2++) {
-          rgb.color[i2] = 255 - rgb.color[i2];
-        }
-        return rgb;
-      },
-      lighten(ratio) {
-        const hsl = this.hsl();
-        hsl.color[2] += hsl.color[2] * ratio;
-        return hsl;
-      },
-      darken(ratio) {
-        const hsl = this.hsl();
-        hsl.color[2] -= hsl.color[2] * ratio;
-        return hsl;
-      },
-      saturate(ratio) {
-        const hsl = this.hsl();
-        hsl.color[1] += hsl.color[1] * ratio;
-        return hsl;
-      },
-      desaturate(ratio) {
-        const hsl = this.hsl();
-        hsl.color[1] -= hsl.color[1] * ratio;
-        return hsl;
-      },
-      whiten(ratio) {
-        const hwb = this.hwb();
-        hwb.color[1] += hwb.color[1] * ratio;
-        return hwb;
-      },
-      blacken(ratio) {
-        const hwb = this.hwb();
-        hwb.color[2] += hwb.color[2] * ratio;
-        return hwb;
-      },
-      grayscale() {
-        const rgb = this.rgb().color;
-        const value = rgb[0] * 0.3 + rgb[1] * 0.59 + rgb[2] * 0.11;
-        return Color.rgb(value, value, value);
-      },
-      fade(ratio) {
-        return this.alpha(this.valpha - this.valpha * ratio);
-      },
-      opaquer(ratio) {
-        return this.alpha(this.valpha + this.valpha * ratio);
-      },
-      rotate(degrees) {
-        const hsl = this.hsl();
-        let hue = hsl.color[0];
-        hue = (hue + degrees) % 360;
-        hue = hue < 0 ? 360 + hue : hue;
-        hsl.color[0] = hue;
-        return hsl;
-      },
-      mix(mixinColor, weight) {
-        if (!mixinColor || !mixinColor.rgb) {
-          throw new Error('Argument to "mix" was not a Color instance, but rather an instance of ' + typeof mixinColor);
-        }
-        const color1 = mixinColor.rgb();
-        const color2 = this.rgb();
-        const p2 = weight === void 0 ? 0.5 : weight;
-        const w2 = 2 * p2 - 1;
-        const a2 = color1.alpha() - color2.alpha();
-        const w1 = ((w2 * a2 === -1 ? w2 : (w2 + a2) / (1 + w2 * a2)) + 1) / 2;
-        const w22 = 1 - w1;
-        return Color.rgb(
-          w1 * color1.red() + w22 * color2.red(),
-          w1 * color1.green() + w22 * color2.green(),
-          w1 * color1.blue() + w22 * color2.blue(),
-          color1.alpha() * p2 + color2.alpha() * (1 - p2)
-        );
-      }
-    };
-    for (const model of Object.keys(color_convert_default)) {
-      if (skippedModels.includes(model)) {
-        continue;
-      }
-      const { channels } = color_convert_default[model];
-      Color.prototype[model] = function(...arguments_) {
-        if (this.model === model) {
-          return new Color(this);
-        }
-        if (arguments_.length > 0) {
-          return new Color(arguments_, model);
-        }
-        return new Color([...assertArray(color_convert_default[this.model][model].raw(this.color)), this.valpha], model);
-      };
-      Color[model] = function(...arguments_) {
-        let color2 = arguments_[0];
-        if (typeof color2 === "number") {
-          color2 = zeroArray(arguments_, channels);
-        }
-        return new Color(color2, model);
-      };
-    }
-    function roundTo(number2, places) {
-      return Number(number2.toFixed(places));
-    }
-    function roundToPlace(places) {
-      return function(number2) {
-        return roundTo(number2, places);
-      };
-    }
-    function getset(model, channel, modifier) {
-      model = Array.isArray(model) ? model : [model];
-      for (const m2 of model) {
-        (limiters[m2] ||= [])[channel] = modifier;
-      }
-      model = model[0];
-      return function(value) {
-        let result;
-        if (value !== void 0) {
-          if (modifier) {
-            value = modifier(value);
-          }
-          result = this[model]();
-          result.color[channel] = value;
-          return result;
-        }
-        result = this[model]().color[channel];
-        if (modifier) {
-          result = modifier(result);
-        }
-        return result;
-      };
-    }
-    function maxfn(max) {
-      return function(v2) {
-        return Math.max(0, Math.min(max, v2));
-      };
-    }
-    function assertArray(value) {
-      return Array.isArray(value) ? value : [value];
-    }
-    function zeroArray(array, length) {
-      for (let i2 = 0; i2 < length; i2++) {
-        if (typeof array[i2] !== "number") {
-          array[i2] = 0;
-        }
-      }
-      return array;
-    }
-    var index_default = Color;
-  }
-});
-
-// node_modules/@img/colour/index.cjs
-var require_colour = __commonJS({
-  "node_modules/@img/colour/index.cjs"(exports, module) {
-    module.exports = require_color().default;
   }
 });
 
@@ -44270,8 +40108,8 @@ var HTTPException = class extends Error {
 var GET_MATCH_RESULT = Symbol();
 
 // node_modules/hono/dist/utils/buffer.js
-var bufferToFormData = (arrayBuffer2, contentType) => {
-  return new Response(arrayBuffer2, { headers: { "Content-Type": contentType.replace(/^[^;]+/, (mediaType) => mediaType.toLowerCase()) } }).formData();
+var bufferToFormData = (arrayBuffer, contentType) => {
+  return new Response(arrayBuffer, { headers: { "Content-Type": contentType.replace(/^[^;]+/, (mediaType) => mediaType.toLowerCase()) } }).formData();
 };
 
 // node_modules/hono/dist/utils/body.js
@@ -44289,8 +40127,8 @@ var parseBody = async (request, options = /* @__PURE__ */ Object.create(null)) =
 async function parseFormData(request, options) {
   if (!isRawRequest(request) && request.bodyCache.formData) return convertFormDataToBodyData(await request.bodyCache.formData, options);
   const headers = isRawRequest(request) ? request.headers : request.raw.headers;
-  const arrayBuffer2 = await request.arrayBuffer();
-  const formDataPromise = bufferToFormData(arrayBuffer2, headers.get("Content-Type") || "");
+  const arrayBuffer = await request.arrayBuffer();
+  const formDataPromise = bufferToFormData(arrayBuffer, headers.get("Content-Type") || "");
   if (!isRawRequest(request)) request.bodyCache.formData = formDataPromise;
   const formData = await formDataPromise;
   if (formData) return convertFormDataToBodyData(formData, options);
@@ -44339,26 +40177,26 @@ var throwNestingLimitExceeded = () => {
 };
 
 // node_modules/hono/dist/utils/url.js
-var splitPath = (path3) => {
-  const paths = path3.split("/");
+var splitPath = (path2) => {
+  const paths = path2.split("/");
   if (paths[0] === "") paths.shift();
   return paths;
 };
 var splitRoutingPath = (routePath2) => {
-  const { groups, path: path3 } = extractGroupsFromPath(routePath2);
-  const paths = splitPath(path3);
+  const { groups, path: path2 } = extractGroupsFromPath(routePath2);
+  const paths = splitPath(path2);
   return replaceGroupMarks(paths, groups);
 };
-var extractGroupsFromPath = (path3) => {
+var extractGroupsFromPath = (path2) => {
   const groups = [];
-  path3 = path3.replace(/\{[^}]+\}/g, (match2, index2) => {
+  path2 = path2.replace(/\{[^}]+\}/g, (match2, index2) => {
     const mark = `@${index2}`;
     groups.push([mark, match2]);
     return mark;
   });
   return {
     groups,
-    path: path3
+    path: path2
   };
 };
 var replaceGroupMarks = (paths, groups) => {
@@ -44421,12 +40259,12 @@ var getPath = (request) => {
       const queryIndex = url.indexOf("?", i2);
       const hashIndex = url.indexOf("#", i2);
       const end2 = queryIndex === -1 ? hashIndex === -1 ? void 0 : hashIndex : hashIndex === -1 ? queryIndex : Math.min(queryIndex, hashIndex);
-      const path3 = url.slice(start, end2);
-      const decoded = tryDecode(path3, decodeURIWithPreservedPercent);
-      if (/%(?![0-9A-Fa-f]{2})/.test(path3)) {
+      const path2 = url.slice(start, end2);
+      const decoded = tryDecode(path2, decodeURIWithPreservedPercent);
+      if (/%(?![0-9A-Fa-f]{2})/.test(path2)) {
         const rewritten = new URL("http://localhost");
         rewritten.pathname = decoded.replace(/[\\\t\n\r]/g, encodeURIComponent);
-        if (tryDecode(rewritten.pathname, decodeURIWithPreservedPercent) !== decoded) return tryDecode(path3.replace(/%(?![0-9A-Fa-f]{2})/g, "%25"), decodeURIWithPreservedPercent);
+        if (tryDecode(rewritten.pathname, decodeURIWithPreservedPercent) !== decoded) return tryDecode(path2.replace(/%(?![0-9A-Fa-f]{2})/g, "%25"), decodeURIWithPreservedPercent);
       }
       return decoded;
     } else if (charCode === 63 || charCode === 35) break;
@@ -44441,9 +40279,9 @@ var mergePath = (base, sub, ...rest) => {
   if (rest.length) sub = mergePath(sub, ...rest);
   return `${base?.[0] === "/" ? "" : "/"}${base}${sub === "/" ? "" : `${base?.at(-1) === "/" ? "" : "/"}${sub?.[0] === "/" ? sub.slice(1) : sub}`}`;
 };
-var checkOptionalParameter = (path3) => {
-  if (path3.charCodeAt(path3.length - 1) !== 63 || !path3.includes(":")) return null;
-  const segments = path3.split("/");
+var checkOptionalParameter = (path2) => {
+  if (path2.charCodeAt(path2.length - 1) !== 63 || !path2.includes(":")) return null;
+  const segments = path2.split("/");
   const results = [];
   let basePath = "";
   segments.forEach((segment) => {
@@ -44554,9 +40392,9 @@ var HonoRequest = class {
   */
   path;
   bodyCache = {};
-  constructor(request, path3 = "/", matchResult = [[]]) {
+  constructor(request, path2 = "/", matchResult = [[]]) {
     this.raw = request;
-    this.path = path3;
+    this.path = path2;
     this.#matchResult = matchResult;
   }
   param(key) {
@@ -44597,15 +40435,15 @@ var HonoRequest = class {
     return parseBody(this, options);
   }
   #cachedBody = (key) => {
-    const { bodyCache, raw: raw3 } = this;
+    const { bodyCache, raw: raw2 } = this;
     const cachedBody = bodyCache[key];
     if (cachedBody) return cachedBody;
     for (const anyCachedKey in bodyCache) return bodyCache[anyCachedKey].then((body) => {
       if (anyCachedKey === "json") body = JSON.stringify(body);
-      const contentType = anyCachedKey === "formData" ? void 0 : raw3.headers.get("content-type");
+      const contentType = anyCachedKey === "formData" ? void 0 : raw2.headers.get("content-type");
       return new Response(body, { headers: contentType ? { "Content-Type": contentType } : void 0 })[key]();
     });
-    return bodyCache[key] = raw3[key]();
+    return bodyCache[key] = raw2[key]();
   };
   /**
   * `.json()` can parse Request body of type `application/json`
@@ -44665,7 +40503,7 @@ var HonoRequest = class {
   * ```
   */
   bytes() {
-    return this.#cachedBody("arrayBuffer").then((buffer2) => new Uint8Array(buffer2));
+    return this.#cachedBody("arrayBuffer").then((buffer) => new Uint8Array(buffer));
   }
   /**
   * Parses the request body as a `Blob`.
@@ -44802,20 +40640,20 @@ var raw = (value, callbacks) => {
   escapedString.callbacks = callbacks;
   return escapedString;
 };
-var resolveCallback = async (str, phase, preserveCallbacks, context, buffer2) => {
+var resolveCallback = async (str, phase, preserveCallbacks, context, buffer) => {
   if (typeof str === "object" && !(str instanceof String)) {
     if (!(str instanceof Promise)) str = str.toString();
     if (str instanceof Promise) str = await str;
   }
   const callbacks = str.callbacks;
   if (!callbacks?.length) return Promise.resolve(str);
-  if (buffer2) buffer2[0] += str;
-  else buffer2 = [str];
+  if (buffer) buffer[0] += str;
+  else buffer = [str];
   const resStr = Promise.all(callbacks.map((c2) => c2({
     phase,
-    buffer: buffer2,
+    buffer,
     context
-  }))).then((res) => Promise.all(res.filter(Boolean).map((str2) => resolveCallback(str2, phase, false, context, buffer2))).then(() => buffer2[0]));
+  }))).then((res) => Promise.all(res.filter(Boolean).map((str2) => resolveCallback(str2, phase, false, context, buffer))).then(() => buffer[0]));
   if (preserveCallbacks) return raw(await resStr, callbacks);
   else return resStr;
 };
@@ -45153,8 +40991,8 @@ var Context = class {
   * })
   * ```
   */
-  json = (object2, arg, headers) => {
-    return this.#newResponse(JSON.stringify(object2), arg, setDefaultContentType("application/json", headers));
+  json = (object, arg, headers) => {
+    return this.#newResponse(JSON.stringify(object), arg, setDefaultContentType("application/json", headers));
   };
   html = (html3, arg, headers) => {
     const res = (html4) => this.#newResponse(html4, arg, setDefaultContentType("text/html; charset=UTF-8", headers));
@@ -45251,14 +41089,14 @@ var UnsupportedPathError = class extends Error {
 var COMPOSED_HANDLER = "__COMPOSED_HANDLER";
 
 // node_modules/hono/dist/utils/mount.js
-var countTrailingSlashes = (path3) => {
-  let index2 = path3.length;
-  while (index2 > 0 && path3.charCodeAt(index2 - 1) === 47) index2--;
-  return path3.length - index2;
+var countTrailingSlashes = (path2) => {
+  let index2 = path2.length;
+  while (index2 > 0 && path2.charCodeAt(index2 - 1) === 47) index2--;
+  return path2.length - index2;
 };
 var getPathPrefixLength = (c2, pathPrefix, routePath2) => {
   if (!/[:*]/.test(pathPrefix)) return pathPrefix.length;
-  const path3 = c2.req.path;
+  const path2 = c2.req.path;
   const matchResult = c2.req[GET_MATCH_RESULT];
   const paramNames = /* @__PURE__ */ new Set();
   let length = 0;
@@ -45274,8 +41112,8 @@ var getPathPrefixLength = (c2, pathPrefix, routePath2) => {
       const value = matchResult.length === 2 ? matchResult[1][matchResult[0][c2.req.routeIndex][1][pattern[1]]] : matchResult[0][c2.req.routeIndex][1][pattern[1]];
       length += value.length + 1;
     } else if (pattern || part.endsWith("*")) {
-      const end2 = path3.indexOf("/", length + 1);
-      length = end2 === -1 ? path3.length : end2;
+      const end2 = path2.indexOf("/", length + 1);
+      length = end2 === -1 ? path2.length : end2;
     } else length += part.length + 1;
   }
   return length;
@@ -45283,16 +41121,16 @@ var getPathPrefixLength = (c2, pathPrefix, routePath2) => {
 var createMountedRequest = (c2, pathPrefix, routePath2) => {
   if (/[^/]\*$/.test(routePath2)) throw new Error(`mount(): Wildcard must follow "/" in "${routePath2}".`);
   const prefixLength = getPathPrefixLength(c2, pathPrefix, routePath2);
-  const path3 = c2.req.path.slice(prefixLength) || "/";
-  if (prefixLength > c2.req.path.length || path3[0] !== "/" || /\/(?:\.|%2e){1,2}(?:\/|$)/i.test(path3)) throw new HTTPException(400, { message: "Invalid mounted path" });
+  const path2 = c2.req.path.slice(prefixLength) || "/";
+  if (prefixLength > c2.req.path.length || path2[0] !== "/" || /\/(?:\.|%2e){1,2}(?:\/|$)/i.test(path2)) throw new HTTPException(400, { message: "Invalid mounted path" });
   const rawUrl = c2.req.raw.url;
   if (/^[^/?#]*\/\/[^/?#\\]*[?#\\]/.test(rawUrl)) throw new HTTPException(400, { message: "Invalid mounted path" });
   const rawPathEnd = rawUrl.search(/[?#]/);
   const rawTrailingSlashes = countTrailingSlashes(rawPathEnd === -1 ? rawUrl : rawUrl.slice(0, rawPathEnd));
   if (rawTrailingSlashes > 1 && countTrailingSlashes(c2.req.path) === rawTrailingSlashes - 1) throw new HTTPException(400, { message: "Invalid mounted path" });
   const url = new URL(rawUrl);
-  url.pathname = path3.replace(/[\\\t\n\r]/g, encodeURIComponent);
-  if (path3.includes("%")) {
+  url.pathname = path2.replace(/[\\\t\n\r]/g, encodeURIComponent);
+  if (path2.includes("%")) {
   }
   return new Request(url, c2.req.raw);
 };
@@ -45337,8 +41175,8 @@ var Hono = class Hono2 {
         return this;
       };
     });
-    this.on = (method, path3, ...handlers) => {
-      for (const p2 of [path3].flat()) {
+    this.on = (method, path2, ...handlers) => {
+      for (const p2 of [path2].flat()) {
         this.#path = p2;
         for (const m2 of [method].flat()) {
           const methodName = m2.toUpperCase();
@@ -45363,14 +41201,14 @@ var Hono = class Hono2 {
     this.getPath = strict ?? true ? options.getPath ?? getPath : getPathNoStrict;
   }
   #clone() {
-    const clone3 = new Hono2({
+    const clone2 = new Hono2({
       router: this.router,
       getPath: this.getPath
     });
-    clone3.errorHandler = this.errorHandler;
-    clone3.#notFoundHandler = this.#notFoundHandler;
-    clone3.routes = this.routes;
-    return clone3;
+    clone2.errorHandler = this.errorHandler;
+    clone2.#notFoundHandler = this.#notFoundHandler;
+    clone2.routes = this.routes;
+    return clone2;
   }
   #notFoundHandler = notFoundHandler;
   errorHandler = errorHandler;
@@ -45392,8 +41230,8 @@ var Hono = class Hono2 {
   * app.route("/api", app2) // GET /api/user
   * ```
   */
-  route(path3, app2) {
-    const subApp = this.basePath(path3);
+  route(path2, app2) {
+    const subApp = this.basePath(path2);
     app2.routes.map((r2) => {
       let handler;
       if (app2.errorHandler === errorHandler) handler = r2.handler;
@@ -45418,9 +41256,9 @@ var Hono = class Hono2 {
   * const api = new Hono().basePath('/api')
   * ```
   */
-  basePath(path3) {
+  basePath(path2) {
     const subApp = this.#clone();
-    subApp._basePath = mergePath(this._basePath, path3);
+    subApp._basePath = mergePath(this._basePath, path2);
     return subApp;
   }
   /**
@@ -45498,7 +41336,7 @@ var Hono = class Hono2 {
   * })
   * ```
   */
-  mount(path3, applicationHandler, options) {
+  mount(path2, applicationHandler, options) {
     let replaceRequest;
     let optionHandler;
     if (options) {
@@ -45529,18 +41367,18 @@ var Hono = class Hono2 {
       if (res) return res;
       await next2();
     };
-    this.#addRoute("ALL", mergePath(path3, "*"), handler);
+    this.#addRoute("ALL", mergePath(path2, "*"), handler);
     return this;
   }
-  #addRoute(method, path3, handler, baseRoutePath) {
-    path3 = mergePath(this._basePath, path3);
+  #addRoute(method, path2, handler, baseRoutePath) {
+    path2 = mergePath(this._basePath, path2);
     const r2 = {
       basePath: baseRoutePath !== void 0 ? mergePath(this._basePath, baseRoutePath) : this._basePath,
-      path: path3,
+      path: path2,
       method,
       handler
     };
-    this.router.add(method, path3, [handler, r2]);
+    this.router.add(method, path2, [handler, r2]);
     this.routes.push(r2);
   }
   #handleError(err, c2) {
@@ -45549,10 +41387,10 @@ var Hono = class Hono2 {
   }
   #dispatch(request, executionCtx, env, method) {
     if (method === "HEAD") return (async () => new Response(null, await this.#dispatch(request, executionCtx, env, "GET")))();
-    const path3 = this.getPath(request, { env });
-    const matchResult = this.router.match(method, path3);
+    const path2 = this.getPath(request, { env });
+    const matchResult = this.router.match(method, path2);
     const c2 = new Context(request, {
-      path: path3,
+      path: path2,
       matchResult,
       env,
       executionCtx,
@@ -45640,19 +41478,19 @@ var createNullObject = () => /* @__PURE__ */ Object.create(null);
 
 // node_modules/hono/dist/router/reg-exp-router/matcher.js
 var emptyParam = [];
-function match(method, path3) {
+function match(method, path2) {
   const matchers = this.buildAllMatchers();
-  const match2 = ((method2, path4) => {
+  const match2 = ((method2, path3) => {
     const matcher = matchers[method2] || matchers["ALL"];
-    const staticMatch = matcher[2][path4];
+    const staticMatch = matcher[2][path3];
     if (staticMatch) return staticMatch;
-    const match3 = path4.match(matcher[0]);
+    const match3 = path3.match(matcher[0]);
     if (!match3) return [[], emptyParam];
     const index2 = match3.indexOf("", 1);
     return [matcher[1][index2], match3];
   });
   this.match = match2;
-  return match2(method, path3);
+  return match2(method, path2);
 }
 
 // node_modules/hono/dist/router/reg-exp-router/node.js
@@ -45745,11 +41583,11 @@ var Trie = class {
   #root = new Node2();
   #index = 0;
   paths = createNullObject();
-  insert(path3, isStatic) {
+  insert(path2, isStatic) {
     const keys = [];
     if (isStatic) {
-      this.#root.insert(path3.split(""), -1, [], this.#context, keys);
-      this.paths[path3] = [
+      this.#root.insert(path2.split(""), -1, [], this.#context, keys);
+      this.paths[path2] = [
         -1,
         [],
         keys
@@ -45758,7 +41596,7 @@ var Trie = class {
     }
     const paramAssoc = [];
     const groups = [];
-    let markedPath = path3;
+    let markedPath = path2;
     for (let i2 = 0; ; ) {
       let replaced = false;
       markedPath = markedPath.replace(/\{(?:\{[\d,]+\}|[^}])+\}/g, (m2) => {
@@ -45779,7 +41617,7 @@ var Trie = class {
       }
     }
     this.#root.insert(tokens, this.#index, paramAssoc, this.#context, keys);
-    this.paths[path3] = [
+    this.paths[path2] = [
       this.#index++,
       paramAssoc,
       keys
@@ -45832,14 +41670,14 @@ var RegExpRouter = class {
     this.#handlers = { ["ALL"]: [] };
     this.#tries = { ["ALL"]: new Trie() };
   }
-  #insertPath(method, path3) {
+  #insertPath(method, path2) {
     try {
-      this.#tries[method].insert(path3, !/\*|\/:/.test(path3));
+      this.#tries[method].insert(path2, !/\*|\/:/.test(path2));
     } catch (e2) {
-      throw e2 === PATH_ERROR ? new UnsupportedPathError(path3) : e2;
+      throw e2 === PATH_ERROR ? new UnsupportedPathError(path2) : e2;
     }
   }
-  add(method, path3, handler) {
+  add(method, path2, handler) {
     const handlers = this.#handlers;
     if (!handlers) throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
     const tries = this.#tries;
@@ -45848,12 +41686,12 @@ var RegExpRouter = class {
       handlers[method] = [...handlers["ALL"]];
       for (const p2 in tries["ALL"].paths) this.#insertPath(method, p2);
     }
-    if (path3 === "/*") path3 = "*";
+    if (path2 === "/*") path2 = "*";
     const methods = method === "ALL" ? Object.keys(handlers) : [method];
-    const paths = checkOptionalParameter(path3) || [path3];
-    for (const path4 of paths) for (const m2 of methods) {
-      if (!tries[m2].paths[path4]) this.#insertPath(m2, path4);
-      handlers[m2].push([handler, path4]);
+    const paths = checkOptionalParameter(path2) || [path2];
+    for (const path3 of paths) for (const m2 of methods) {
+      if (!tries[m2].paths[path3]) this.#insertPath(m2, path3);
+      handlers[m2].push([handler, path3]);
     }
   }
   match = match;
@@ -45878,14 +41716,14 @@ var RegExpRouter = class {
       }, createNullObject())];
     });
     const wildcards = Object.keys(own).filter((p2) => endsWithWildcard(trie.paths[p2][2]));
-    for (const path3 in trie.paths) {
-      const [index2, , keys] = trie.paths[path3];
-      const indexes = [...own[path3]];
-      for (const p2 of wildcards) if (p2 !== path3 && covers(trie.paths[p2][2], keys)) indexes.push(...own[p2]);
+    for (const path2 in trie.paths) {
+      const [index2, , keys] = trie.paths[path2];
+      const indexes = [...own[path2]];
+      for (const p2 of wildcards) if (p2 !== path2 && covers(trie.paths[p2][2], keys)) indexes.push(...own[p2]);
       const data2 = indexes.sort((a2, b2) => a2 - b2).map((i2) => entries[i2]);
       if (index2 === -1) {
         const last2 = Math.max(-1, ...data2.flatMap(([, map2]) => Object.values(map2)));
-        staticMap[path3] = [data2, last2 === -1 ? emptyParam : path3.match(regexp).slice(0, last2 + 1)];
+        staticMap[path2] = [data2, last2 === -1 ? emptyParam : path2.match(regexp).slice(0, last2 + 1)];
       } else handlerData[index2] = data2;
     }
     return [
@@ -45904,15 +41742,15 @@ var SmartRouter = class {
   constructor(init) {
     this.#routers = init.routers;
   }
-  add(method, path3, handler) {
+  add(method, path2, handler) {
     if (!this.#routes) throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
     this.#routes.push([
       method,
-      path3,
+      path2,
       handler
     ]);
   }
-  match(method, path3) {
+  match(method, path2) {
     if (!this.#routes) throw new Error("Fatal error");
     const routers = this.#routers;
     const routes = this.#routes;
@@ -45923,7 +41761,7 @@ var SmartRouter = class {
       const router = routers[i2];
       try {
         for (let i3 = 0, len2 = routes.length; i3 < len2; i3++) router.add(...routes[i3]);
-        res = router.match(method, path3);
+        res = router.match(method, path2);
       } catch (e2) {
         if (e2 instanceof UnsupportedPathError) continue;
         throw e2;
@@ -45952,9 +41790,9 @@ var Node4 = class Node5 {
   #patterns = [];
   #pattern;
   #params = emptyParams;
-  insert(method, path3, handler) {
+  insert(method, path2, handler) {
     let curNode = this;
-    const parts = splitRoutingPath(path3);
+    const parts = splitRoutingPath(path2);
     const possibleKeys = /* @__PURE__ */ new Set();
     let i2 = 0;
     for (const p2 of parts) {
@@ -45990,11 +41828,11 @@ var Node4 = class Node5 {
       }
     }
   }
-  search(method, path3) {
+  search(method, path2) {
     const handlerSets = [];
     this.#params = emptyParams;
     let curNodes = [this];
-    const parts = splitPath(path3);
+    const parts = splitPath(path2);
     const curNodesQueue = [];
     const len = parts.length;
     let partOffsets = null;
@@ -46030,13 +41868,13 @@ var Node4 = class Node5 {
           if (matcher !== true) {
             if (!partOffsets) {
               partOffsets = [];
-              let offset = path3[0] === "/" ? 1 : 0;
+              let offset = path2[0] === "/" ? 1 : 0;
               for (let p2 = 0; p2 < len; p2++) {
                 partOffsets[p2] = offset;
                 offset += parts[p2].length + 1;
               }
             }
-            const restPathString = path3.slice(partOffsets[i2]);
+            const restPathString = path2.slice(partOffsets[i2]);
             const m2 = matcher.exec(restPathString);
             if (m2) {
               if (!Object.hasOwn(params, name2)) params[name2] = m2[0];
@@ -46077,11 +41915,11 @@ var Node4 = class Node5 {
 var TrieRouter = class {
   name = "TrieRouter";
   #node = new Node4();
-  add(method, path3, handler) {
-    for (const result of checkOptionalParameter(path3) || [path3]) this.#node.insert(method, result, handler);
+  add(method, path2, handler) {
+    for (const result of checkOptionalParameter(path2) || [path2]) this.#node.insert(method, result, handler);
   }
-  match(method, path3) {
-    return this.#node.search(method, path3);
+  match(method, path2) {
+    return this.#node.search(method, path2);
   }
 };
 
@@ -47048,9 +42886,9 @@ var WatchStatsRepository = class {
     return true;
   }
   resolveFlushIntervalMs() {
-    const raw3 = process.env.STATS_FLUSH_INTERVAL_SEC;
-    if (raw3) {
-      const sec = Number(raw3);
+    const raw2 = process.env.STATS_FLUSH_INTERVAL_SEC;
+    if (raw2) {
+      const sec = Number(raw2);
       if (Number.isFinite(sec) && sec > 0) {
         return Math.max(1e3, Math.floor(sec * 1e3));
       }
@@ -48402,23 +44240,23 @@ function formatPrettyLog(record) {
 function formatJsonLog(record) {
   return JSON.stringify(record);
 }
-function isStaticAssetPath(path3) {
-  if (path3.startsWith("/api/")) return false;
-  if (path3.startsWith("/assets/")) return true;
-  if (path3 === "/favicon.ico" || path3 === "/site.webmanifest" || path3.startsWith("/favicon-") || path3.startsWith("/android-chrome-") || path3 === "/apple-touch-icon.png" || path3 === "/logo.png") {
+function isStaticAssetPath(path2) {
+  if (path2.startsWith("/api/")) return false;
+  if (path2.startsWith("/assets/")) return true;
+  if (path2 === "/favicon.ico" || path2 === "/site.webmanifest" || path2.startsWith("/favicon-") || path2.startsWith("/android-chrome-") || path2 === "/apple-touch-icon.png" || path2 === "/logo.png") {
     return true;
   }
-  return /\.(?:png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|css|js|map)$/i.test(path3);
+  return /\.(?:png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|css|js|map)$/i.test(path2);
 }
 function accessLogger() {
   return async (c2, next2) => {
     const start = Date.now();
-    const path3 = c2.req.path;
+    const path2 = c2.req.path;
     const method = c2.req.method;
     const ip = getClientIp(c2.req);
-    const isMediaProxy = path3.startsWith("/api/media/proxy");
-    const isHealthCheck = path3 === "/api/health" || path3 === "/api/health/";
-    const isStaticAsset = isStaticAssetPath(path3);
+    const isMediaProxy = path2.startsWith("/api/media/proxy");
+    const isHealthCheck = path2 === "/api/health" || path2 === "/api/health/";
+    const isStaticAsset = isStaticAssetPath(path2);
     const ua = c2.req.header("user-agent");
     const platformVer = c2.req.header("sec-ch-ua-platform-version");
     const device = parseClientDevice(ua, platformVer);
@@ -48472,7 +44310,7 @@ function accessLogger() {
           browser: device.browser
         },
         method,
-        path: path3,
+        path: path2,
         params,
         cache: cacheStatus !== "NONE" ? cacheStatus : void 0,
         status,
@@ -48519,8 +44357,8 @@ function resolveIp(c2) {
   const sock = clientRemoteAddress(c2);
   return sock || ip || "127.0.0.1";
 }
-function isHealthCheckPath(path3) {
-  return path3 === "/api/health" || path3 === "/api/health/" || path3 === "/health" || path3 === "/health/";
+function isHealthCheckPath(path2) {
+  return path2 === "/api/health" || path2 === "/api/health/" || path2 === "/health" || path2 === "/health/";
 }
 function checkWindowLimit(store3, ip, limit, now) {
   let bucket = store3.get(ip);
@@ -48540,22 +44378,22 @@ function ipAccessAndRateLimit(options) {
   const heavyLimit = options?.heavyLimitPerSec ?? 10;
   const sourceLimit = options?.sourceLimitPerSec ?? 10;
   return async function middleware(c2, next2) {
-    const path3 = c2.req.path;
+    const path2 = c2.req.path;
     const method = c2.req.method;
     if (method === "OPTIONS") {
       return next2();
     }
     const ip = resolveIp(c2);
-    const isHealthCheck = isHealthCheckPath(path3);
+    const isHealthCheck = isHealthCheckPath(path2);
     if (isHealthCheck) {
       return next2();
     }
     ipAccessRepo.recordHit(ip);
-    if (!path3.startsWith("/api/")) {
+    if (!path2.startsWith("/api/")) {
       return next2();
     }
     const now = Date.now();
-    const isHeavyEndpoint = path3.startsWith("/api/plugin") || path3.startsWith("/api/media");
+    const isHeavyEndpoint = path2.startsWith("/api/plugin") || path2.startsWith("/api/media");
     if (isHeavyEndpoint) {
       const { allowed: allowed2, remaining: remaining2 } = checkWindowLimit(
         heavyWindowStore,
@@ -48576,7 +44414,7 @@ function ipAccessAndRateLimit(options) {
         );
       }
     }
-    const isSourceEndpoint = path3.startsWith("/api/source");
+    const isSourceEndpoint = path2.startsWith("/api/source");
     if (isSourceEndpoint) {
       const { allowed: allowed2, remaining: remaining2 } = checkWindowLimit(
         sourceWindowStore,
@@ -49014,8 +44852,8 @@ function resolveCredentials() {
     mode: "legacy"
   };
 }
-function generateDandanSignature(path3, timestamp, appId, secret) {
-  const data2 = `${appId}${timestamp}${path3}${secret}`;
+function generateDandanSignature(path2, timestamp, appId, secret) {
+  const data2 = `${appId}${timestamp}${path2}${secret}`;
   return createHash3("sha256").update(data2, "utf8").digest("base64");
 }
 function isDanmakuUsingFallback() {
@@ -49023,9 +44861,9 @@ function isDanmakuUsingFallback() {
   const secret = config.dandanAppSecret.trim();
   return !id || !secret;
 }
-async function dandanGet(path3, query) {
+async function dandanGet(path2, query) {
   const { appId, appSecret, mode } = resolveCredentials();
-  const url = new URL(path3, config.dandanApi);
+  const url = new URL(path2, config.dandanApi);
   if (query) {
     for (const [k2, v2] of Object.entries(query)) {
       url.searchParams.set(k2, v2);
@@ -49042,7 +44880,7 @@ async function dandanGet(path3, query) {
     headers["X-AppId"] = appId;
     headers["X-Timestamp"] = String(timestamp);
     headers["X-Signature"] = generateDandanSignature(
-      path3,
+      path2,
       timestamp,
       appId,
       appSecret
@@ -49082,9 +44920,9 @@ var SourceRateLimitError = class extends Error {
     this.upstreamKey = opts.upstreamKey;
   }
 };
-function envInt2(raw3, fallback) {
-  if (raw3 === void 0 || raw3 === "") return fallback;
-  const n2 = Number(raw3);
+function envInt2(raw2, fallback) {
+  if (raw2 === void 0 || raw2 === "") return fallback;
+  const n2 = Number(raw2);
   return Number.isFinite(n2) && n2 > 0 ? n2 : fallback;
 }
 function getSourceRateLimits() {
@@ -50174,10 +46012,10 @@ async function resolveReleaseBaseUrl(rule, forceRefresh = false) {
   const domains = extractDomains(html3, config2);
   if (!domains.length) return null;
   const idx = Math.min(config2.domainIndex ?? 0, domains.length - 1);
-  const raw3 = domains[idx]?.trim();
-  if (!raw3) return null;
+  const raw2 = domains[idx]?.trim();
+  if (!raw2) return null;
   try {
-    const candidate = /^https?:\/\//i.test(raw3) ? raw3 : `https://${raw3}`;
+    const candidate = /^https?:\/\//i.test(raw2) ? raw2 : `https://${raw2}`;
     const baseURL = assertPublicHttpUrl(candidate, "release domain").toString();
     cacheSet2(cacheKey, baseURL, config2.fetchHour || 2);
     return baseURL;
@@ -50335,18 +46173,18 @@ function decryptTicketPayload(token, key = getDefaultMediaKey()) {
   if (!encoded) {
     throw new Error("Invalid ticket: empty payload");
   }
-  let buffer2;
+  let buffer;
   try {
-    buffer2 = Buffer.from(encoded, "base64url");
+    buffer = Buffer.from(encoded, "base64url");
   } catch {
     throw new Error("Invalid ticket: malformed base64url encoding");
   }
-  if (buffer2.length < MIN_TOKEN_BUFFER_LENGTH) {
+  if (buffer.length < MIN_TOKEN_BUFFER_LENGTH) {
     throw new Error("Invalid ticket: binary payload length insufficient");
   }
-  const iv = buffer2.subarray(0, IV_LENGTH);
-  const authTag = buffer2.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
-  const ciphertext = buffer2.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
+  const iv = buffer.subarray(0, IV_LENGTH);
+  const authTag = buffer.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
+  const ciphertext = buffer.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
   let plaintext;
   try {
     const decipher = createDecipheriv("aes-256-gcm", key, iv);
@@ -50425,13 +46263,13 @@ function decryptCredentials(encrypted, key = getDefaultMediaKey()) {
     throw new Error("Invalid credentials format: missing version prefix");
   }
   const encoded = encrypted.slice(TICKET_VERSION_PREFIX.length);
-  const buffer2 = Buffer.from(encoded, "base64url");
-  if (buffer2.length < MIN_TOKEN_BUFFER_LENGTH) {
+  const buffer = Buffer.from(encoded, "base64url");
+  if (buffer.length < MIN_TOKEN_BUFFER_LENGTH) {
     throw new Error("Invalid credentials buffer length");
   }
-  const iv = buffer2.subarray(0, IV_LENGTH);
-  const authTag = buffer2.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
-  const ciphertext = buffer2.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
+  const iv = buffer.subarray(0, IV_LENGTH);
+  const authTag = buffer.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
+  const ciphertext = buffer.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
   let plaintext;
   try {
     const decipher = createDecipheriv("aes-256-gcm", key, iv);
@@ -50798,8 +46636,8 @@ var playbackRegistry = new PlaybackRegistry();
 init_http();
 var MEDIA_RE = /(https?:\/\/[^\s"'<>\\]+?\.(?:m3u8|mp4)(?:\?[^\s"'<>\\]*)?)/gi;
 var IFRAME_RE = /<iframe[^>]+src=["']([^"']+)["']/gi;
-function normalizeEpisodeUrl2(baseUrl, raw3) {
-  const trimmed = raw3.trim();
+function normalizeEpisodeUrl2(baseUrl, raw2) {
+  const trimmed = raw2.trim();
   if (!trimmed) return "";
   let resolved = null;
   try {
@@ -50818,9 +46656,9 @@ function normalizeEpisodeUrl2(baseUrl, raw3) {
     }
   } catch {
   }
-  let path3 = resolved.pathname;
-  while (path3.length > 1 && path3.endsWith("/")) path3 = path3.slice(0, -1);
-  resolved.pathname = path3;
+  let path2 = resolved.pathname;
+  while (path2.length > 1 && path2.endsWith("/")) path2 = path2.slice(0, -1);
+  resolved.pathname = path2;
   return resolved.toString();
 }
 function htmlToXPathDoc(html3) {
@@ -51050,8 +46888,8 @@ function cleanRoad(road) {
 function roadFingerprint(road) {
   return road.data.join("|");
 }
-function isLikelyRoadLabel(raw3) {
-  const n2 = raw3.replace(/\s+/g, "").trim();
+function isLikelyRoadLabel(raw2) {
+  const n2 = raw2.replace(/\s+/g, "").trim();
   if (!n2 || n2.length > 24) return false;
   if (JUNK_EP_NAME.test(n2)) return false;
   if (/^第?\d+集?$|^\d+$/.test(n2)) return false;
@@ -51063,8 +46901,8 @@ function isLikelyRoadLabel(raw3) {
   if (n2.length <= 12 && !/^[<>«»]+$/.test(n2)) return true;
   return false;
 }
-function normalizeRoadLabel(raw3, fallbackIndex) {
-  const n2 = raw3.replace(/\s+/g, " ").trim();
+function normalizeRoadLabel(raw2, fallbackIndex) {
+  const n2 = raw2.replace(/\s+/g, " ").trim();
   if (n2 && isLikelyRoadLabel(n2)) return n2;
   return `\u64AD\u653E\u7EBF\u8DEF${fallbackIndex + 1}`;
 }
@@ -51175,8 +47013,8 @@ function cheerioChapterFallback(html3, baseUrl) {
     const $root = $2(root2);
     $root.find(".chat-header, .title, .play-title").each((__, header) => {
       const $h = $2(header);
-      const stream2 = $h.find(".chat-stream-bfq, .stream, .bfq, .source-name").first().text() || $h.text();
-      const label = stream2.replace(/\s+/g, " ").trim();
+      const stream = $h.find(".chat-stream-bfq, .stream, .bfq, .source-name").first().text() || $h.text();
+      const label = stream.replace(/\s+/g, " ").trim();
       const list = $h.nextAll(
         ".vod-play-list-container, .message-container, .play-list, ul, .module-play-list"
       ).first();
@@ -51311,13 +47149,13 @@ function parseSearchHtml(html3, rule, diagnostics) {
   return dedupeSearchItems(items);
 }
 function expandKeywordCandidates(keyword, rule) {
-  let raw3 = keyword.trim();
-  if (!raw3) return [];
+  let raw2 = keyword.trim();
+  if (!raw2) return [];
   if (rule?.traditionalChinese) {
-    raw3 = simplifiedToTraditional(raw3).trim();
+    raw2 = simplifiedToTraditional(raw2).trim();
   }
   if (rule?.stripSymbols) {
-    raw3 = raw3.replace(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~～·・：；（）【】「」]/g, " ").replace(/\s+/g, " ").trim();
+    raw2 = raw2.replace(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~～·・：；（）【】「」]/g, " ").replace(/\s+/g, " ").trim();
   }
   const out = [];
   const push = (s2) => {
@@ -51326,13 +47164,13 @@ function expandKeywordCandidates(keyword, rule) {
     if (t2.length > 48) return;
     if (!out.some((x2) => x2.toLowerCase() === t2.toLowerCase())) out.push(t2);
   };
-  const head = raw3.split(/[\s　:：\-–—·・]/)[0]?.trim() || raw3;
+  const head = raw2.split(/[\s　:：\-–—·・]/)[0]?.trim() || raw2;
   push(head);
-  push(raw3.replace(/[（(][^）)]*[）)]/g, " "));
+  push(raw2.replace(/[（(][^）)]*[）)]/g, " "));
   push(
-    raw3.replace(/(第?\s*\d+\s*[期季部作]|S\s*\d+|Season\s*\d+)/gi, " ").replace(/\s+/g, " ")
+    raw2.replace(/(第?\s*\d+\s*[期季部作]|S\s*\d+|Season\s*\d+)/gi, " ").replace(/\s+/g, " ")
   );
-  push(raw3);
+  push(raw2);
   return out.sort((a2, b2) => a2.length - b2.length || a2.localeCompare(b2)).slice(0, 4);
 }
 async function resolveEffectiveBaseUrl(rule) {
@@ -52154,9 +47992,9 @@ function extractPlayerAaaa2(html3) {
   }
   return null;
 }
-function decodeMaccmsUrl(raw3, encrypt) {
-  if (!raw3) return "";
-  let url = String(raw3);
+function decodeMaccmsUrl(raw2, encrypt) {
+  if (!raw2) return "";
+  let url = String(raw2);
   const mode = String(encrypt ?? "0");
   if (mode === "1") {
     try {
@@ -52287,7 +48125,7 @@ function wrapResolveWithTicket(rule, result) {
   if (!result || !result.playUrl) return result;
   try {
     const isMp4 = result.format === "mp4" || result.contentType === "video/mp4" || result.playUrl.toLowerCase().includes(".mp4") || result.playUrl.toLowerCase().includes("cycstream.com");
-    const format2 = result.format || (isMp4 ? "mp4" : "hls");
+    const format = result.format || (isMp4 ? "mp4" : "hls");
     const cookie = result.headers?.Cookie || result.headers?.cookie;
     const isAppDirect = Array.isArray(rule.platforms) && rule.platforms.includes("app") && !rule.platforms.includes("web") || rule.requiresFullMediaProxy === false;
     const requiresProxy = !isAppDirect && (Boolean(cookie) || Boolean(rule.requiresFullMediaProxy) || result.requiresProxy === true);
@@ -52323,7 +48161,7 @@ function wrapResolveWithTicket(rule, result) {
       ...result,
       proxyUrl: `${endpoint}?t=${encodeURIComponent(ticket)}${adFilterQuery}`,
       requiresProxy,
-      format: format2,
+      format,
       adBlockerMode: rule.adBlockerMode ?? "none",
       headers: safeHeaders
     };
@@ -52875,8 +48713,8 @@ function errStatus(message) {
 function cacheHeaders2(hit) {
   return { "X-Cache": hit ? "HIT" : "MISS" };
 }
-function parseRuleOrThrow(raw3) {
-  return parsePluginRule(raw3);
+function parseRuleOrThrow(raw2) {
+  return parsePluginRule(raw2);
 }
 pluginRoutes.post("/validate", async (c2) => {
   const body = await c2.req.json();
@@ -53620,24 +49458,24 @@ var SourceRegistry = class {
     if (!adapter2) {
       throw new Error(`Unknown source adapter: ${sourceId}`);
     }
-    const raw3 = await adapter2.resolve(pageUrl);
-    if (!raw3.mediaUrl) {
+    const raw2 = await adapter2.resolve(pageUrl);
+    if (!raw2.mediaUrl) {
       throw new Error(`Source ${sourceId} failed to resolve media URL`);
     }
-    const egressCheck = this.validateEgress(raw3.mediaUrl, sourceId);
+    const egressCheck = this.validateEgress(raw2.mediaUrl, sourceId);
     if (!egressCheck.valid) {
       throw new Error(`Egress policy check failed: ${egressCheck.reason}`);
     }
-    assertPublicHttpUrl(raw3.mediaUrl);
-    const isMp4 = raw3.format === "mp4" || !raw3.format && raw3.mediaUrl.toLowerCase().includes(".mp4");
-    const format2 = isMp4 ? "mp4" : "hls";
+    assertPublicHttpUrl(raw2.mediaUrl);
+    const isMp4 = raw2.format === "mp4" || !raw2.format && raw2.mediaUrl.toLowerCase().includes(".mp4");
+    const format = isMp4 ? "mp4" : "hls";
     const asset = this.playback.registerAsset({
       source: sourceId,
-      baseUrl: raw3.mediaUrl,
+      baseUrl: raw2.mediaUrl,
       trustLevel: adapter2.tier === "tier_a" ? "official" : "temporary",
-      publicHeaders: raw3.publicHeaders,
-      credentials: raw3.credentials,
-      ttlMs: raw3.ttlMs
+      publicHeaders: raw2.publicHeaders,
+      credentials: raw2.credentials,
+      ttlMs: raw2.ttlMs
     });
     const ticket = this.playback.issueTicket({
       aid: asset.assetId,
@@ -53650,12 +49488,12 @@ var SourceRegistry = class {
       source: sourceId,
       streamUrl: `${endpoint}?t=${encodeURIComponent(ticket)}`,
       ticket,
-      format: format2,
+      format,
       expiresAt: asset.expiresAt,
-      requiresProxy: Boolean(raw3.credentials),
-      playUrl: raw3.mediaUrl,
-      headers: raw3.publicHeaders,
-      subtitle: raw3.subtitle
+      requiresProxy: Boolean(raw2.credentials),
+      playUrl: raw2.mediaUrl,
+      headers: raw2.publicHeaders,
+      subtitle: raw2.subtitle
     };
   }
 };
@@ -53947,17 +49785,17 @@ function createTrackedStream(body, onDone) {
 init_config();
 init_private_host_edge_stub();
 function resolveEffectiveReferer(reqReferer, target) {
-  const raw3 = (reqReferer || "").trim();
-  if (!raw3) {
+  const raw2 = (reqReferer || "").trim();
+  if (!raw2) {
     return { referer: `${target.origin}/`, origin: target.origin };
   }
   try {
-    const refUrl = new URL(raw3);
+    const refUrl = new URL(raw2);
     const isLocal = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(refUrl.hostname) || refUrl.hostname.endsWith(".invalid");
     if (isLocal) {
       return { referer: `${target.origin}/`, origin: target.origin };
     }
-    return { referer: raw3, origin: refUrl.origin };
+    return { referer: raw2, origin: refUrl.origin };
   } catch {
     return { referer: `${target.origin}/`, origin: target.origin };
   }
@@ -54812,11 +50650,11 @@ statsRoutes.get("/subject/:id", (c2) => {
   }
   const bypass = c2.req.query("refresh") === "1" || c2.req.header("cache-control")?.includes("no-cache");
   setRankingsCdnHeaders(c2, Boolean(bypass));
-  const stats2 = watchStatsRepo.getPlayStats(id);
+  const stats = watchStatsRepo.getPlayStats(id);
   const resp = {
     data: {
-      bangumiId: stats2.bangumiId,
-      totalPlayCount: stats2.totalPlayCount,
+      bangumiId: stats.bangumiId,
+      totalPlayCount: stats.totalPlayCount,
       episodePlayCounts: {}
     }
   };
@@ -54852,3503 +50690,35 @@ init_indexnow();
 import { existsSync as existsSync3, mkdirSync as mkdirSync2, readFileSync as readFileSync2, unlinkSync, writeFileSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
 
-// node_modules/sharp/dist/constructor.mjs
-import util from "node:util";
-import stream from "node:stream";
-
-// node_modules/sharp/dist/is.mjs
-var defined = (val2) => typeof val2 !== "undefined" && val2 !== null;
-var object = (val2) => typeof val2 === "object";
-var plainObject = (val2) => Object.prototype.toString.call(val2) === "[object Object]";
-var fn2 = (val2) => typeof val2 === "function";
-var bool = (val2) => typeof val2 === "boolean";
-var buffer = (val2) => val2 instanceof Buffer;
-var typedArray = (val2) => {
-  if (defined(val2)) {
-    switch (val2.constructor) {
-      case Uint8Array:
-      case Uint8ClampedArray:
-      case Int8Array:
-      case Uint16Array:
-      case Int16Array:
-      case Uint32Array:
-      case Int32Array:
-      case Float32Array:
-      case Float64Array:
-        return true;
-    }
-  }
-  return false;
-};
-var arrayBuffer = (val2) => val2 instanceof ArrayBuffer;
-var string = (val2) => typeof val2 === "string" && val2.length > 0;
-var number = (val2) => typeof val2 === "number" && Number.isFinite(val2);
-var integer = (val2) => Number.isInteger(val2);
-var inRange = (val2, min, max) => val2 >= min && val2 <= max;
-var inArray = (val2, list) => list.includes(val2);
-var invalidParameterError = (name2, expected, actual) => {
-  let actualString;
-  try {
-    actualString = String(actual).slice(0, 100);
-  } catch {
-  }
-  return new Error(
-    `Expected ${expected} for ${name2} but received ${actualString} of type ${typeof actual}`
-  );
-};
-var nativeError = (native, context) => {
-  context.message = native.message;
-  return context;
-};
-var is_default = {
-  defined,
-  object,
-  plainObject,
-  fn: fn2,
-  bool,
-  buffer,
-  typedArray,
-  arrayBuffer,
-  string,
-  number,
-  integer,
-  inRange,
-  inArray,
-  invalidParameterError,
-  nativeError
-};
-
-// node_modules/sharp/dist/sharp.mjs
-var import_detect_libc2 = __toESM(require_detect_libc(), 1);
-import { createRequire } from "node:module";
-
-// node_modules/sharp/dist/libvips.mjs
-var import_semver = __toESM(require_semver2(), 1);
-var import_detect_libc = __toESM(require_detect_libc(), 1);
-import { spawnSync } from "node:child_process";
-import { createHash as createHash7 } from "node:crypto";
-
-// node_modules/sharp/package.json
-var package_default = {
-  name: "sharp",
-  description: "High performance Node.js image processing, the fastest module to resize JPEG, PNG, WebP, GIF, AVIF and TIFF images",
-  version: "0.35.5",
-  author: "Lovell Fuller <npm@lovell.info>",
-  homepage: "https://sharp.pixelplumbing.com",
-  contributors: [
-    "Pierre Inglebert <pierre.inglebert@gmail.com>",
-    "Jonathan Ong <jonathanrichardong@gmail.com>",
-    "Chanon Sajjamanochai <chanon.s@gmail.com>",
-    "Juliano Julio <julianojulio@gmail.com>",
-    "Daniel Gasienica <daniel@gasienica.ch>",
-    "Julian Walker <julian@fiftythree.com>",
-    "Amit Pitaru <pitaru.amit@gmail.com>",
-    "Brandon Aaron <hello.brandon@aaron.sh>",
-    "Andreas Lind <andreas@one.com>",
-    "Maurus Cuelenaere <mcuelenaere@gmail.com>",
-    "Linus Unneb\xE4ck <linus@folkdatorn.se>",
-    "Victor Mateevitsi <mvictoras@gmail.com>",
-    "Alaric Holloway <alaric.holloway@gmail.com>",
-    "Bernhard K. Weisshuhn <bkw@codingforce.com>",
-    "Chris Riley <criley@primedia.com>",
-    "David Carley <dacarley@gmail.com>",
-    "John Tobin <john@limelightmobileinc.com>",
-    "Kenton Gray <kentongray@gmail.com>",
-    "Felix B\xFCnemann <Felix.Buenemann@gmail.com>",
-    "Samy Al Zahrani <samyalzahrany@gmail.com>",
-    "Chintan Thakkar <lemnisk8@gmail.com>",
-    "F. Orlando Galashan <frulo@gmx.de>",
-    "Kleis Auke Wolthuizen <info@kleisauke.nl>",
-    "Matt Hirsch <mhirsch@media.mit.edu>",
-    "Matthias Thoemmes <thoemmes@gmail.com>",
-    "Patrick Paskaris <patrick@paskaris.gr>",
-    "J\xE9r\xE9my Lal <kapouer@melix.org>",
-    "Rahul Nanwani <r.nanwani@gmail.com>",
-    "Alice Monday <alice0meta@gmail.com>",
-    "Kristo Jorgenson <kristo.jorgenson@gmail.com>",
-    "YvesBos <yves_bos@outlook.com>",
-    "Guy Maliar <guy@tailorbrands.com>",
-    "Nicolas Coden <nicolas@ncoden.fr>",
-    "Matt Parrish <matt.r.parrish@gmail.com>",
-    "Marcel Bretschneider <marcel.bretschneider@gmail.com>",
-    "Matthew McEachen <matthew+github@mceachen.org>",
-    "Jarda Kot\u011B\u0161ovec <jarda.kotesovec@gmail.com>",
-    "Kenric D'Souza <kenric.dsouza@gmail.com>",
-    "Oleh Aleinyk <oleg.aleynik@gmail.com>",
-    "Marcel Bretschneider <marcel.bretschneider@gmail.com>",
-    "Andrea Bianco <andrea.bianco@unibas.ch>",
-    "Rik Heywood <rik@rik.org>",
-    "Thomas Parisot <hi@oncletom.io>",
-    "Nathan Graves <nathanrgraves+github@gmail.com>",
-    "Tom Lokhorst <tom@lokhorst.eu>",
-    "Espen Hovlandsdal <espen@hovlandsdal.com>",
-    "Sylvain Dumont <sylvain.dumont35@gmail.com>",
-    "Alun Davies <alun.owain.davies@googlemail.com>",
-    "Aidan Hoolachan <ajhoolachan21@gmail.com>",
-    "Axel Eirola <axel.eirola@iki.fi>",
-    "Freezy <freezy@xbmc.org>",
-    "Daiz <taneli.vatanen@gmail.com>",
-    "Julian Aubourg <j@ubourg.net>",
-    "Keith Belovay <keith@picthrive.com>",
-    "Michael B. Klein <mbklein@gmail.com>",
-    "Jordan Prudhomme <jordan@raboland.fr>",
-    "Ilya Ovdin <iovdin@gmail.com>",
-    "Andargor <andargor@yahoo.com>",
-    "Paul Neave <paul.neave@gmail.com>",
-    "Brendan Kennedy <brenwken@gmail.com>",
-    "Brychan Bennett-Odlum <git@brychan.io>",
-    "Edward Silverton <e.silverton@gmail.com>",
-    "Roman Malieiev <aromaleev@gmail.com>",
-    "Tomas Szabo <tomas.szabo@deftomat.com>",
-    "Robert O'Rourke <robert@o-rourke.org>",
-    "Guillermo Alfonso Varela Chouci\xF1o <guillevch@gmail.com>",
-    "Christian Flintrup <chr@gigahost.dk>",
-    "Manan Jadhav <manan@motionden.com>",
-    "Leon Radley <leon@radley.se>",
-    "alza54 <alza54@thiocod.in>",
-    "Jacob Smith <jacob@frende.me>",
-    "Michael Nutt <michael@nutt.im>",
-    "Brad Parham <baparham@gmail.com>",
-    "Taneli Vatanen <taneli.vatanen@gmail.com>",
-    "Joris Dugu\xE9 <zaruike10@gmail.com>",
-    "Chris Banks <christopher.bradley.banks@gmail.com>",
-    "Ompal Singh <ompal.hitm09@gmail.com>",
-    "Brodan <christopher.hranj@gmail.com>",
-    "Ankur Parihar <ankur.github@gmail.com>",
-    "Brahim Ait elhaj <brahima@gmail.com>",
-    "Mart Jansink <m.jansink@gmail.com>",
-    "Lachlan Newman <lachnewman007@gmail.com>",
-    "Dennis Beatty <dennis@dcbeatty.com>",
-    "Ingvar Stepanyan <me@rreverser.com>",
-    "Don Denton <don@happycollision.com>",
-    "Dmytro Tiapukhin <cool.gegeg@gmail.com>",
-    "Florian Lefebvre <contact@florian-lefebvre.dev>"
-  ],
-  scripts: {
-    build: "node install/build.js",
-    "build:dist": "node scripts/build.mjs",
-    clean: "rm -rf src/build/ test/fixtures/output.*",
-    test: "npm run lint && npm run test-unit",
-    lint: "npm run lint-cpp && npm run lint-js && npm run lint-types && npm run lint-publish",
-    "lint-cpp": "cpplint --quiet src/*.h src/*.cc",
-    "lint-js": "biome lint",
-    "lint-publish": "publint --strict",
-    "lint-types": "tsd --files ./test/types/sharp.test-d.{cts,mts}",
-    "test-leak": "./test/leak/leak.sh",
-    "test-unit": "node --experimental-test-coverage test/unit.mjs",
-    "package-from-local-build": "node npm/from-local-build.js",
-    "package-wasm-wrappers": "node npm/wasm-wrappers.js",
-    "package-release-notes": "node npm/release-notes.js",
-    "docs-build": "node docs/build.mjs",
-    "docs-serve": "cd docs && npm start",
-    "docs-publish": "cd docs && npm run build && npx firebase-tools deploy --project pixelplumbing --only hosting:pixelplumbing-sharp"
-  },
-  type: "commonjs",
-  files: [
-    "dist",
-    "install",
-    "lib/index.d.ts",
-    "src/*.{cc,h,gyp}"
-  ],
-  main: "./dist/index.cjs",
-  module: "./dist/index.mjs",
-  types: "./dist/index.d.mts",
-  exports: {
-    ".": {
-      import: {
-        types: "./dist/index.d.mts",
-        default: "./dist/index.mjs"
-      },
-      require: {
-        types: "./dist/index.d.cts",
-        default: "./dist/index.cjs"
-      }
-    }
-  },
-  sideEffects: true,
-  repository: {
-    type: "git",
-    url: "git+https://github.com/lovell/sharp.git"
-  },
-  keywords: [
-    "jpeg",
-    "png",
-    "webp",
-    "avif",
-    "tiff",
-    "gif",
-    "svg",
-    "jp2",
-    "dzi",
-    "image",
-    "resize",
-    "thumbnail",
-    "crop",
-    "embed",
-    "libvips",
-    "vips"
-  ],
-  dependencies: {
-    "@img/colour": "^1.1.0",
-    "detect-libc": "^2.1.2",
-    semver: "^7.8.5"
-  },
-  optionalDependencies: {
-    "@img/sharp-darwin-arm64": "0.35.5",
-    "@img/sharp-darwin-x64": "0.35.5",
-    "@img/sharp-freebsd-wasm32": "0.35.5",
-    "@img/sharp-libvips-darwin-arm64": "1.3.4",
-    "@img/sharp-libvips-darwin-x64": "1.3.4",
-    "@img/sharp-libvips-linux-arm": "1.3.4",
-    "@img/sharp-libvips-linux-arm64": "1.3.4",
-    "@img/sharp-libvips-linux-ppc64": "1.3.4",
-    "@img/sharp-libvips-linux-riscv64": "1.3.4",
-    "@img/sharp-libvips-linux-s390x": "1.3.4",
-    "@img/sharp-libvips-linux-x64": "1.3.4",
-    "@img/sharp-libvips-linuxmusl-arm64": "1.3.4",
-    "@img/sharp-libvips-linuxmusl-x64": "1.3.4",
-    "@img/sharp-linux-arm": "0.35.5",
-    "@img/sharp-linux-arm64": "0.35.5",
-    "@img/sharp-linux-ppc64": "0.35.5",
-    "@img/sharp-linux-riscv64": "0.35.5",
-    "@img/sharp-linux-s390x": "0.35.5",
-    "@img/sharp-linux-x64": "0.35.5",
-    "@img/sharp-linuxmusl-arm64": "0.35.5",
-    "@img/sharp-linuxmusl-x64": "0.35.5",
-    "@img/sharp-webcontainers-wasm32": "0.35.5",
-    "@img/sharp-win32-arm64": "0.35.5",
-    "@img/sharp-win32-ia32": "0.35.5",
-    "@img/sharp-win32-x64": "0.35.5"
-  },
-  peerDependenciesMeta: {
-    "@types/node": {
-      optional: true
-    }
-  },
-  devDependencies: {
-    "@biomejs/biome": "^2.5.14",
-    "@cpplint/cli": "^0.1.0",
-    "@emnapi/runtime": "^1.11.3",
-    "@img/sharp-libvips-dev": "1.3.4",
-    "@img/sharp-libvips-dev-wasm32": "1.3.4",
-    "@img/sharp-libvips-win32-arm64": "1.3.4",
-    "@img/sharp-libvips-win32-ia32": "1.3.4",
-    "@img/sharp-libvips-win32-x64": "1.3.4",
-    "@types/node": "*",
-    emnapi: "^1.11.3",
-    "exif-reader": "^2.0.3",
-    icc: "^4.0.0",
-    "node-addon-api": "^8.9.2",
-    "node-gyp": "^12.4.0",
-    publint: "^0.3.24",
-    "tar-fs": "^3.1.3",
-    tsd: "^0.33.0",
-    yauzl: "^3.4.0"
-  },
-  license: "Apache-2.0",
-  engines: {
-    node: ">=20.9.0"
-  },
-  config: {
-    libvips: ">=8.18.7"
-  },
-  funding: {
-    url: "https://opencollective.com/libvips"
-  }
-};
-
-// node_modules/sharp/dist/libvips.mjs
-var minimumLibvipsVersionLabelled = process.env.npm_package_config_libvips || package_default.config.libvips;
-var minimumLibvipsVersion = import_semver.default.coerce(minimumLibvipsVersionLabelled).version;
-var prebuiltPlatforms = [
-  "darwin-arm64",
-  "darwin-x64",
-  "freebsd-arm64",
-  "freebsd-x64",
-  "linux-arm",
-  "linux-arm64",
-  "linux-ppc64",
-  "linux-riscv64",
-  "linux-s390x",
-  "linux-wasm32",
-  "linux-x64",
-  "linuxmusl-arm64",
-  "linuxmusl-x64",
-  "win32-arm64",
-  "win32-ia32",
-  "win32-x64"
-];
-var spawnSyncOptions = {
-  encoding: "utf8",
-  shell: true
-};
-var log = (item) => {
-  if (item instanceof Error) {
-    console.error(`sharp: Installation error: ${item.message}`);
-  } else {
-    console.log(`sharp: ${item}`);
-  }
-};
-var runtimeLibc = () => import_detect_libc.default.isNonGlibcLinuxSync() ? import_detect_libc.default.familySync() : "";
-var runtimePlatformArch = () => `${process.platform}${runtimeLibc()}-${process.arch}`;
-var buildPlatformArch = () => {
-  if (isEmscripten()) {
-    return "wasm32";
-  }
-  const { npm_config_arch, npm_config_platform, npm_config_libc } = process.env;
-  const libc = typeof npm_config_libc === "string" ? npm_config_libc : runtimeLibc();
-  return `${npm_config_platform || process.platform}${libc}-${npm_config_arch || process.arch}`;
-};
-var buildSharpLibvipsIncludeDir = () => {
-  try {
-    return __require(`@img/sharp-libvips-dev-${buildPlatformArch()}/include`);
-  } catch {
-    try {
-      return __require("@img/sharp-libvips-dev/include");
-    } catch {
-    }
-  }
-  return "";
-};
-var buildSharpLibvipsCPlusPlusDir = () => {
-  try {
-    return __require("@img/sharp-libvips-dev/cplusplus");
-  } catch {
-  }
-  return "";
-};
-var buildSharpLibvipsLibDir = () => {
-  try {
-    return __require(`@img/sharp-libvips-dev-${buildPlatformArch()}/lib`);
-  } catch {
-    try {
-      return __require(`@img/sharp-libvips-${buildPlatformArch()}/lib`);
-    } catch {
-    }
-  }
-  return "";
-};
-var isUnsupportedNodeRuntime = () => {
-  if (process.release?.name === "node" && process.versions) {
-    if (!import_semver.default.satisfies(process.versions.node, package_default.engines.node)) {
-      return { found: process.versions.node, expected: package_default.engines.node };
-    }
-  }
-};
-var isEmscripten = () => {
-  const { CC } = process.env;
-  return Boolean(CC?.endsWith("/emcc"));
-};
-var isRosetta = () => {
-  if (process.platform === "darwin" && process.arch === "x64") {
-    const translated = spawnSync("sysctl sysctl.proc_translated", spawnSyncOptions).stdout;
-    return (translated || "").trim() === "sysctl.proc_translated: 1";
-  }
-  return false;
-};
-var sha512 = (s2) => createHash7("sha512").update(s2).digest("hex");
-var yarnLocator = () => {
-  try {
-    const identHash = sha512(`imgsharp-libvips-${buildPlatformArch()}`);
-    const npmVersion = import_semver.default.coerce(package_default.optionalDependencies[`@img/sharp-libvips-${buildPlatformArch()}`], {
-      includePrerelease: true
-    }).version;
-    return sha512(`${identHash}npm:${npmVersion}`).slice(0, 10);
-  } catch {
-  }
-  return "";
-};
-var spawnRebuild = () => spawnSync(`node-gyp rebuild --directory=src ${isEmscripten() ? "--nodedir=emscripten" : ""}`, {
-  ...spawnSyncOptions,
-  stdio: "inherit"
-}).status;
-var globalLibvipsVersion = () => {
-  if (process.platform !== "win32") {
-    const globalLibvipsVersion2 = spawnSync("pkg-config --modversion vips-cpp", {
-      ...spawnSyncOptions,
-      env: {
-        ...process.env,
-        PKG_CONFIG_PATH: pkgConfigPath()
-      }
-    }).stdout;
-    return (globalLibvipsVersion2 || "").trim();
-  } else {
-    return "";
-  }
-};
-var getBrewPkgConfigPath = () => {
-  try {
-    const brewPrefix = (spawnSync("brew", ["--prefix"], { encoding: "utf8" }).stdout || "").trim();
-    if (brewPrefix) {
-      return `${brewPrefix}/lib/pkgconfig`;
-    }
-  } catch (_err) {
-  }
-  return void 0;
-};
-var getPkgConfigPath = () => {
-  try {
-    const pkgConfigPath2 = (spawnSync("pkg-config", ["--variable", "pc_path", "pkg-config"], { encoding: "utf8" }).stdout || "").trim();
-    if (pkgConfigPath2) {
-      return pkgConfigPath2;
-    }
-  } catch (_err) {
-  }
-  return void 0;
-};
-var pkgConfigPath = () => {
-  if (process.platform !== "win32") {
-    return [
-      getBrewPkgConfigPath(),
-      getPkgConfigPath(),
-      process.env.PKG_CONFIG_PATH
-    ].filter(Boolean).join(":");
-  } else {
-    return "";
-  }
-};
-var skipSearch = (status, reason, logger) => {
-  if (logger) {
-    logger(`Detected ${reason}, skipping search for globally-installed libvips`);
-  }
-  return status;
-};
-var useGlobalLibvips = (logger) => {
-  if (Boolean(process.env.SHARP_IGNORE_GLOBAL_LIBVIPS) === true) {
-    return skipSearch(false, "SHARP_IGNORE_GLOBAL_LIBVIPS", logger);
-  }
-  if (Boolean(process.env.SHARP_FORCE_GLOBAL_LIBVIPS) === true) {
-    return skipSearch(true, "SHARP_FORCE_GLOBAL_LIBVIPS", logger);
-  }
-  if (isRosetta()) {
-    return skipSearch(false, "Rosetta", logger);
-  }
-  const globalVipsVersion = globalLibvipsVersion();
-  return !!globalVipsVersion && import_semver.default.gte(globalVipsVersion, minimumLibvipsVersion);
-};
-var libvips_default = {
-  minimumLibvipsVersion,
-  prebuiltPlatforms,
-  buildPlatformArch,
-  buildSharpLibvipsIncludeDir,
-  buildSharpLibvipsCPlusPlusDir,
-  buildSharpLibvipsLibDir,
-  isUnsupportedNodeRuntime,
-  runtimePlatformArch,
-  log,
-  yarnLocator,
-  spawnRebuild,
-  globalLibvipsVersion,
-  pkgConfigPath,
-  useGlobalLibvips
-};
-
-// node_modules/sharp/dist/sharp.mjs
-var require2 = createRequire(import.meta.url);
-var { version } = package_default;
-var { runtimePlatformArch: runtimePlatformArch2, isUnsupportedNodeRuntime: isUnsupportedNodeRuntime2, prebuiltPlatforms: prebuiltPlatforms2, minimumLibvipsVersion: minimumLibvipsVersion2 } = libvips_default;
-var runtimePlatform = runtimePlatformArch2();
-var sharp;
-var errors2 = [];
-try {
-  sharp = require2(`../src/build/Release/sharp-${runtimePlatform}-${version}.node`);
-} catch (err) {
-  errors2.push(err);
-}
-if (!sharp) {
-  try {
-    sharp = require2(`../src/build/Release/sharp-wasm32-${version}.node`);
-  } catch (err) {
-    errors2.push(err);
-  }
-}
-if (!sharp) {
-  try {
-    switch (runtimePlatform) {
-      case "darwin-arm64":
-        sharp = require2("@img/sharp-darwin-arm64/sharp.node");
-        break;
-      case "darwin-x64":
-        sharp = require2("@img/sharp-darwin-x64/sharp.node");
-        break;
-      case "linux-arm":
-        sharp = require2("@img/sharp-linux-arm/sharp.node");
-        break;
-      case "linux-arm64":
-        sharp = require2("@img/sharp-linux-arm64/sharp.node");
-        break;
-      case "linux-ppc64":
-        sharp = require2("@img/sharp-linux-ppc64/sharp.node");
-        break;
-      case "linux-riscv64":
-        sharp = require2("@img/sharp-linux-riscv64/sharp.node");
-        break;
-      case "linux-s390x":
-        sharp = require2("@img/sharp-linux-s390x/sharp.node");
-        break;
-      case "linux-x64":
-        sharp = require2("@img/sharp-linux-x64/sharp.node");
-        break;
-      case "linuxmusl-arm64":
-        sharp = require2("@img/sharp-linuxmusl-arm64/sharp.node");
-        break;
-      case "linuxmusl-x64":
-        sharp = require2("@img/sharp-linuxmusl-x64/sharp.node");
-        break;
-      case "win32-arm64":
-        sharp = require2("@img/sharp-win32-arm64/sharp.node");
-        break;
-      case "win32-ia32":
-        sharp = require2("@img/sharp-win32-ia32/sharp.node");
-        break;
-      case "win32-x64":
-        sharp = require2("@img/sharp-win32-x64/sharp.node");
-        break;
-      case "freebsd-arm64":
-      case "freebsd-x64":
-        sharp = require2("@img/sharp-freebsd-wasm32/sharp.node");
-        break;
-      case "linux-wasm32":
-        sharp = require2("@img/sharp-webcontainers-wasm32/sharp.node");
-        break;
-    }
-    if (sharp && ["linux-x64", "linuxmusl-x64"].includes(runtimePlatform) && !sharp._isUsingX64V2()) {
-      const err = new Error("Prebuilt binaries for Linux x64 require v2 microarchitecture");
-      err.code = "Unsupported CPU";
-      errors2.push(err);
-      sharp = null;
-    }
-    if (sharp && process.versions.electron && runtimePlatform.startsWith("linux")) {
-      process.emitWarning(
-        "Binaries provided by Electron for use on Linux may be incompatible with sharp - see https://sharp.pixelplumbing.com/install#electron-and-linux",
-        { code: "SharpElectronLinux" }
-      );
-    }
-  } catch (err) {
-    errors2.push(err);
-  }
-}
-if (!sharp) {
-  try {
-    sharp = require2("@img/sharp-wasm32/sharp.node");
-  } catch (err) {
-    errors2.push(err);
-  }
-}
-if (!sharp) {
-  const [isLinux, isMacOs, isWindows] = ["linux", "darwin", "win32"].map((os) => runtimePlatform.startsWith(os));
-  const help = [`Could not load the "sharp" module using the ${runtimePlatform} runtime`];
-  errors2.forEach((err) => {
-    if (!err.code?.endsWith("MODULE_NOT_FOUND")) {
-      help.push(err.code ? `${err.code}: ${err.message}` : err.message);
-    }
-  });
-  const messages = errors2.map((err) => err.message).join(" ");
-  help.push("Possible solutions:");
-  if (isUnsupportedNodeRuntime2()) {
-    const { found, expected } = isUnsupportedNodeRuntime2();
-    help.push("- Please upgrade Node.js:", `    Found ${found}`, `    Requires ${expected}`);
-  } else if (prebuiltPlatforms2.includes(runtimePlatform) && !/libstdc\+\+\.so/.test(messages)) {
-    const [os, cpu] = runtimePlatform.split("-");
-    const libc = os.endsWith("musl") ? " --libc=musl" : "";
-    help.push(
-      "- Ensure optional dependencies can be installed:",
-      "    npm install --include=optional sharp",
-      "- Ensure your package manager supports multi-platform installation:",
-      "    See https://sharp.pixelplumbing.com/install#cross-platform",
-      "- Add platform-specific dependencies:",
-      `    npm install --os=${os.replace("musl", "")}${libc} --cpu=${cpu} sharp`
-    );
-  } else {
-    help.push(
-      `- Manually install libvips >= ${minimumLibvipsVersion2}`,
-      "    See https://sharp.pixelplumbing.com/install#building-from-source",
-      "- Add WebAssembly-based dependencies:",
-      "    npm install sharp @img/sharp-wasm32"
-    );
-  }
-  if (isLinux && /(symbol not found|CXXABI_)/i.test(messages)) {
-    try {
-      const { config: config2 } = require2(`@img/sharp-libvips-${runtimePlatform}/package`);
-      const libcFound = `${(0, import_detect_libc2.familySync)()} ${(0, import_detect_libc2.versionSync)()}`;
-      const libcRequires = `${config2.musl ? "musl" : "glibc"} ${config2.musl || config2.glibc}`;
-      help.push("- Update your OS:", `    Found ${libcFound}`, `    Requires ${libcRequires}`);
-    } catch (_errEngines) {
-    }
-  }
-  if (isLinux && /\/snap\/core[0-9]{2}/.test(messages)) {
-    help.push("- Remove the Node.js Snap, which does not support native modules", "    snap remove node");
-  }
-  if (isMacOs && /Incompatible library version/.test(messages)) {
-    help.push("- Update Homebrew:", "    brew update && brew upgrade vips");
-  }
-  if (errors2.some((err) => err.code === "ERR_DLOPEN_DISABLED")) {
-    help.push("- Run Node.js without using the --no-addons flag");
-  }
-  if (isWindows && /The specified procedure could not be found/.test(messages)) {
-    help.push(
-      "- Using the canvas package on Windows?",
-      "    See https://sharp.pixelplumbing.com/install#canvas-and-windows",
-      "- Check for outdated versions of sharp in the dependency tree:",
-      "    npm ls sharp"
-    );
-  }
-  help.push("- Consult the installation documentation:", "    See https://sharp.pixelplumbing.com/install");
-  throw new Error(help.join("\n"));
-}
-var sharp_default = sharp;
-
-// node_modules/sharp/dist/constructor.mjs
-var debuglog = util.debuglog("sharp");
-var queueListener = (queueLength) => {
-  Sharp.queue.emit("change", queueLength);
-};
-var Sharp = function(input, options) {
-  if (arguments.length === 1 && !is_default.defined(input)) {
-    throw new Error("Invalid input");
-  }
-  if (!(this instanceof Sharp)) {
-    return new Sharp(input, options);
-  }
-  stream.Duplex.call(this);
-  this.options = {
-    // resize options
-    topOffsetPre: -1,
-    leftOffsetPre: -1,
-    widthPre: -1,
-    heightPre: -1,
-    topOffsetPost: -1,
-    leftOffsetPost: -1,
-    widthPost: -1,
-    heightPost: -1,
-    width: -1,
-    height: -1,
-    canvas: "crop",
-    position: 0,
-    resizeBackground: [0, 0, 0, 255],
-    angle: 0,
-    rotationAngle: 0,
-    rotationBackground: [0, 0, 0, 255],
-    rotateBefore: false,
-    orientBefore: false,
-    flip: false,
-    flop: false,
-    extendTop: 0,
-    extendBottom: 0,
-    extendLeft: 0,
-    extendRight: 0,
-    extendBackground: [0, 0, 0, 255],
-    extendWith: "background",
-    withoutEnlargement: false,
-    withoutReduction: false,
-    affineMatrix: [],
-    affineBackground: [0, 0, 0, 255],
-    affineIdx: 0,
-    affineIdy: 0,
-    affineOdx: 0,
-    affineOdy: 0,
-    affineInterpolator: this.constructor.interpolators.bilinear,
-    kernel: "lanczos3",
-    fastShrinkOnLoad: true,
-    // operations
-    tint: [-1, 0, 0, 0],
-    flatten: false,
-    flattenBackground: [0, 0, 0],
-    unflatten: false,
-    negate: false,
-    negateAlpha: true,
-    medianSize: 0,
-    blurSigma: 0,
-    precision: "integer",
-    minAmpl: 0.2,
-    sharpenSigma: 0,
-    sharpenM1: 1,
-    sharpenM2: 2,
-    sharpenX1: 2,
-    sharpenY2: 10,
-    sharpenY3: 20,
-    threshold: 0,
-    thresholdGrayscale: true,
-    trimBackground: [],
-    trimThreshold: -1,
-    trimLineArt: false,
-    trimMargin: 0,
-    dilateWidth: 0,
-    erodeWidth: 0,
-    gamma: 0,
-    gammaOut: 0,
-    greyscale: false,
-    normalise: false,
-    normaliseLower: 1,
-    normaliseUpper: 99,
-    claheWidth: 0,
-    claheHeight: 0,
-    claheMaxSlope: 3,
-    brightness: 1,
-    saturation: 1,
-    hue: 0,
-    lightness: 0,
-    booleanBufferIn: null,
-    booleanFileIn: "",
-    joinChannelIn: [],
-    extractChannel: -1,
-    removeAlpha: false,
-    ensureAlpha: -1,
-    colourspace: "srgb",
-    colourspacePipeline: "last",
-    composite: [],
-    // output
-    fileOut: "",
-    formatOut: "input",
-    streamOut: false,
-    typedArrayOut: false,
-    keepMetadata: 0,
-    withMetadataOrientation: -1,
-    withMetadataDensity: 0,
-    withIccProfile: "",
-    withExif: {},
-    withExifMerge: true,
-    withXmp: "",
-    keepGainMap: false,
-    withGainMap: false,
-    resolveWithObject: false,
-    loop: -1,
-    delay: [],
-    // output format
-    jpegQuality: 80,
-    jpegProgressive: false,
-    jpegChromaSubsampling: "4:2:0",
-    jpegTrellisQuantisation: false,
-    jpegOvershootDeringing: false,
-    jpegOptimiseScans: false,
-    jpegOptimiseCoding: true,
-    jpegQuantisationTable: 0,
-    pngProgressive: false,
-    pngCompressionLevel: 6,
-    pngAdaptiveFiltering: false,
-    pngPalette: false,
-    pngQuality: 100,
-    pngEffort: 7,
-    pngBitdepth: 8,
-    pngDither: 1,
-    jp2Quality: 80,
-    jp2TileHeight: 512,
-    jp2TileWidth: 512,
-    jp2Lossless: false,
-    jp2ChromaSubsampling: "4:4:4",
-    webpQuality: 80,
-    webpAlphaQuality: 100,
-    webpLossless: false,
-    webpNearLossless: false,
-    webpSmartSubsample: false,
-    webpSmartDeblock: false,
-    webpPreset: "default",
-    webpEffort: 4,
-    webpMinSize: false,
-    webpMixed: false,
-    webpExact: false,
-    gifBitdepth: 8,
-    gifEffort: 7,
-    gifDither: 1,
-    gifInterFrameMaxError: 0,
-    gifInterPaletteMaxError: 3,
-    gifKeepDuplicateFrames: false,
-    gifReuse: true,
-    gifProgressive: false,
-    tiffQuality: 80,
-    tiffCompression: "jpeg",
-    tiffBigtiff: false,
-    tiffPredictor: "horizontal",
-    tiffPyramid: false,
-    tiffMiniswhite: false,
-    tiffBitdepth: 0,
-    tiffTile: false,
-    tiffTileHeight: 256,
-    tiffTileWidth: 256,
-    tiffXres: 1,
-    tiffYres: 1,
-    tiffResolutionUnit: "inch",
-    heifQuality: 50,
-    heifLossless: false,
-    heifCompression: "av1",
-    heifEffort: 4,
-    heifChromaSubsampling: "4:4:4",
-    heifBitdepth: 8,
-    heifTune: "auto",
-    jxlDistance: 1,
-    jxlDecodingTier: 0,
-    jxlEffort: 7,
-    jxlLossless: false,
-    rawDepth: "uchar",
-    tileSize: 256,
-    tileOverlap: 0,
-    tileContainer: "fs",
-    tileLayout: "dz",
-    tileFormat: "last",
-    tileDepth: "last",
-    tileAngle: 0,
-    tileSkipBlanks: -1,
-    tileBackground: [255, 255, 255, 255],
-    tileCentre: false,
-    tileId: "https://example.com/iiif",
-    tileBasename: "",
-    timeoutSeconds: 0,
-    linearA: [],
-    linearB: [],
-    pdfBackground: [255, 255, 255, 255],
-    // Function to notify of libvips warnings
-    debuglog: (warning) => {
-      this.emit("warning", warning);
-      debuglog(warning);
+// runtime/sharp-edge-stub.ts
+function makeChain(buf) {
+  const chain = {
+    rotate() {
+      return chain;
     },
-    // Function to notify of queue length changes
-    queueListener
+    clone() {
+      return makeChain(buf);
+    },
+    resize() {
+      return chain;
+    },
+    sharpen() {
+      return chain;
+    },
+    png() {
+      return chain;
+    },
+    async toBuffer() {
+      return buf;
+    }
   };
-  this.options.input = this._createInputDescriptor(input, options, { allowStream: true });
-  return this;
-};
-Object.setPrototypeOf(Sharp.prototype, stream.Duplex.prototype);
-Object.setPrototypeOf(Sharp, stream.Duplex);
-function clone2() {
-  const clone3 = this.constructor.call();
-  const { debuglog: debuglog2, queueListener: queueListener2, ...options } = this.options;
-  clone3.options = structuredClone(options);
-  clone3.options.debuglog = debuglog2;
-  clone3.options.queueListener = queueListener2;
-  if (this._isStreamInput()) {
-    this._whenStreamInFinished(() => {
-      this._flattenBufferIn();
-      clone3.options.input.buffer = this.options.input.buffer;
-      clone3.emit("finish");
-    });
-  }
-  return clone3;
+  return chain;
 }
-Object.assign(Sharp.prototype, { clone: clone2 });
-var constructor_default = Sharp;
-
-// node_modules/sharp/dist/input.mjs
-var align = {
-  left: "low",
-  top: "low",
-  low: "low",
-  center: "centre",
-  centre: "centre",
-  right: "high",
-  bottom: "high",
-  high: "high"
-};
-var inputStreamParameters = [
-  // Limits and error handling
-  "failOn",
-  "limitInputPixels",
-  "limitInputChannels",
-  "unlimited",
-  // Format-generic
-  "animated",
-  "autoOrient",
-  "density",
-  "ignoreIcc",
-  "page",
-  "pages",
-  "sequentialRead",
-  // Format-specific
-  "jp2",
-  "openSlide",
-  "pdf",
-  "raw",
-  "svg",
-  "tiff",
-  // Deprecated
-  "openSlideLevel",
-  "pdfBackground",
-  "tiffSubifd"
-];
-function _inputOptionsFromObject(obj) {
-  const params = inputStreamParameters.filter((p2) => is_default.defined(obj[p2])).map((p2) => [p2, obj[p2]]);
-  return params.length ? Object.fromEntries(params) : void 0;
+function sharp(input) {
+  const buf = Buffer.isBuffer(input) ? input : Buffer.from(input || new Uint8Array());
+  return makeChain(buf);
 }
-function _createInputDescriptor(input, inputOptions, containerOptions) {
-  const inputDescriptor = {
-    autoOrient: false,
-    failOn: "warning",
-    limitInputPixels: 16383 ** 2,
-    limitInputChannels: 5,
-    ignoreIcc: false,
-    unlimited: false,
-    sequentialRead: true
-  };
-  if (is_default.string(input)) {
-    inputDescriptor.file = input;
-  } else if (is_default.buffer(input)) {
-    if (input.length === 0) {
-      throw Error("Input Buffer is empty");
-    }
-    inputDescriptor.buffer = input;
-  } else if (is_default.arrayBuffer(input)) {
-    if (input.byteLength === 0) {
-      throw Error("Input bit Array is empty");
-    }
-    inputDescriptor.buffer = Buffer.from(input, 0, input.byteLength);
-  } else if (is_default.typedArray(input)) {
-    if (input.length === 0) {
-      throw Error("Input Bit Array is empty");
-    }
-    inputDescriptor.buffer = Buffer.from(input.buffer, input.byteOffset, input.byteLength);
-  } else if (is_default.plainObject(input) && !is_default.defined(inputOptions)) {
-    inputOptions = input;
-    if (_inputOptionsFromObject(inputOptions)) {
-      inputDescriptor.buffer = [];
-    }
-  } else if (!is_default.defined(input) && !is_default.defined(inputOptions) && is_default.object(containerOptions) && containerOptions.allowStream) {
-    inputDescriptor.buffer = [];
-  } else if (Array.isArray(input)) {
-    if (input.length > 1) {
-      if (!this.options.joining) {
-        this.options.joining = true;
-        this.options.join = input.map((i2) => this._createInputDescriptor(i2));
-      } else {
-        throw new Error("Recursive join is unsupported");
-      }
-    } else {
-      throw new Error("Expected at least two images to join");
-    }
-  } else {
-    throw new Error(`Unsupported input '${input}' of type ${typeof input}${is_default.defined(inputOptions) ? ` when also providing options of type ${typeof inputOptions}` : ""}`);
-  }
-  if (is_default.object(inputOptions)) {
-    if (is_default.defined(inputOptions.failOn)) {
-      if (is_default.string(inputOptions.failOn) && is_default.inArray(inputOptions.failOn, ["none", "truncated", "error", "warning"])) {
-        inputDescriptor.failOn = inputOptions.failOn;
-      } else {
-        throw is_default.invalidParameterError("failOn", "one of: none, truncated, error, warning", inputOptions.failOn);
-      }
-    }
-    if (is_default.defined(inputOptions.autoOrient)) {
-      if (is_default.bool(inputOptions.autoOrient)) {
-        inputDescriptor.autoOrient = inputOptions.autoOrient;
-      } else {
-        throw is_default.invalidParameterError("autoOrient", "boolean", inputOptions.autoOrient);
-      }
-    }
-    if (is_default.defined(inputOptions.density)) {
-      if (is_default.number(inputOptions.density) && is_default.inRange(inputOptions.density, 1, 1e5)) {
-        inputDescriptor.density = inputOptions.density;
-      } else {
-        throw is_default.invalidParameterError("density", "number between 1 and 100000", inputOptions.density);
-      }
-    }
-    if (is_default.defined(inputOptions.ignoreIcc)) {
-      if (is_default.bool(inputOptions.ignoreIcc)) {
-        inputDescriptor.ignoreIcc = inputOptions.ignoreIcc;
-      } else {
-        throw is_default.invalidParameterError("ignoreIcc", "boolean", inputOptions.ignoreIcc);
-      }
-    }
-    if (is_default.defined(inputOptions.limitInputPixels)) {
-      if (is_default.bool(inputOptions.limitInputPixels)) {
-        inputDescriptor.limitInputPixels = inputOptions.limitInputPixels ? 16383 ** 2 : 0;
-      } else if (is_default.integer(inputOptions.limitInputPixels) && is_default.inRange(inputOptions.limitInputPixels, 0, Number.MAX_SAFE_INTEGER)) {
-        inputDescriptor.limitInputPixels = inputOptions.limitInputPixels;
-      } else {
-        throw is_default.invalidParameterError("limitInputPixels", "positive integer", inputOptions.limitInputPixels);
-      }
-    }
-    if (is_default.defined(inputOptions.limitInputChannels)) {
-      if (is_default.bool(inputOptions.limitInputChannels)) {
-        inputDescriptor.limitInputChannels = inputOptions.limitInputChannels ? 5 : 0;
-      } else if (is_default.integer(inputOptions.limitInputChannels) && is_default.inRange(inputOptions.limitInputChannels, 0, Number.MAX_SAFE_INTEGER)) {
-        inputDescriptor.limitInputChannels = inputOptions.limitInputChannels;
-      } else {
-        throw is_default.invalidParameterError("limitInputChannels", "positive integer", inputOptions.limitInputChannels);
-      }
-    }
-    if (is_default.defined(inputOptions.unlimited)) {
-      if (is_default.bool(inputOptions.unlimited)) {
-        inputDescriptor.unlimited = inputOptions.unlimited;
-      } else {
-        throw is_default.invalidParameterError("unlimited", "boolean", inputOptions.unlimited);
-      }
-    }
-    if (is_default.defined(inputOptions.sequentialRead)) {
-      if (is_default.bool(inputOptions.sequentialRead)) {
-        inputDescriptor.sequentialRead = inputOptions.sequentialRead;
-      } else {
-        throw is_default.invalidParameterError("sequentialRead", "boolean", inputOptions.sequentialRead);
-      }
-    }
-    if (is_default.defined(inputOptions.raw)) {
-      if (is_default.object(inputOptions.raw) && is_default.integer(inputOptions.raw.width) && is_default.inRange(inputOptions.raw.width, 1, 1e8) && is_default.integer(inputOptions.raw.height) && is_default.inRange(inputOptions.raw.height, 1, 1e8) && is_default.integer(inputOptions.raw.channels) && is_default.inRange(inputOptions.raw.channels, 1, 4)) {
-        inputDescriptor.rawWidth = inputOptions.raw.width;
-        inputDescriptor.rawHeight = inputOptions.raw.height;
-        inputDescriptor.rawChannels = inputOptions.raw.channels;
-        switch (input.constructor) {
-          case Uint8Array:
-          case Uint8ClampedArray:
-            inputDescriptor.rawDepth = "uchar";
-            break;
-          case Int8Array:
-            inputDescriptor.rawDepth = "char";
-            break;
-          case Uint16Array:
-            inputDescriptor.rawDepth = "ushort";
-            break;
-          case Int16Array:
-            inputDescriptor.rawDepth = "short";
-            break;
-          case Uint32Array:
-            inputDescriptor.rawDepth = "uint";
-            break;
-          case Int32Array:
-            inputDescriptor.rawDepth = "int";
-            break;
-          case Float32Array:
-            inputDescriptor.rawDepth = "float";
-            break;
-          case Float64Array:
-            inputDescriptor.rawDepth = "double";
-            break;
-          default:
-            inputDescriptor.rawDepth = "uchar";
-            break;
-        }
-      } else {
-        throw new Error("Expected width, height and channels for raw pixel input");
-      }
-      inputDescriptor.rawPremultiplied = false;
-      if (is_default.defined(inputOptions.raw.premultiplied)) {
-        if (is_default.bool(inputOptions.raw.premultiplied)) {
-          inputDescriptor.rawPremultiplied = inputOptions.raw.premultiplied;
-        } else {
-          throw is_default.invalidParameterError("raw.premultiplied", "boolean", inputOptions.raw.premultiplied);
-        }
-      }
-      inputDescriptor.rawPageHeight = 0;
-      if (is_default.defined(inputOptions.raw.pageHeight)) {
-        if (is_default.integer(inputOptions.raw.pageHeight) && inputOptions.raw.pageHeight > 0 && inputOptions.raw.pageHeight <= inputOptions.raw.height) {
-          if (inputOptions.raw.height % inputOptions.raw.pageHeight !== 0) {
-            throw new Error(`Expected raw.height ${inputOptions.raw.height} to be a multiple of raw.pageHeight ${inputOptions.raw.pageHeight}`);
-          }
-          inputDescriptor.rawPageHeight = inputOptions.raw.pageHeight;
-        } else {
-          throw is_default.invalidParameterError("raw.pageHeight", "positive integer", inputOptions.raw.pageHeight);
-        }
-      }
-    }
-    if (is_default.defined(inputOptions.animated)) {
-      if (is_default.bool(inputOptions.animated)) {
-        inputDescriptor.pages = inputOptions.animated ? -1 : 1;
-      } else {
-        throw is_default.invalidParameterError("animated", "boolean", inputOptions.animated);
-      }
-    }
-    if (is_default.defined(inputOptions.pages)) {
-      if (is_default.integer(inputOptions.pages) && is_default.inRange(inputOptions.pages, -1, 1e5)) {
-        inputDescriptor.pages = inputOptions.pages;
-      } else {
-        throw is_default.invalidParameterError("pages", "integer between -1 and 100000", inputOptions.pages);
-      }
-    }
-    if (is_default.defined(inputOptions.page)) {
-      if (is_default.integer(inputOptions.page) && is_default.inRange(inputOptions.page, 0, 1e5)) {
-        inputDescriptor.page = inputOptions.page;
-      } else {
-        throw is_default.invalidParameterError("page", "integer between 0 and 100000", inputOptions.page);
-      }
-    }
-    if (is_default.object(inputOptions.openSlide) && is_default.defined(inputOptions.openSlide.level)) {
-      if (is_default.integer(inputOptions.openSlide.level) && is_default.inRange(inputOptions.openSlide.level, 0, 256)) {
-        inputDescriptor.openSlideLevel = inputOptions.openSlide.level;
-      } else {
-        throw is_default.invalidParameterError("openSlide.level", "integer between 0 and 256", inputOptions.openSlide.level);
-      }
-    } else if (is_default.defined(inputOptions.level)) {
-      if (is_default.integer(inputOptions.level) && is_default.inRange(inputOptions.level, 0, 256)) {
-        inputDescriptor.openSlideLevel = inputOptions.level;
-      } else {
-        throw is_default.invalidParameterError("level", "integer between 0 and 256", inputOptions.level);
-      }
-    }
-    if (is_default.object(inputOptions.tiff) && is_default.defined(inputOptions.tiff.subifd)) {
-      if (is_default.integer(inputOptions.tiff.subifd) && is_default.inRange(inputOptions.tiff.subifd, -1, 1e5)) {
-        inputDescriptor.tiffSubifd = inputOptions.tiff.subifd;
-      } else {
-        throw is_default.invalidParameterError("tiff.subifd", "integer between -1 and 100000", inputOptions.tiff.subifd);
-      }
-    } else if (is_default.defined(inputOptions.subifd)) {
-      if (is_default.integer(inputOptions.subifd) && is_default.inRange(inputOptions.subifd, -1, 1e5)) {
-        inputDescriptor.tiffSubifd = inputOptions.subifd;
-      } else {
-        throw is_default.invalidParameterError("subifd", "integer between -1 and 100000", inputOptions.subifd);
-      }
-    }
-    if (is_default.object(inputOptions.svg)) {
-      if (is_default.defined(inputOptions.svg.stylesheet)) {
-        if (is_default.string(inputOptions.svg.stylesheet)) {
-          inputDescriptor.svgStylesheet = inputOptions.svg.stylesheet;
-        } else {
-          throw is_default.invalidParameterError("svg.stylesheet", "string", inputOptions.svg.stylesheet);
-        }
-      }
-      if (is_default.defined(inputOptions.svg.highBitdepth)) {
-        if (is_default.bool(inputOptions.svg.highBitdepth)) {
-          inputDescriptor.svgHighBitdepth = inputOptions.svg.highBitdepth;
-        } else {
-          throw is_default.invalidParameterError("svg.highBitdepth", "boolean", inputOptions.svg.highBitdepth);
-        }
-      }
-    }
-    if (is_default.object(inputOptions.pdf) && is_default.defined(inputOptions.pdf.background)) {
-      inputDescriptor.pdfBackground = this._getBackgroundColourOption(inputOptions.pdf.background);
-    } else if (is_default.defined(inputOptions.pdfBackground)) {
-      inputDescriptor.pdfBackground = this._getBackgroundColourOption(inputOptions.pdfBackground);
-    }
-    if (is_default.object(inputOptions.jp2) && is_default.defined(inputOptions.jp2.oneshot)) {
-      if (is_default.bool(inputOptions.jp2.oneshot)) {
-        inputDescriptor.jp2Oneshot = inputOptions.jp2.oneshot;
-      } else {
-        throw is_default.invalidParameterError("jp2.oneshot", "boolean", inputOptions.jp2.oneshot);
-      }
-    }
-    if (is_default.defined(inputOptions.create)) {
-      if (is_default.object(inputOptions.create) && is_default.integer(inputOptions.create.width) && is_default.inRange(inputOptions.create.width, 1, 1e8) && is_default.integer(inputOptions.create.height) && is_default.inRange(inputOptions.create.height, 1, 1e8) && is_default.integer(inputOptions.create.channels)) {
-        inputDescriptor.createWidth = inputOptions.create.width;
-        inputDescriptor.createHeight = inputOptions.create.height;
-        inputDescriptor.createChannels = inputOptions.create.channels;
-        inputDescriptor.createPageHeight = 0;
-        if (is_default.defined(inputOptions.create.pageHeight)) {
-          if (is_default.integer(inputOptions.create.pageHeight) && inputOptions.create.pageHeight > 0 && inputOptions.create.pageHeight <= inputOptions.create.height) {
-            if (inputOptions.create.height % inputOptions.create.pageHeight !== 0) {
-              throw new Error(`Expected create.height ${inputOptions.create.height} to be a multiple of create.pageHeight ${inputOptions.create.pageHeight}`);
-            }
-            inputDescriptor.createPageHeight = inputOptions.create.pageHeight;
-          } else {
-            throw is_default.invalidParameterError("create.pageHeight", "positive integer", inputOptions.create.pageHeight);
-          }
-        }
-        if (is_default.defined(inputOptions.create.noise)) {
-          if (!is_default.object(inputOptions.create.noise)) {
-            throw new Error("Expected noise to be an object");
-          }
-          if (inputOptions.create.noise.type !== "gaussian") {
-            throw new Error("Only gaussian noise is supported at the moment");
-          }
-          inputDescriptor.createNoiseType = inputOptions.create.noise.type;
-          if (!is_default.inRange(inputOptions.create.channels, 1, 4)) {
-            throw is_default.invalidParameterError("create.channels", "number between 1 and 4", inputOptions.create.channels);
-          }
-          inputDescriptor.createNoiseMean = 128;
-          if (is_default.defined(inputOptions.create.noise.mean)) {
-            if (is_default.number(inputOptions.create.noise.mean) && is_default.inRange(inputOptions.create.noise.mean, 0, 1e4)) {
-              inputDescriptor.createNoiseMean = inputOptions.create.noise.mean;
-            } else {
-              throw is_default.invalidParameterError("create.noise.mean", "number between 0 and 10000", inputOptions.create.noise.mean);
-            }
-          }
-          inputDescriptor.createNoiseSigma = 30;
-          if (is_default.defined(inputOptions.create.noise.sigma)) {
-            if (is_default.number(inputOptions.create.noise.sigma) && is_default.inRange(inputOptions.create.noise.sigma, 0, 1e4)) {
-              inputDescriptor.createNoiseSigma = inputOptions.create.noise.sigma;
-            } else {
-              throw is_default.invalidParameterError("create.noise.sigma", "number between 0 and 10000", inputOptions.create.noise.sigma);
-            }
-          }
-        } else if (is_default.defined(inputOptions.create.background)) {
-          if (!is_default.inRange(inputOptions.create.channels, 3, 4)) {
-            throw is_default.invalidParameterError("create.channels", "number between 3 and 4", inputOptions.create.channels);
-          }
-          inputDescriptor.createBackground = this._getBackgroundColourOption(inputOptions.create.background);
-        } else {
-          throw new Error("Expected valid noise or background to create a new input image");
-        }
-        delete inputDescriptor.buffer;
-      } else {
-        throw new Error("Expected valid width, height and channels to create a new input image");
-      }
-    }
-    if (is_default.defined(inputOptions.text)) {
-      if (is_default.object(inputOptions.text) && is_default.string(inputOptions.text.text)) {
-        inputDescriptor.textValue = inputOptions.text.text;
-        if (is_default.defined(inputOptions.text.height) && is_default.defined(inputOptions.text.dpi)) {
-          throw new Error("Expected only one of dpi or height");
-        }
-        if (is_default.defined(inputOptions.text.font)) {
-          if (is_default.string(inputOptions.text.font)) {
-            inputDescriptor.textFont = inputOptions.text.font;
-          } else {
-            throw is_default.invalidParameterError("text.font", "string", inputOptions.text.font);
-          }
-        }
-        if (is_default.defined(inputOptions.text.fontfile)) {
-          if (is_default.string(inputOptions.text.fontfile)) {
-            inputDescriptor.textFontfile = inputOptions.text.fontfile;
-          } else {
-            throw is_default.invalidParameterError("text.fontfile", "string", inputOptions.text.fontfile);
-          }
-        }
-        if (is_default.defined(inputOptions.text.width)) {
-          if (is_default.integer(inputOptions.text.width) && is_default.inRange(inputOptions.text.width, 1, 1e6)) {
-            inputDescriptor.textWidth = inputOptions.text.width;
-          } else {
-            throw is_default.invalidParameterError("text.width", "integer between 1 and 1000000", inputOptions.text.width);
-          }
-        }
-        if (is_default.defined(inputOptions.text.height)) {
-          if (is_default.integer(inputOptions.text.height) && is_default.inRange(inputOptions.text.height, 1, 1e6)) {
-            inputDescriptor.textHeight = inputOptions.text.height;
-          } else {
-            throw is_default.invalidParameterError("text.height", "integer between 1 and 1000000", inputOptions.text.height);
-          }
-        }
-        if (is_default.defined(inputOptions.text.align)) {
-          if (is_default.string(inputOptions.text.align) && is_default.string(this.constructor.align[inputOptions.text.align])) {
-            inputDescriptor.textAlign = this.constructor.align[inputOptions.text.align];
-          } else {
-            throw is_default.invalidParameterError("text.align", "valid alignment", inputOptions.text.align);
-          }
-        }
-        if (is_default.defined(inputOptions.text.justify)) {
-          if (is_default.bool(inputOptions.text.justify)) {
-            inputDescriptor.textJustify = inputOptions.text.justify;
-          } else {
-            throw is_default.invalidParameterError("text.justify", "boolean", inputOptions.text.justify);
-          }
-        }
-        if (is_default.defined(inputOptions.text.dpi)) {
-          if (is_default.integer(inputOptions.text.dpi) && is_default.inRange(inputOptions.text.dpi, 1, 1e6)) {
-            inputDescriptor.textDpi = inputOptions.text.dpi;
-          } else {
-            throw is_default.invalidParameterError("text.dpi", "integer between 1 and 1000000", inputOptions.text.dpi);
-          }
-        }
-        if (is_default.defined(inputOptions.text.rgba)) {
-          if (is_default.bool(inputOptions.text.rgba)) {
-            inputDescriptor.textRgba = inputOptions.text.rgba;
-          } else {
-            throw is_default.invalidParameterError("text.rgba", "bool", inputOptions.text.rgba);
-          }
-        }
-        if (is_default.defined(inputOptions.text.spacing)) {
-          if (is_default.integer(inputOptions.text.spacing) && is_default.inRange(inputOptions.text.spacing, -1e6, 1e6)) {
-            inputDescriptor.textSpacing = inputOptions.text.spacing;
-          } else {
-            throw is_default.invalidParameterError("text.spacing", "integer between -1000000 and 1000000", inputOptions.text.spacing);
-          }
-        }
-        if (is_default.defined(inputOptions.text.wrap)) {
-          if (is_default.string(inputOptions.text.wrap) && is_default.inArray(inputOptions.text.wrap, ["word", "char", "word-char", "none"])) {
-            inputDescriptor.textWrap = inputOptions.text.wrap;
-          } else {
-            throw is_default.invalidParameterError("text.wrap", "one of: word, char, word-char, none", inputOptions.text.wrap);
-          }
-        }
-        delete inputDescriptor.buffer;
-      } else {
-        throw new Error("Expected a valid string to create an image with text.");
-      }
-    }
-    if (is_default.defined(inputOptions.join)) {
-      if (is_default.defined(this.options.join)) {
-        if (is_default.defined(inputOptions.join.animated)) {
-          if (is_default.bool(inputOptions.join.animated)) {
-            inputDescriptor.joinAnimated = inputOptions.join.animated;
-          } else {
-            throw is_default.invalidParameterError("join.animated", "boolean", inputOptions.join.animated);
-          }
-        }
-        if (is_default.defined(inputOptions.join.across)) {
-          if (is_default.integer(inputOptions.join.across) && is_default.inRange(inputOptions.join.across, 1, 1e6)) {
-            inputDescriptor.joinAcross = inputOptions.join.across;
-          } else {
-            throw is_default.invalidParameterError("join.across", "integer between 1 and 100000", inputOptions.join.across);
-          }
-        }
-        if (is_default.defined(inputOptions.join.shim)) {
-          if (is_default.integer(inputOptions.join.shim) && is_default.inRange(inputOptions.join.shim, 0, 1e6)) {
-            inputDescriptor.joinShim = inputOptions.join.shim;
-          } else {
-            throw is_default.invalidParameterError("join.shim", "integer between 0 and 100000", inputOptions.join.shim);
-          }
-        }
-        if (is_default.defined(inputOptions.join.background)) {
-          inputDescriptor.joinBackground = this._getBackgroundColourOption(inputOptions.join.background);
-        }
-        if (is_default.defined(inputOptions.join.halign)) {
-          if (is_default.string(inputOptions.join.halign) && is_default.string(this.constructor.align[inputOptions.join.halign])) {
-            inputDescriptor.joinHalign = this.constructor.align[inputOptions.join.halign];
-          } else {
-            throw is_default.invalidParameterError("join.halign", "valid alignment", inputOptions.join.halign);
-          }
-        }
-        if (is_default.defined(inputOptions.join.valign)) {
-          if (is_default.string(inputOptions.join.valign) && is_default.string(this.constructor.align[inputOptions.join.valign])) {
-            inputDescriptor.joinValign = this.constructor.align[inputOptions.join.valign];
-          } else {
-            throw is_default.invalidParameterError("join.valign", "valid alignment", inputOptions.join.valign);
-          }
-        }
-      } else {
-        throw new Error("Expected input to be an array of images to join");
-      }
-    }
-  } else if (is_default.defined(inputOptions)) {
-    throw new Error(`Invalid input options ${inputOptions}`);
-  }
-  return inputDescriptor;
-}
-function _write(chunk, _encoding, callback) {
-  if (Array.isArray(this.options.input.buffer)) {
-    if (is_default.buffer(chunk)) {
-      this.options.input.buffer.push(chunk);
-      callback();
-    } else {
-      callback(new Error("Non-Buffer data on Writable Stream"));
-    }
-  } else {
-    callback(new Error("Unexpected data on Writable Stream"));
-  }
-}
-function _flattenBufferIn() {
-  if (this._isStreamInput()) {
-    this.options.input.buffer = Buffer.concat(this.options.input.buffer);
-  }
-}
-function _isStreamInput() {
-  return Array.isArray(this.options.input.buffer);
-}
-function _whenStreamInFinished(fn3) {
-  if (this.writableFinished) {
-    fn3();
-  } else {
-    this.once("finish", fn3);
-  }
-}
-function metadata(callback) {
-  const stack = Error();
-  if (is_default.fn(callback)) {
-    if (this._isStreamInput()) {
-      this._whenStreamInFinished(() => {
-        this._flattenBufferIn();
-        sharp_default.metadata(this.options, (err, metadata2) => {
-          if (err) {
-            callback(is_default.nativeError(err, stack));
-          } else {
-            callback(null, metadata2);
-          }
-        });
-      });
-    } else {
-      sharp_default.metadata(this.options, (err, metadata2) => {
-        if (err) {
-          callback(is_default.nativeError(err, stack));
-        } else {
-          callback(null, metadata2);
-        }
-      });
-    }
-    return this;
-  } else {
-    if (this._isStreamInput()) {
-      return new Promise((resolve4, reject) => {
-        this._whenStreamInFinished(() => {
-          this._flattenBufferIn();
-          sharp_default.metadata(this.options, (err, metadata2) => {
-            if (err) {
-              reject(is_default.nativeError(err, stack));
-            } else {
-              resolve4(metadata2);
-            }
-          });
-        });
-      });
-    } else {
-      return new Promise((resolve4, reject) => {
-        sharp_default.metadata(this.options, (err, metadata2) => {
-          if (err) {
-            reject(is_default.nativeError(err, stack));
-          } else {
-            resolve4(metadata2);
-          }
-        });
-      });
-    }
-  }
-}
-function stats(callback) {
-  const stack = Error();
-  if (is_default.fn(callback)) {
-    if (this._isStreamInput()) {
-      this._whenStreamInFinished(() => {
-        this._flattenBufferIn();
-        sharp_default.stats(this.options, (err, stats2) => {
-          if (err) {
-            callback(is_default.nativeError(err, stack));
-          } else {
-            callback(null, stats2);
-          }
-        });
-      });
-    } else {
-      sharp_default.stats(this.options, (err, stats2) => {
-        if (err) {
-          callback(is_default.nativeError(err, stack));
-        } else {
-          callback(null, stats2);
-        }
-      });
-    }
-    return this;
-  } else {
-    if (this._isStreamInput()) {
-      return new Promise((resolve4, reject) => {
-        this._whenStreamInFinished(() => {
-          this._flattenBufferIn();
-          sharp_default.stats(this.options, (err, stats2) => {
-            if (err) {
-              reject(is_default.nativeError(err, stack));
-            } else {
-              resolve4(stats2);
-            }
-          });
-        });
-      });
-    } else {
-      return new Promise((resolve4, reject) => {
-        sharp_default.stats(this.options, (err, stats2) => {
-          if (err) {
-            reject(is_default.nativeError(err, stack));
-          } else {
-            resolve4(stats2);
-          }
-        });
-      });
-    }
-  }
-}
-var input_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    // Private
-    _inputOptionsFromObject,
-    _createInputDescriptor,
-    _write,
-    _flattenBufferIn,
-    _isStreamInput,
-    _whenStreamInFinished,
-    // Public
-    metadata,
-    stats
-  });
-  Sharp2.align = align;
-};
-
-// node_modules/sharp/dist/resize.mjs
-var gravity = {
-  center: 0,
-  centre: 0,
-  north: 1,
-  east: 2,
-  south: 3,
-  west: 4,
-  northeast: 5,
-  southeast: 6,
-  southwest: 7,
-  northwest: 8
-};
-var position = {
-  top: 1,
-  right: 2,
-  bottom: 3,
-  left: 4,
-  "right top": 5,
-  "right bottom": 6,
-  "left bottom": 7,
-  "left top": 8
-};
-var extendWith = {
-  background: "background",
-  copy: "copy",
-  repeat: "repeat",
-  mirror: "mirror"
-};
-var strategy = {
-  entropy: 16,
-  attention: 17
-};
-var kernel = {
-  nearest: "nearest",
-  linear: "linear",
-  cubic: "cubic",
-  mitchell: "mitchell",
-  lanczos2: "lanczos2",
-  lanczos3: "lanczos3",
-  mks2013: "mks2013",
-  mks2021: "mks2021"
-};
-var fit = {
-  contain: "contain",
-  cover: "cover",
-  fill: "fill",
-  inside: "inside",
-  outside: "outside"
-};
-var mapFitToCanvas = {
-  contain: "embed",
-  cover: "crop",
-  fill: "ignore_aspect",
-  inside: "max",
-  outside: "min"
-};
-function isRotationExpected(options) {
-  return options.angle % 360 !== 0 || options.rotationAngle !== 0;
-}
-function isResizeExpected(options) {
-  return options.width !== -1 || options.height !== -1;
-}
-function resize(widthOrOptions, height, options) {
-  if (isResizeExpected(this.options)) {
-    this.options.debuglog("ignoring previous resize options");
-  }
-  if (this.options.widthPost !== -1) {
-    this.options.debuglog("operation order will be: extract, resize, extract");
-  }
-  if (is_default.defined(widthOrOptions)) {
-    if (is_default.object(widthOrOptions) && !is_default.defined(options)) {
-      options = widthOrOptions;
-    } else if (is_default.integer(widthOrOptions) && is_default.inRange(widthOrOptions, 1, 1e8)) {
-      this.options.width = widthOrOptions;
-    } else {
-      throw is_default.invalidParameterError("width", "positive integer between 1 and 100000000", widthOrOptions);
-    }
-  } else {
-    this.options.width = -1;
-  }
-  if (is_default.defined(height)) {
-    if (is_default.integer(height) && is_default.inRange(height, 1, 1e8)) {
-      this.options.height = height;
-    } else {
-      throw is_default.invalidParameterError("height", "positive integer between 1 and 100000000", height);
-    }
-  } else {
-    this.options.height = -1;
-  }
-  if (is_default.object(options)) {
-    if (is_default.defined(options.width)) {
-      if (is_default.integer(options.width) && is_default.inRange(options.width, 1, 1e8)) {
-        this.options.width = options.width;
-      } else {
-        throw is_default.invalidParameterError("width", "positive integer between 1 and 100000000", options.width);
-      }
-    }
-    if (is_default.defined(options.height)) {
-      if (is_default.integer(options.height) && is_default.inRange(options.height, 1, 1e8)) {
-        this.options.height = options.height;
-      } else {
-        throw is_default.invalidParameterError("height", "positive integer between 1 and 100000000", options.height);
-      }
-    }
-    if (is_default.defined(options.fit)) {
-      const canvas = mapFitToCanvas[options.fit];
-      if (is_default.string(canvas)) {
-        this.options.canvas = canvas;
-      } else {
-        throw is_default.invalidParameterError("fit", "valid fit", options.fit);
-      }
-    }
-    if (is_default.defined(options.position)) {
-      const pos = is_default.integer(options.position) ? options.position : strategy[options.position] || position[options.position] || gravity[options.position];
-      if (is_default.integer(pos) && (is_default.inRange(pos, 0, 8) || is_default.inRange(pos, 16, 17))) {
-        this.options.position = pos;
-      } else {
-        throw is_default.invalidParameterError("position", "valid position/gravity/strategy", options.position);
-      }
-    }
-    this._setBackgroundColourOption("resizeBackground", options.background);
-    if (is_default.defined(options.kernel)) {
-      if (is_default.string(kernel[options.kernel])) {
-        this.options.kernel = kernel[options.kernel];
-      } else {
-        throw is_default.invalidParameterError("kernel", "valid kernel name", options.kernel);
-      }
-    }
-    if (is_default.defined(options.withoutEnlargement)) {
-      this._setBooleanOption("withoutEnlargement", options.withoutEnlargement);
-    }
-    if (is_default.defined(options.withoutReduction)) {
-      this._setBooleanOption("withoutReduction", options.withoutReduction);
-    }
-    if (is_default.defined(options.fastShrinkOnLoad)) {
-      this._setBooleanOption("fastShrinkOnLoad", options.fastShrinkOnLoad);
-    }
-  }
-  if (isRotationExpected(this.options) && isResizeExpected(this.options)) {
-    this.options.rotateBefore = true;
-  }
-  return this;
-}
-function extend(extend2) {
-  if (is_default.integer(extend2)) {
-    if (is_default.inRange(extend2, 1, 1e8)) {
-      this.options.extendTop = extend2;
-      this.options.extendBottom = extend2;
-      this.options.extendLeft = extend2;
-      this.options.extendRight = extend2;
-    } else {
-      throw is_default.invalidParameterError("extend", "integer between 1 and 100000000", extend2);
-    }
-  } else if (is_default.object(extend2)) {
-    if (is_default.defined(extend2.top)) {
-      if (is_default.integer(extend2.top) && is_default.inRange(extend2.top, 0, 1e8)) {
-        this.options.extendTop = extend2.top;
-      } else {
-        throw is_default.invalidParameterError("top", "integer between 0 and 100000000", extend2.top);
-      }
-    }
-    if (is_default.defined(extend2.bottom)) {
-      if (is_default.integer(extend2.bottom) && is_default.inRange(extend2.bottom, 0, 1e8)) {
-        this.options.extendBottom = extend2.bottom;
-      } else {
-        throw is_default.invalidParameterError("bottom", "integer between 0 and 100000000", extend2.bottom);
-      }
-    }
-    if (is_default.defined(extend2.left)) {
-      if (is_default.integer(extend2.left) && is_default.inRange(extend2.left, 0, 1e8)) {
-        this.options.extendLeft = extend2.left;
-      } else {
-        throw is_default.invalidParameterError("left", "integer between 0 and 100000000", extend2.left);
-      }
-    }
-    if (is_default.defined(extend2.right)) {
-      if (is_default.integer(extend2.right) && is_default.inRange(extend2.right, 0, 1e8)) {
-        this.options.extendRight = extend2.right;
-      } else {
-        throw is_default.invalidParameterError("right", "integer between 0 and 100000000", extend2.right);
-      }
-    }
-    this._setBackgroundColourOption("extendBackground", extend2.background);
-    if (is_default.defined(extend2.extendWith)) {
-      if (is_default.string(extendWith[extend2.extendWith])) {
-        this.options.extendWith = extendWith[extend2.extendWith];
-      } else {
-        throw is_default.invalidParameterError("extendWith", "one of: background, copy, repeat, mirror", extend2.extendWith);
-      }
-    }
-  } else {
-    throw is_default.invalidParameterError("extend", "integer or object", extend2);
-  }
-  return this;
-}
-function extract3(options) {
-  const suffix = isResizeExpected(this.options) || this.options.widthPre !== -1 ? "Post" : "Pre";
-  if (this.options[`width${suffix}`] !== -1) {
-    this.options.debuglog("ignoring previous extract options");
-  }
-  ["left", "top", "width", "height"].forEach(function(name2) {
-    const value = options[name2];
-    if (is_default.integer(value) && is_default.inRange(value, 0, 1e8)) {
-      this.options[name2 + (name2 === "left" || name2 === "top" ? "Offset" : "") + suffix] = value;
-    } else {
-      throw is_default.invalidParameterError(name2, "integer between 0 and 100000000", value);
-    }
-  }, this);
-  if (isRotationExpected(this.options) && !isResizeExpected(this.options)) {
-    if (this.options.widthPre === -1 || this.options.widthPost === -1) {
-      this.options.rotateBefore = true;
-    }
-  }
-  if (this.options.input.autoOrient) {
-    this.options.orientBefore = true;
-  }
-  return this;
-}
-function trim(options) {
-  this.options.trimThreshold = 10;
-  if (is_default.defined(options)) {
-    if (is_default.object(options)) {
-      if (is_default.defined(options.background)) {
-        this._setBackgroundColourOption("trimBackground", options.background);
-      }
-      if (is_default.defined(options.threshold)) {
-        if (is_default.number(options.threshold) && options.threshold >= 0) {
-          this.options.trimThreshold = options.threshold;
-        } else {
-          throw is_default.invalidParameterError("threshold", "positive number", options.threshold);
-        }
-      }
-      if (is_default.defined(options.lineArt)) {
-        this._setBooleanOption("trimLineArt", options.lineArt);
-      }
-      if (is_default.defined(options.margin)) {
-        if (is_default.integer(options.margin) && is_default.inRange(options.margin, 0, 1e7)) {
-          this.options.trimMargin = options.margin;
-        } else {
-          throw is_default.invalidParameterError("margin", "integer between 0 and 10000000", options.margin);
-        }
-      }
-    } else {
-      throw is_default.invalidParameterError("trim", "object", options);
-    }
-  }
-  if (isRotationExpected(this.options)) {
-    this.options.rotateBefore = true;
-  }
-  return this;
-}
-var resize_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    resize,
-    extend,
-    extract: extract3,
-    trim
-  });
-  Sharp2.gravity = gravity;
-  Sharp2.strategy = strategy;
-  Sharp2.kernel = kernel;
-  Sharp2.fit = fit;
-  Sharp2.position = position;
-};
-
-// node_modules/sharp/dist/composite.mjs
-var blend = {
-  clear: "clear",
-  source: "source",
-  over: "over",
-  in: "in",
-  out: "out",
-  atop: "atop",
-  dest: "dest",
-  "dest-over": "dest-over",
-  "dest-in": "dest-in",
-  "dest-out": "dest-out",
-  "dest-atop": "dest-atop",
-  xor: "xor",
-  add: "add",
-  saturate: "saturate",
-  multiply: "multiply",
-  screen: "screen",
-  overlay: "overlay",
-  darken: "darken",
-  lighten: "lighten",
-  "colour-dodge": "colour-dodge",
-  "color-dodge": "colour-dodge",
-  "colour-burn": "colour-burn",
-  "color-burn": "colour-burn",
-  "hard-light": "hard-light",
-  "soft-light": "soft-light",
-  difference: "difference",
-  exclusion: "exclusion"
-};
-function composite(images) {
-  if (!Array.isArray(images)) {
-    throw is_default.invalidParameterError("images to composite", "array", images);
-  }
-  this.options.composite = images.map((image) => {
-    if (!is_default.object(image)) {
-      throw is_default.invalidParameterError("image to composite", "object", image);
-    }
-    const inputOptions = this._inputOptionsFromObject(image);
-    const composite2 = {
-      input: this._createInputDescriptor(image.input, inputOptions, { allowStream: false }),
-      blend: "over",
-      tile: false,
-      left: 0,
-      top: 0,
-      hasOffset: false,
-      gravity: 0,
-      premultiplied: false
-    };
-    if (is_default.defined(image.blend)) {
-      if (is_default.string(blend[image.blend])) {
-        composite2.blend = blend[image.blend];
-      } else {
-        throw is_default.invalidParameterError("blend", "valid blend name", image.blend);
-      }
-    }
-    if (is_default.defined(image.tile)) {
-      if (is_default.bool(image.tile)) {
-        composite2.tile = image.tile;
-      } else {
-        throw is_default.invalidParameterError("tile", "boolean", image.tile);
-      }
-    }
-    if (is_default.defined(image.left)) {
-      if (is_default.integer(image.left) && is_default.inRange(image.left, -1e8, 1e8)) {
-        composite2.left = image.left;
-      } else {
-        throw is_default.invalidParameterError("left", "integer between -100000000 and 100000000", image.left);
-      }
-    }
-    if (is_default.defined(image.top)) {
-      if (is_default.integer(image.top) && is_default.inRange(image.top, -1e8, 1e8)) {
-        composite2.top = image.top;
-      } else {
-        throw is_default.invalidParameterError("top", "integer between -100000000 and 100000000", image.top);
-      }
-    }
-    if (is_default.defined(image.top) !== is_default.defined(image.left)) {
-      throw new Error("Expected both left and top to be set");
-    } else {
-      composite2.hasOffset = is_default.integer(image.top) && is_default.integer(image.left);
-    }
-    if (is_default.defined(image.gravity)) {
-      if (is_default.integer(image.gravity) && is_default.inRange(image.gravity, 0, 8)) {
-        composite2.gravity = image.gravity;
-      } else if (is_default.string(image.gravity) && is_default.integer(this.constructor.gravity[image.gravity])) {
-        composite2.gravity = this.constructor.gravity[image.gravity];
-      } else {
-        throw is_default.invalidParameterError("gravity", "valid gravity", image.gravity);
-      }
-    }
-    if (is_default.defined(image.premultiplied)) {
-      if (is_default.bool(image.premultiplied)) {
-        composite2.premultiplied = image.premultiplied;
-      } else {
-        throw is_default.invalidParameterError("premultiplied", "boolean", image.premultiplied);
-      }
-    }
-    return composite2;
-  });
-  return this;
-}
-var composite_default = (Sharp2) => {
-  Sharp2.prototype.composite = composite;
-  Sharp2.blend = blend;
-};
-
-// node_modules/sharp/dist/operation.mjs
-var vipsPrecision = {
-  integer: "integer",
-  float: "float",
-  approximate: "approximate"
-};
-function rotate(angle, options) {
-  if (!is_default.defined(angle)) {
-    return this.autoOrient();
-  }
-  if (this.options.angle || this.options.rotationAngle) {
-    this.options.debuglog("ignoring previous rotate options");
-    this.options.angle = 0;
-    this.options.rotationAngle = 0;
-  }
-  if (is_default.integer(angle) && !(angle % 90)) {
-    this.options.angle = angle;
-  } else if (is_default.number(angle)) {
-    this.options.rotationAngle = angle;
-    if (is_default.object(options) && options.background) {
-      this._setBackgroundColourOption("rotationBackground", options.background);
-    }
-  } else {
-    throw is_default.invalidParameterError("angle", "numeric", angle);
-  }
-  return this;
-}
-function autoOrient() {
-  this.options.input.autoOrient = true;
-  return this;
-}
-function flip(flip2) {
-  this.options.flip = is_default.bool(flip2) ? flip2 : true;
-  return this;
-}
-function flop(flop2) {
-  this.options.flop = is_default.bool(flop2) ? flop2 : true;
-  return this;
-}
-function affine(matrix, options) {
-  const isValidShape = Array.isArray(matrix) && // 1x4 array of numbers
-  (matrix.length === 4 && matrix.every(is_default.number) || // 2x2 array of arrays of numbers
-  matrix.length === 2 && matrix.every((row) => Array.isArray(row) && row.length === 2));
-  const flatMatrix = isValidShape ? matrix.flat() : [];
-  if (flatMatrix.length === 4 && flatMatrix.every(is_default.number)) {
-    this.options.affineMatrix = flatMatrix;
-  } else {
-    throw is_default.invalidParameterError("matrix", "1x4 or 2x2 array", matrix);
-  }
-  if (is_default.defined(options)) {
-    if (is_default.object(options)) {
-      this._setBackgroundColourOption("affineBackground", options.background);
-      if (is_default.defined(options.idx)) {
-        if (is_default.number(options.idx)) {
-          this.options.affineIdx = options.idx;
-        } else {
-          throw is_default.invalidParameterError("options.idx", "number", options.idx);
-        }
-      }
-      if (is_default.defined(options.idy)) {
-        if (is_default.number(options.idy)) {
-          this.options.affineIdy = options.idy;
-        } else {
-          throw is_default.invalidParameterError("options.idy", "number", options.idy);
-        }
-      }
-      if (is_default.defined(options.odx)) {
-        if (is_default.number(options.odx)) {
-          this.options.affineOdx = options.odx;
-        } else {
-          throw is_default.invalidParameterError("options.odx", "number", options.odx);
-        }
-      }
-      if (is_default.defined(options.ody)) {
-        if (is_default.number(options.ody)) {
-          this.options.affineOdy = options.ody;
-        } else {
-          throw is_default.invalidParameterError("options.ody", "number", options.ody);
-        }
-      }
-      if (is_default.defined(options.interpolator)) {
-        if (is_default.inArray(options.interpolator, Object.values(this.constructor.interpolators))) {
-          this.options.affineInterpolator = options.interpolator;
-        } else {
-          throw is_default.invalidParameterError("options.interpolator", "valid interpolator name", options.interpolator);
-        }
-      }
-    } else {
-      throw is_default.invalidParameterError("options", "object", options);
-    }
-  }
-  return this;
-}
-function sharpen(options) {
-  if (is_default.plainObject(options)) {
-    if (is_default.number(options.sigma) && is_default.inRange(options.sigma, 1e-6, 10)) {
-      this.options.sharpenSigma = options.sigma;
-    } else {
-      throw is_default.invalidParameterError("options.sigma", "number between 0.000001 and 10", options.sigma);
-    }
-    if (is_default.defined(options.m1)) {
-      if (is_default.number(options.m1) && is_default.inRange(options.m1, 0, 1e6)) {
-        this.options.sharpenM1 = options.m1;
-      } else {
-        throw is_default.invalidParameterError("options.m1", "number between 0 and 1000000", options.m1);
-      }
-    }
-    if (is_default.defined(options.m2)) {
-      if (is_default.number(options.m2) && is_default.inRange(options.m2, 0, 1e6)) {
-        this.options.sharpenM2 = options.m2;
-      } else {
-        throw is_default.invalidParameterError("options.m2", "number between 0 and 1000000", options.m2);
-      }
-    }
-    if (is_default.defined(options.x1)) {
-      if (is_default.number(options.x1) && is_default.inRange(options.x1, 0, 1e6)) {
-        this.options.sharpenX1 = options.x1;
-      } else {
-        throw is_default.invalidParameterError("options.x1", "number between 0 and 1000000", options.x1);
-      }
-    }
-    if (is_default.defined(options.y2)) {
-      if (is_default.number(options.y2) && is_default.inRange(options.y2, 0, 1e6)) {
-        this.options.sharpenY2 = options.y2;
-      } else {
-        throw is_default.invalidParameterError("options.y2", "number between 0 and 1000000", options.y2);
-      }
-    }
-    if (is_default.defined(options.y3)) {
-      if (is_default.number(options.y3) && is_default.inRange(options.y3, 0, 1e6)) {
-        this.options.sharpenY3 = options.y3;
-      } else {
-        throw is_default.invalidParameterError("options.y3", "number between 0 and 1000000", options.y3);
-      }
-    }
-  } else {
-    this.options.sharpenSigma = -1;
-  }
-  return this;
-}
-function median(size) {
-  if (!is_default.defined(size)) {
-    this.options.medianSize = 3;
-  } else if (is_default.integer(size) && is_default.inRange(size, 1, 1e3)) {
-    this.options.medianSize = size;
-  } else {
-    throw is_default.invalidParameterError("size", "integer between 1 and 1000", size);
-  }
-  return this;
-}
-function blur(options) {
-  let sigma;
-  if (is_default.number(options)) {
-    sigma = options;
-  } else if (is_default.plainObject(options)) {
-    if (!is_default.number(options.sigma)) {
-      throw is_default.invalidParameterError("options.sigma", "number between 0.3 and 1000", sigma);
-    }
-    sigma = options.sigma;
-    if ("precision" in options) {
-      if (is_default.string(vipsPrecision[options.precision])) {
-        this.options.precision = vipsPrecision[options.precision];
-      } else {
-        throw is_default.invalidParameterError("precision", "one of: integer, float, approximate", options.precision);
-      }
-    }
-    if ("minAmplitude" in options) {
-      if (is_default.number(options.minAmplitude) && is_default.inRange(options.minAmplitude, 1e-3, 1)) {
-        this.options.minAmpl = options.minAmplitude;
-      } else {
-        throw is_default.invalidParameterError("minAmplitude", "number between 0.001 and 1", options.minAmplitude);
-      }
-    }
-  }
-  if (!is_default.defined(options)) {
-    this.options.blurSigma = -1;
-  } else if (is_default.bool(options)) {
-    this.options.blurSigma = options ? -1 : 0;
-  } else if (is_default.number(sigma) && is_default.inRange(sigma, 0.3, 1e3)) {
-    this.options.blurSigma = sigma;
-  } else {
-    throw is_default.invalidParameterError("sigma", "number between 0.3 and 1000", sigma);
-  }
-  return this;
-}
-function dilate(width) {
-  if (!is_default.defined(width)) {
-    this.options.dilateWidth = 1;
-  } else if (is_default.integer(width) && is_default.inRange(width, 1, 65536)) {
-    this.options.dilateWidth = width;
-  } else {
-    throw is_default.invalidParameterError("width", "integer between 1 and 65536", width);
-  }
-  return this;
-}
-function erode(width) {
-  if (!is_default.defined(width)) {
-    this.options.erodeWidth = 1;
-  } else if (is_default.integer(width) && is_default.inRange(width, 1, 65536)) {
-    this.options.erodeWidth = width;
-  } else {
-    throw is_default.invalidParameterError("width", "integer between 1 and 65536", width);
-  }
-  return this;
-}
-function flatten(options) {
-  this.options.flatten = is_default.bool(options) ? options : true;
-  if (is_default.object(options)) {
-    this._setBackgroundColourOption("flattenBackground", options.background);
-  }
-  return this;
-}
-function unflatten() {
-  this.options.unflatten = true;
-  return this;
-}
-function gamma(gamma2, gammaOut) {
-  if (!is_default.defined(gamma2)) {
-    this.options.gamma = 2.2;
-  } else if (is_default.number(gamma2) && is_default.inRange(gamma2, 1, 3)) {
-    this.options.gamma = gamma2;
-  } else {
-    throw is_default.invalidParameterError("gamma", "number between 1.0 and 3.0", gamma2);
-  }
-  if (!is_default.defined(gammaOut)) {
-    this.options.gammaOut = this.options.gamma;
-  } else if (is_default.number(gammaOut) && is_default.inRange(gammaOut, 1, 3)) {
-    this.options.gammaOut = gammaOut;
-  } else {
-    throw is_default.invalidParameterError("gammaOut", "number between 1.0 and 3.0", gammaOut);
-  }
-  return this;
-}
-function negate(options) {
-  this.options.negate = is_default.bool(options) ? options : true;
-  if (is_default.plainObject(options) && "alpha" in options) {
-    if (!is_default.bool(options.alpha)) {
-      throw is_default.invalidParameterError("alpha", "should be boolean value", options.alpha);
-    } else {
-      this.options.negateAlpha = options.alpha;
-    }
-  }
-  return this;
-}
-function normalise(options) {
-  if (is_default.plainObject(options)) {
-    if (is_default.defined(options.lower)) {
-      if (is_default.number(options.lower) && is_default.inRange(options.lower, 0, 99)) {
-        this.options.normaliseLower = options.lower;
-      } else {
-        throw is_default.invalidParameterError("lower", "number between 0 and 99", options.lower);
-      }
-    }
-    if (is_default.defined(options.upper)) {
-      if (is_default.number(options.upper) && is_default.inRange(options.upper, 1, 100)) {
-        this.options.normaliseUpper = options.upper;
-      } else {
-        throw is_default.invalidParameterError("upper", "number between 1 and 100", options.upper);
-      }
-    }
-  }
-  if (this.options.normaliseLower >= this.options.normaliseUpper) {
-    throw is_default.invalidParameterError(
-      "range",
-      "lower to be less than upper",
-      `${this.options.normaliseLower} >= ${this.options.normaliseUpper}`
-    );
-  }
-  this.options.normalise = true;
-  return this;
-}
-function normalize(options) {
-  return this.normalise(options);
-}
-function clahe(options) {
-  if (is_default.plainObject(options)) {
-    if (is_default.integer(options.width) && is_default.inRange(options.width, 1, 65536)) {
-      this.options.claheWidth = options.width;
-    } else {
-      throw is_default.invalidParameterError("width", "integer between 1 and 65536", options.width);
-    }
-    if (is_default.integer(options.height) && is_default.inRange(options.height, 1, 65536)) {
-      this.options.claheHeight = options.height;
-    } else {
-      throw is_default.invalidParameterError("height", "integer between 1 and 65536", options.height);
-    }
-    if (is_default.defined(options.maxSlope)) {
-      if (is_default.integer(options.maxSlope) && is_default.inRange(options.maxSlope, 0, 100)) {
-        this.options.claheMaxSlope = options.maxSlope;
-      } else {
-        throw is_default.invalidParameterError("maxSlope", "integer between 0 and 100", options.maxSlope);
-      }
-    }
-  } else {
-    throw is_default.invalidParameterError("options", "plain object", options);
-  }
-  return this;
-}
-function convolve(kernel2) {
-  if (!is_default.object(kernel2) || !Array.isArray(kernel2.kernel) || !is_default.integer(kernel2.width) || !is_default.integer(kernel2.height) || !is_default.inRange(kernel2.width, 3, 1001) || !is_default.inRange(kernel2.height, 3, 1001) || kernel2.height * kernel2.width !== kernel2.kernel.length || !kernel2.kernel.every(is_default.number)) {
-    throw new Error("Invalid convolution kernel");
-  }
-  if (!is_default.integer(kernel2.scale)) {
-    kernel2.scale = kernel2.kernel.reduce((a2, b2) => a2 + b2, 0);
-  }
-  if (kernel2.scale < 1) {
-    kernel2.scale = 1;
-  }
-  if (!is_default.integer(kernel2.offset)) {
-    kernel2.offset = 0;
-  }
-  this.options.convKernel = kernel2;
-  return this;
-}
-function threshold(threshold2, options) {
-  if (!is_default.defined(threshold2)) {
-    this.options.threshold = 128;
-  } else if (is_default.bool(threshold2)) {
-    this.options.threshold = threshold2 ? 128 : 0;
-  } else if (is_default.integer(threshold2) && is_default.inRange(threshold2, 0, 255)) {
-    this.options.threshold = threshold2;
-  } else {
-    throw is_default.invalidParameterError("threshold", "integer between 0 and 255", threshold2);
-  }
-  if (!is_default.object(options) || options.greyscale === true || options.grayscale === true) {
-    this.options.thresholdGrayscale = true;
-  } else {
-    this.options.thresholdGrayscale = false;
-  }
-  return this;
-}
-function boolean(operand, operator, options) {
-  this.options.boolean = this._createInputDescriptor(operand, options);
-  if (is_default.string(operator) && is_default.inArray(operator, ["and", "or", "eor"])) {
-    this.options.booleanOp = operator;
-  } else {
-    throw is_default.invalidParameterError("operator", "one of: and, or, eor", operator);
-  }
-  return this;
-}
-function linear(a2, b2) {
-  if (!is_default.defined(a2) && is_default.number(b2)) {
-    a2 = 1;
-  } else if (is_default.number(a2) && !is_default.defined(b2)) {
-    b2 = 0;
-  }
-  if (!is_default.defined(a2)) {
-    this.options.linearA = [];
-  } else if (is_default.number(a2)) {
-    this.options.linearA = [a2];
-  } else if (Array.isArray(a2) && is_default.inRange(a2.length, 1, 1e6) && a2.every(is_default.number)) {
-    this.options.linearA = a2;
-  } else {
-    throw is_default.invalidParameterError("a", "number or array of numbers", a2);
-  }
-  if (!is_default.defined(b2)) {
-    this.options.linearB = [];
-  } else if (is_default.number(b2)) {
-    this.options.linearB = [b2];
-  } else if (Array.isArray(b2) && is_default.inRange(b2.length, 1, 1e6) && b2.every(is_default.number)) {
-    this.options.linearB = b2;
-  } else {
-    throw is_default.invalidParameterError("b", "number or array of numbers", b2);
-  }
-  if (this.options.linearA.length !== this.options.linearB.length) {
-    throw new Error("Expected a and b to be arrays of the same length");
-  }
-  return this;
-}
-function recomb(inputMatrix) {
-  if (!Array.isArray(inputMatrix)) {
-    throw is_default.invalidParameterError("inputMatrix", "array", inputMatrix);
-  }
-  const dimensions = inputMatrix.length;
-  if (dimensions !== 3 && dimensions !== 4) {
-    throw is_default.invalidParameterError("inputMatrix", "3x3 or 4x4 array", dimensions);
-  }
-  if (!inputMatrix.every((row) => Array.isArray(row) && row.length === dimensions)) {
-    throw is_default.invalidParameterError("inputMatrix", `array of ${dimensions} arrays of length ${dimensions}`, inputMatrix);
-  }
-  const recombMatrix = inputMatrix.flat();
-  if (!recombMatrix.every(is_default.number)) {
-    throw is_default.invalidParameterError("inputMatrix", "array of numbers", recombMatrix);
-  }
-  this.options.recombMatrix = recombMatrix;
-  return this;
-}
-function modulate(options) {
-  if (!is_default.plainObject(options)) {
-    throw is_default.invalidParameterError("options", "plain object", options);
-  }
-  if ("brightness" in options) {
-    if (is_default.number(options.brightness) && options.brightness >= 0) {
-      this.options.brightness = options.brightness;
-    } else {
-      throw is_default.invalidParameterError("brightness", "number above zero", options.brightness);
-    }
-  }
-  if ("saturation" in options) {
-    if (is_default.number(options.saturation) && options.saturation >= 0) {
-      this.options.saturation = options.saturation;
-    } else {
-      throw is_default.invalidParameterError("saturation", "number above zero", options.saturation);
-    }
-  }
-  if ("hue" in options) {
-    if (is_default.integer(options.hue)) {
-      this.options.hue = options.hue % 360;
-    } else {
-      throw is_default.invalidParameterError("hue", "number", options.hue);
-    }
-  }
-  if ("lightness" in options) {
-    if (is_default.number(options.lightness)) {
-      this.options.lightness = options.lightness;
-    } else {
-      throw is_default.invalidParameterError("lightness", "number", options.lightness);
-    }
-  }
-  return this;
-}
-var operation_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    autoOrient,
-    rotate,
-    flip,
-    flop,
-    affine,
-    sharpen,
-    erode,
-    dilate,
-    median,
-    blur,
-    flatten,
-    unflatten,
-    gamma,
-    negate,
-    normalise,
-    normalize,
-    clahe,
-    convolve,
-    threshold,
-    boolean,
-    linear,
-    recomb,
-    modulate
-  });
-};
-
-// node_modules/sharp/dist/colour.mjs
-var import_colour = __toESM(require_colour(), 1);
-var colourspace = {
-  multiband: "multiband",
-  "b-w": "b-w",
-  bw: "b-w",
-  cmyk: "cmyk",
-  srgb: "srgb"
-};
-function tint(tint2) {
-  this._setBackgroundColourOption("tint", tint2);
-  return this;
-}
-function greyscale(greyscale2) {
-  this.options.greyscale = is_default.bool(greyscale2) ? greyscale2 : true;
-  return this;
-}
-function grayscale(grayscale2) {
-  return this.greyscale(grayscale2);
-}
-function pipelineColourspace(colourspace2) {
-  if (!is_default.string(colourspace2)) {
-    throw is_default.invalidParameterError("colourspace", "string", colourspace2);
-  }
-  this.options.colourspacePipeline = colourspace2;
-  return this;
-}
-function pipelineColorspace(colorspace) {
-  return this.pipelineColourspace(colorspace);
-}
-function toColourspace(colourspace2) {
-  if (!is_default.string(colourspace2)) {
-    throw is_default.invalidParameterError("colourspace", "string", colourspace2);
-  }
-  this.options.colourspace = colourspace2;
-  return this;
-}
-function toColorspace(colorspace) {
-  return this.toColourspace(colorspace);
-}
-function _getBackgroundColourOption(value) {
-  if (is_default.object(value) || is_default.string(value) && value.length >= 3 && value.length <= 200) {
-    const colour = (0, import_colour.default)(value);
-    const red = colour.red();
-    const green = colour.green();
-    const blue = colour.blue();
-    const alpha = Math.round(colour.alpha() * 255);
-    for (const [channel, component] of [["red", red], ["green", green], ["blue", blue], ["alpha", alpha]]) {
-      if (!is_default.number(component)) {
-        throw is_default.invalidParameterError(`background.${channel}`, "number", component);
-      }
-    }
-    return [red, green, blue, alpha];
-  } else {
-    throw is_default.invalidParameterError("background", "object or string", value);
-  }
-}
-function _setBackgroundColourOption(key, value) {
-  if (is_default.defined(value)) {
-    this.options[key] = _getBackgroundColourOption(value);
-  }
-}
-var colour_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    // Public
-    tint,
-    greyscale,
-    grayscale,
-    pipelineColourspace,
-    pipelineColorspace,
-    toColourspace,
-    toColorspace,
-    // Private
-    _getBackgroundColourOption,
-    _setBackgroundColourOption
-  });
-  Sharp2.colourspace = colourspace;
-  Sharp2.colorspace = colourspace;
-};
-
-// node_modules/sharp/dist/channel.mjs
-var bool2 = {
-  and: "and",
-  or: "or",
-  eor: "eor"
-};
-function removeAlpha() {
-  this.options.removeAlpha = true;
-  return this;
-}
-function ensureAlpha(alpha) {
-  if (is_default.defined(alpha)) {
-    if (is_default.number(alpha) && is_default.inRange(alpha, 0, 1)) {
-      this.options.ensureAlpha = alpha;
-    } else {
-      throw is_default.invalidParameterError("alpha", "number between 0 and 1", alpha);
-    }
-  } else {
-    this.options.ensureAlpha = 1;
-  }
-  return this;
-}
-function extractChannel(channel) {
-  const channelMap = { red: 0, green: 1, blue: 2, alpha: 3 };
-  if (Object.keys(channelMap).includes(channel)) {
-    channel = channelMap[channel];
-  }
-  if (is_default.integer(channel) && is_default.inRange(channel, 0, 4)) {
-    this.options.extractChannel = channel;
-  } else {
-    throw is_default.invalidParameterError("channel", "integer or one of: red, green, blue, alpha", channel);
-  }
-  return this;
-}
-function joinChannel(images, options) {
-  if (Array.isArray(images)) {
-    images.forEach(function(image) {
-      this.options.joinChannelIn.push(this._createInputDescriptor(image, options));
-    }, this);
-  } else {
-    this.options.joinChannelIn.push(this._createInputDescriptor(images, options));
-  }
-  return this;
-}
-function bandbool(boolOp) {
-  if (is_default.string(boolOp) && is_default.inArray(boolOp, ["and", "or", "eor"])) {
-    this.options.bandBoolOp = boolOp;
-  } else {
-    throw is_default.invalidParameterError("boolOp", "one of: and, or, eor", boolOp);
-  }
-  return this;
-}
-var channel_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    // Public instance functions
-    removeAlpha,
-    ensureAlpha,
-    extractChannel,
-    joinChannel,
-    bandbool
-  });
-  Sharp2.bool = bool2;
-};
-
-// node_modules/sharp/dist/output.mjs
-import path2 from "node:path";
-var formats = /* @__PURE__ */ new Map([
-  ["heic", "heif"],
-  ["heif", "heif"],
-  ["avif", "avif"],
-  ["jpeg", "jpeg"],
-  ["jpg", "jpeg"],
-  ["jpe", "jpeg"],
-  ["tile", "tile"],
-  ["dz", "tile"],
-  ["png", "png"],
-  ["raw", "raw"],
-  ["tiff", "tiff"],
-  ["tif", "tiff"],
-  ["webp", "webp"],
-  ["gif", "gif"],
-  ["jp2", "jp2"],
-  ["jpx", "jp2"],
-  ["j2k", "jp2"],
-  ["j2c", "jp2"],
-  ["jxl", "jxl"]
-]);
-var jp2Regex = /\.(jp[2x]|j2[kc])$/i;
-var errJp2Save = () => new Error("JP2 output requires libvips with support for OpenJPEG");
-var bitdepthFromColourCount = (colours) => 1 << 32 - Math.clz32(Math.ceil(Math.log2(colours)) - 1);
-function toFile(fileOut, callback) {
-  let err;
-  if (!is_default.string(fileOut)) {
-    err = new Error("Missing output file path");
-  } else if (is_default.string(this.options.input.file) && path2.resolve(this.options.input.file) === path2.resolve(fileOut)) {
-    err = new Error("Cannot use same file for input and output");
-  } else if (jp2Regex.test(path2.extname(fileOut)) && !this.constructor.format.jp2.output.file) {
-    err = errJp2Save();
-  }
-  if (err) {
-    if (is_default.fn(callback)) {
-      callback(err);
-    } else {
-      return Promise.reject(err);
-    }
-  } else {
-    this.options.fileOut = fileOut;
-    const stack = Error();
-    return this._pipeline(callback, stack);
-  }
-  return this;
-}
-function toBuffer(options, callback) {
-  if (is_default.object(options)) {
-    this._setBooleanOption("resolveWithObject", options.resolveWithObject);
-  } else if (this.options.resolveWithObject) {
-    this.options.resolveWithObject = false;
-  }
-  this.options.fileOut = "";
-  const stack = Error();
-  return this._pipeline(is_default.fn(options) ? options : callback, stack);
-}
-function toUint8Array2() {
-  this.options.resolveWithObject = true;
-  this.options.typedArrayOut = true;
-  const stack = Error();
-  return this._pipeline(null, stack);
-}
-function withDensity(density) {
-  if (is_default.number(density) && density > 0) {
-    this.options.withMetadataDensity = density;
-  } else {
-    throw is_default.invalidParameterError("density", "positive number", density);
-  }
-  return this.keepExif();
-}
-function keepExif() {
-  this.options.keepMetadata |= 1;
-  return this;
-}
-function withExif(exif) {
-  if (is_default.object(exif)) {
-    for (const [ifd, entries] of Object.entries(exif)) {
-      if (is_default.object(entries)) {
-        for (const [k2, v2] of Object.entries(entries)) {
-          if (is_default.string(v2)) {
-            this.options.withExif[`exif-${ifd.toLowerCase()}-${k2}`] = v2;
-          } else {
-            throw is_default.invalidParameterError(`${ifd}.${k2}`, "string", v2);
-          }
-        }
-      } else {
-        throw is_default.invalidParameterError(ifd, "object", entries);
-      }
-    }
-  } else {
-    throw is_default.invalidParameterError("exif", "object", exif);
-  }
-  this.options.withExifMerge = false;
-  return this.keepExif();
-}
-function withExifMerge(exif) {
-  this.withExif(exif);
-  this.options.withExifMerge = true;
-  return this;
-}
-function keepIccProfile() {
-  this.options.keepMetadata |= 8;
-  return this;
-}
-function withIccProfile(icc, options) {
-  if (is_default.string(icc)) {
-    this.options.withIccProfile = icc;
-  } else {
-    throw is_default.invalidParameterError("icc", "string", icc);
-  }
-  this.keepIccProfile();
-  if (is_default.object(options)) {
-    if (is_default.defined(options.attach)) {
-      if (is_default.bool(options.attach)) {
-        if (!options.attach) {
-          this.options.keepMetadata &= ~8;
-        }
-      } else {
-        throw is_default.invalidParameterError("attach", "boolean", options.attach);
-      }
-    }
-  }
-  return this;
-}
-function keepGainMap() {
-  this.options.keepGainMap = true;
-  this.options.withGainMap = false;
-  this.options.keepMetadata |= 32;
-  return this;
-}
-function withGainMap() {
-  this.options.withGainMap = true;
-  this.options.keepGainMap = false;
-  this.options.colourspace = "scrgb";
-  return this;
-}
-function keepXmp() {
-  this.options.keepMetadata |= 2;
-  return this;
-}
-function withXmp(xmp) {
-  if (is_default.string(xmp) && xmp.length > 0) {
-    this.options.withXmp = xmp;
-    this.options.keepMetadata |= 2;
-  } else {
-    throw is_default.invalidParameterError("xmp", "non-empty string", xmp);
-  }
-  return this;
-}
-function keepMetadata() {
-  this.options.keepMetadata |= 31;
-  return this;
-}
-function withMetadata(options) {
-  this.keepMetadata();
-  this.withIccProfile("srgb");
-  if (is_default.object(options)) {
-    if (is_default.defined(options.orientation)) {
-      if (is_default.integer(options.orientation) && is_default.inRange(options.orientation, 1, 8)) {
-        this.options.withMetadataOrientation = options.orientation;
-      } else {
-        throw is_default.invalidParameterError("orientation", "integer between 1 and 8", options.orientation);
-      }
-    }
-    if (is_default.defined(options.density)) {
-      if (is_default.number(options.density) && options.density > 0) {
-        this.options.withMetadataDensity = options.density;
-      } else {
-        throw is_default.invalidParameterError("density", "positive number", options.density);
-      }
-    }
-    if (is_default.defined(options.icc)) {
-      this.withIccProfile(options.icc);
-    }
-    if (is_default.defined(options.exif)) {
-      this.withExifMerge(options.exif);
-    }
-  }
-  return this;
-}
-function toFormat(format2, options) {
-  const actualFormat = formats.get((is_default.object(format2) && is_default.string(format2.id) ? format2.id : format2).toLowerCase());
-  if (!actualFormat) {
-    throw is_default.invalidParameterError("format", `one of: ${[...formats.keys()].join(", ")}`, format2);
-  }
-  return this[actualFormat](options);
-}
-function jpeg(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.jpegQuality = options.quality;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    }
-    if (is_default.defined(options.progressive)) {
-      this._setBooleanOption("jpegProgressive", options.progressive);
-    }
-    if (is_default.defined(options.chromaSubsampling)) {
-      if (is_default.string(options.chromaSubsampling) && is_default.inArray(options.chromaSubsampling, ["4:2:0", "4:4:4"])) {
-        this.options.jpegChromaSubsampling = options.chromaSubsampling;
-      } else {
-        throw is_default.invalidParameterError("chromaSubsampling", "one of: 4:2:0, 4:4:4", options.chromaSubsampling);
-      }
-    }
-    const optimiseCoding = is_default.bool(options.optimizeCoding) ? options.optimizeCoding : options.optimiseCoding;
-    if (is_default.defined(optimiseCoding)) {
-      this._setBooleanOption("jpegOptimiseCoding", optimiseCoding);
-    }
-    if (is_default.defined(options.mozjpeg)) {
-      if (is_default.bool(options.mozjpeg)) {
-        if (options.mozjpeg) {
-          this.options.jpegTrellisQuantisation = true;
-          this.options.jpegOvershootDeringing = true;
-          this.options.jpegOptimiseScans = true;
-          this.options.jpegProgressive = true;
-          this.options.jpegQuantisationTable = 3;
-        }
-      } else {
-        throw is_default.invalidParameterError("mozjpeg", "boolean", options.mozjpeg);
-      }
-    }
-    const trellisQuantisation = is_default.bool(options.trellisQuantization) ? options.trellisQuantization : options.trellisQuantisation;
-    if (is_default.defined(trellisQuantisation)) {
-      this._setBooleanOption("jpegTrellisQuantisation", trellisQuantisation);
-    }
-    if (is_default.defined(options.overshootDeringing)) {
-      this._setBooleanOption("jpegOvershootDeringing", options.overshootDeringing);
-    }
-    const optimiseScans = is_default.bool(options.optimizeScans) ? options.optimizeScans : options.optimiseScans;
-    if (is_default.defined(optimiseScans)) {
-      this._setBooleanOption("jpegOptimiseScans", optimiseScans);
-      if (optimiseScans) {
-        this.options.jpegProgressive = true;
-      }
-    }
-    const quantisationTable = is_default.number(options.quantizationTable) ? options.quantizationTable : options.quantisationTable;
-    if (is_default.defined(quantisationTable)) {
-      if (is_default.integer(quantisationTable) && is_default.inRange(quantisationTable, 0, 8)) {
-        this.options.jpegQuantisationTable = quantisationTable;
-      } else {
-        throw is_default.invalidParameterError("quantisationTable", "integer between 0 and 8", quantisationTable);
-      }
-    }
-  }
-  return this._updateFormatOut("jpeg", options);
-}
-function png(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.progressive)) {
-      this._setBooleanOption("pngProgressive", options.progressive);
-    }
-    if (is_default.defined(options.compressionLevel)) {
-      if (is_default.integer(options.compressionLevel) && is_default.inRange(options.compressionLevel, 0, 9)) {
-        this.options.pngCompressionLevel = options.compressionLevel;
-      } else {
-        throw is_default.invalidParameterError("compressionLevel", "integer between 0 and 9", options.compressionLevel);
-      }
-    }
-    if (is_default.defined(options.adaptiveFiltering)) {
-      this._setBooleanOption("pngAdaptiveFiltering", options.adaptiveFiltering);
-    }
-    const colours = options.colours || options.colors;
-    if (is_default.defined(colours)) {
-      if (is_default.integer(colours) && is_default.inRange(colours, 2, 256)) {
-        this.options.pngBitdepth = bitdepthFromColourCount(colours);
-      } else {
-        throw is_default.invalidParameterError("colours", "integer between 2 and 256", colours);
-      }
-    }
-    if (is_default.defined(options.palette)) {
-      this._setBooleanOption("pngPalette", options.palette);
-    } else if ([options.quality, options.effort, options.colours, options.colors, options.dither].some(is_default.defined)) {
-      this._setBooleanOption("pngPalette", true);
-    }
-    if (this.options.pngPalette) {
-      if (is_default.defined(options.quality)) {
-        if (is_default.integer(options.quality) && is_default.inRange(options.quality, 0, 100)) {
-          this.options.pngQuality = options.quality;
-        } else {
-          throw is_default.invalidParameterError("quality", "integer between 0 and 100", options.quality);
-        }
-      }
-      if (is_default.defined(options.effort)) {
-        if (is_default.integer(options.effort) && is_default.inRange(options.effort, 1, 10)) {
-          this.options.pngEffort = options.effort;
-        } else {
-          throw is_default.invalidParameterError("effort", "integer between 1 and 10", options.effort);
-        }
-      }
-      if (is_default.defined(options.dither)) {
-        if (is_default.number(options.dither) && is_default.inRange(options.dither, 0, 1)) {
-          this.options.pngDither = options.dither;
-        } else {
-          throw is_default.invalidParameterError("dither", "number between 0.0 and 1.0", options.dither);
-        }
-      }
-    }
-  }
-  return this._updateFormatOut("png", options);
-}
-function webp(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.webpQuality = options.quality;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    }
-    if (is_default.defined(options.alphaQuality)) {
-      if (is_default.integer(options.alphaQuality) && is_default.inRange(options.alphaQuality, 0, 100)) {
-        this.options.webpAlphaQuality = options.alphaQuality;
-      } else {
-        throw is_default.invalidParameterError("alphaQuality", "integer between 0 and 100", options.alphaQuality);
-      }
-    }
-    if (is_default.defined(options.lossless)) {
-      this._setBooleanOption("webpLossless", options.lossless);
-    }
-    if (is_default.defined(options.nearLossless)) {
-      this._setBooleanOption("webpNearLossless", options.nearLossless);
-    }
-    if (is_default.defined(options.smartSubsample)) {
-      this._setBooleanOption("webpSmartSubsample", options.smartSubsample);
-    }
-    if (is_default.defined(options.smartDeblock)) {
-      this._setBooleanOption("webpSmartDeblock", options.smartDeblock);
-    }
-    if (is_default.defined(options.preset)) {
-      if (is_default.string(options.preset) && is_default.inArray(options.preset, ["default", "photo", "picture", "drawing", "icon", "text"])) {
-        this.options.webpPreset = options.preset;
-      } else {
-        throw is_default.invalidParameterError("preset", "one of: default, photo, picture, drawing, icon, text", options.preset);
-      }
-    }
-    if (is_default.defined(options.effort)) {
-      if (is_default.integer(options.effort) && is_default.inRange(options.effort, 0, 6)) {
-        this.options.webpEffort = options.effort;
-      } else {
-        throw is_default.invalidParameterError("effort", "integer between 0 and 6", options.effort);
-      }
-    }
-    if (is_default.defined(options.minSize)) {
-      this._setBooleanOption("webpMinSize", options.minSize);
-    }
-    if (is_default.defined(options.mixed)) {
-      this._setBooleanOption("webpMixed", options.mixed);
-    }
-    if (is_default.defined(options.exact)) {
-      this._setBooleanOption("webpExact", options.exact);
-    }
-  }
-  trySetAnimationOptions(options, this.options);
-  return this._updateFormatOut("webp", options);
-}
-function gif(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.reuse)) {
-      this._setBooleanOption("gifReuse", options.reuse);
-    }
-    if (is_default.defined(options.progressive)) {
-      this._setBooleanOption("gifProgressive", options.progressive);
-    }
-    const colours = options.colours || options.colors;
-    if (is_default.defined(colours)) {
-      if (is_default.integer(colours) && is_default.inRange(colours, 2, 256)) {
-        this.options.gifBitdepth = bitdepthFromColourCount(colours);
-      } else {
-        throw is_default.invalidParameterError("colours", "integer between 2 and 256", colours);
-      }
-    }
-    if (is_default.defined(options.effort)) {
-      if (is_default.integer(options.effort) && is_default.inRange(options.effort, 1, 10)) {
-        this.options.gifEffort = options.effort;
-      } else {
-        throw is_default.invalidParameterError("effort", "integer between 1 and 10", options.effort);
-      }
-    }
-    if (is_default.defined(options.dither)) {
-      if (is_default.number(options.dither) && is_default.inRange(options.dither, 0, 1)) {
-        this.options.gifDither = options.dither;
-      } else {
-        throw is_default.invalidParameterError("dither", "number between 0.0 and 1.0", options.dither);
-      }
-    }
-    if (is_default.defined(options.interFrameMaxError)) {
-      if (is_default.number(options.interFrameMaxError) && is_default.inRange(options.interFrameMaxError, 0, 32)) {
-        this.options.gifInterFrameMaxError = options.interFrameMaxError;
-      } else {
-        throw is_default.invalidParameterError("interFrameMaxError", "number between 0.0 and 32.0", options.interFrameMaxError);
-      }
-    }
-    if (is_default.defined(options.interPaletteMaxError)) {
-      if (is_default.number(options.interPaletteMaxError) && is_default.inRange(options.interPaletteMaxError, 0, 256)) {
-        this.options.gifInterPaletteMaxError = options.interPaletteMaxError;
-      } else {
-        throw is_default.invalidParameterError("interPaletteMaxError", "number between 0.0 and 256.0", options.interPaletteMaxError);
-      }
-    }
-    if (is_default.defined(options.keepDuplicateFrames)) {
-      if (is_default.bool(options.keepDuplicateFrames)) {
-        this._setBooleanOption("gifKeepDuplicateFrames", options.keepDuplicateFrames);
-      } else {
-        throw is_default.invalidParameterError("keepDuplicateFrames", "boolean", options.keepDuplicateFrames);
-      }
-    }
-  }
-  trySetAnimationOptions(options, this.options);
-  return this._updateFormatOut("gif", options);
-}
-function jp2(options) {
-  if (!this.constructor.format.jp2.output.buffer) {
-    throw errJp2Save();
-  }
-  if (is_default.object(options)) {
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.jp2Quality = options.quality;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    }
-    if (is_default.defined(options.lossless)) {
-      if (is_default.bool(options.lossless)) {
-        this.options.jp2Lossless = options.lossless;
-      } else {
-        throw is_default.invalidParameterError("lossless", "boolean", options.lossless);
-      }
-    }
-    if (is_default.defined(options.tileWidth)) {
-      if (is_default.integer(options.tileWidth) && is_default.inRange(options.tileWidth, 1, 32768)) {
-        this.options.jp2TileWidth = options.tileWidth;
-      } else {
-        throw is_default.invalidParameterError("tileWidth", "integer between 1 and 32768", options.tileWidth);
-      }
-    }
-    if (is_default.defined(options.tileHeight)) {
-      if (is_default.integer(options.tileHeight) && is_default.inRange(options.tileHeight, 1, 32768)) {
-        this.options.jp2TileHeight = options.tileHeight;
-      } else {
-        throw is_default.invalidParameterError("tileHeight", "integer between 1 and 32768", options.tileHeight);
-      }
-    }
-    if (is_default.defined(options.chromaSubsampling)) {
-      if (is_default.string(options.chromaSubsampling) && is_default.inArray(options.chromaSubsampling, ["4:2:0", "4:4:4"])) {
-        this.options.jp2ChromaSubsampling = options.chromaSubsampling;
-      } else {
-        throw is_default.invalidParameterError("chromaSubsampling", "one of: 4:2:0, 4:4:4", options.chromaSubsampling);
-      }
-    }
-  }
-  return this._updateFormatOut("jp2", options);
-}
-function trySetAnimationOptions(source, target) {
-  if (is_default.object(source) && is_default.defined(source.loop)) {
-    if (is_default.integer(source.loop) && is_default.inRange(source.loop, 0, 65535)) {
-      target.loop = source.loop;
-    } else {
-      throw is_default.invalidParameterError("loop", "integer between 0 and 65535", source.loop);
-    }
-  }
-  if (is_default.object(source) && is_default.defined(source.delay)) {
-    if (is_default.integer(source.delay) && is_default.inRange(source.delay, 0, 65535)) {
-      target.delay = [source.delay];
-    } else if (Array.isArray(source.delay) && is_default.inRange(source.delay.length, 1, 1e6) && source.delay.every(is_default.integer) && source.delay.every((v2) => is_default.inRange(v2, 0, 65535))) {
-      target.delay = source.delay;
-    } else {
-      throw is_default.invalidParameterError("delay", "integer or an array of integers between 0 and 65535", source.delay);
-    }
-  }
-}
-function tiff(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.tiffQuality = options.quality;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    }
-    if (is_default.defined(options.bitdepth)) {
-      if (is_default.integer(options.bitdepth) && is_default.inArray(options.bitdepth, [1, 2, 4])) {
-        this.options.tiffBitdepth = options.bitdepth;
-      } else {
-        throw is_default.invalidParameterError("bitdepth", "1, 2 or 4", options.bitdepth);
-      }
-    }
-    if (is_default.defined(options.tile)) {
-      this._setBooleanOption("tiffTile", options.tile);
-    }
-    if (is_default.defined(options.tileWidth)) {
-      if (is_default.integer(options.tileWidth) && is_default.inRange(options.tileWidth, 1, 32768)) {
-        this.options.tiffTileWidth = options.tileWidth;
-      } else {
-        throw is_default.invalidParameterError("tileWidth", "integer between 1 and 32768", options.tileWidth);
-      }
-    }
-    if (is_default.defined(options.tileHeight)) {
-      if (is_default.integer(options.tileHeight) && is_default.inRange(options.tileHeight, 1, 32768)) {
-        this.options.tiffTileHeight = options.tileHeight;
-      } else {
-        throw is_default.invalidParameterError("tileHeight", "integer between 1 and 32768", options.tileHeight);
-      }
-    }
-    if (is_default.defined(options.miniswhite)) {
-      this._setBooleanOption("tiffMiniswhite", options.miniswhite);
-    }
-    if (is_default.defined(options.pyramid)) {
-      this._setBooleanOption("tiffPyramid", options.pyramid);
-    }
-    if (is_default.defined(options.xres)) {
-      if (is_default.number(options.xres) && is_default.inRange(options.xres, 1e-3, 1e6)) {
-        this.options.tiffXres = options.xres;
-      } else {
-        throw is_default.invalidParameterError("xres", "number between 0.001 and 1000000", options.xres);
-      }
-    }
-    if (is_default.defined(options.yres)) {
-      if (is_default.number(options.yres) && is_default.inRange(options.yres, 1e-3, 1e6)) {
-        this.options.tiffYres = options.yres;
-      } else {
-        throw is_default.invalidParameterError("yres", "number between 0.001 and 1000000", options.yres);
-      }
-    }
-    if (is_default.defined(options.compression)) {
-      if (is_default.string(options.compression) && is_default.inArray(options.compression, ["none", "jpeg", "deflate", "packbits", "ccittfax4", "lzw", "webp", "zstd", "jp2k"])) {
-        this.options.tiffCompression = options.compression;
-      } else {
-        throw is_default.invalidParameterError("compression", "one of: none, jpeg, deflate, packbits, ccittfax4, lzw, webp, zstd, jp2k", options.compression);
-      }
-    }
-    if (is_default.defined(options.bigtiff)) {
-      this._setBooleanOption("tiffBigtiff", options.bigtiff);
-    }
-    if (is_default.defined(options.predictor)) {
-      if (is_default.string(options.predictor) && is_default.inArray(options.predictor, ["none", "horizontal", "float"])) {
-        this.options.tiffPredictor = options.predictor;
-      } else {
-        throw is_default.invalidParameterError("predictor", "one of: none, horizontal, float", options.predictor);
-      }
-    }
-    if (is_default.defined(options.resolutionUnit)) {
-      if (is_default.string(options.resolutionUnit) && is_default.inArray(options.resolutionUnit, ["inch", "cm"])) {
-        this.options.tiffResolutionUnit = options.resolutionUnit;
-      } else {
-        throw is_default.invalidParameterError("resolutionUnit", "one of: inch, cm", options.resolutionUnit);
-      }
-    }
-  }
-  return this._updateFormatOut("tiff", options);
-}
-function avif(options) {
-  return this.heif({ ...options, compression: "av1" });
-}
-function heif(options) {
-  if (is_default.object(options)) {
-    if (is_default.string(options.compression) && is_default.inArray(options.compression, ["av1", "hevc"])) {
-      this.options.heifCompression = options.compression;
-    } else {
-      throw is_default.invalidParameterError("compression", "one of: av1, hevc", options.compression);
-    }
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.heifQuality = options.quality;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    }
-    if (is_default.defined(options.lossless)) {
-      if (is_default.bool(options.lossless)) {
-        this.options.heifLossless = options.lossless;
-      } else {
-        throw is_default.invalidParameterError("lossless", "boolean", options.lossless);
-      }
-    }
-    if (is_default.defined(options.effort)) {
-      if (is_default.integer(options.effort) && is_default.inRange(options.effort, 0, 9)) {
-        this.options.heifEffort = options.effort;
-      } else {
-        throw is_default.invalidParameterError("effort", "integer between 0 and 9", options.effort);
-      }
-    }
-    if (is_default.defined(options.chromaSubsampling)) {
-      if (is_default.string(options.chromaSubsampling) && is_default.inArray(options.chromaSubsampling, ["4:2:0", "4:4:4"])) {
-        this.options.heifChromaSubsampling = options.chromaSubsampling;
-      } else {
-        throw is_default.invalidParameterError("chromaSubsampling", "one of: 4:2:0, 4:4:4", options.chromaSubsampling);
-      }
-    }
-    if (is_default.defined(options.bitdepth)) {
-      if (is_default.integer(options.bitdepth) && is_default.inArray(options.bitdepth, [8, 10, 12])) {
-        this.options.heifBitdepth = options.bitdepth;
-      } else {
-        throw is_default.invalidParameterError("bitdepth", "8, 10 or 12", options.bitdepth);
-      }
-    }
-    if (is_default.defined(options.tune)) {
-      if (is_default.string(options.tune) && is_default.inArray(options.tune, ["auto", "iq", "psnr", "ssim"])) {
-        if (this.options.heifLossless && options.tune === "iq") {
-          this.options.heifTune = "ssim";
-        } else {
-          this.options.heifTune = options.tune;
-        }
-      } else {
-        throw is_default.invalidParameterError("tune", "one of: auto, iq, psnr, ssim", options.tune);
-      }
-    }
-  } else {
-    throw is_default.invalidParameterError("options", "Object", options);
-  }
-  return this._updateFormatOut("heif", options);
-}
-function jxl(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.quality)) {
-      if (is_default.integer(options.quality) && is_default.inRange(options.quality, 1, 100)) {
-        this.options.jxlDistance = options.quality >= 30 ? 0.1 + (100 - options.quality) * 0.09 : 53 / 3e3 * options.quality * options.quality - 23 / 20 * options.quality + 25;
-      } else {
-        throw is_default.invalidParameterError("quality", "integer between 1 and 100", options.quality);
-      }
-    } else if (is_default.defined(options.distance)) {
-      if (is_default.number(options.distance) && is_default.inRange(options.distance, 0, 15)) {
-        this.options.jxlDistance = options.distance;
-      } else {
-        throw is_default.invalidParameterError("distance", "number between 0.0 and 15.0", options.distance);
-      }
-    }
-    if (is_default.defined(options.decodingTier)) {
-      if (is_default.integer(options.decodingTier) && is_default.inRange(options.decodingTier, 0, 4)) {
-        this.options.jxlDecodingTier = options.decodingTier;
-      } else {
-        throw is_default.invalidParameterError("decodingTier", "integer between 0 and 4", options.decodingTier);
-      }
-    }
-    if (is_default.defined(options.lossless)) {
-      if (is_default.bool(options.lossless)) {
-        this.options.jxlLossless = options.lossless;
-      } else {
-        throw is_default.invalidParameterError("lossless", "boolean", options.lossless);
-      }
-    }
-    if (is_default.defined(options.effort)) {
-      if (is_default.integer(options.effort) && is_default.inRange(options.effort, 1, 9)) {
-        this.options.jxlEffort = options.effort;
-      } else {
-        throw is_default.invalidParameterError("effort", "integer between 1 and 9", options.effort);
-      }
-    }
-  }
-  trySetAnimationOptions(options, this.options);
-  return this._updateFormatOut("jxl", options);
-}
-function raw2(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.depth)) {
-      if (is_default.string(options.depth) && is_default.inArray(
-        options.depth,
-        ["char", "uchar", "short", "ushort", "int", "uint", "float", "complex", "double", "dpcomplex"]
-      )) {
-        this.options.rawDepth = options.depth;
-      } else {
-        throw is_default.invalidParameterError("depth", "one of: char, uchar, short, ushort, int, uint, float, complex, double, dpcomplex", options.depth);
-      }
-    }
-  }
-  return this._updateFormatOut("raw");
-}
-function tile(options) {
-  if (is_default.object(options)) {
-    if (is_default.defined(options.size)) {
-      if (is_default.integer(options.size) && is_default.inRange(options.size, 1, 8192)) {
-        this.options.tileSize = options.size;
-      } else {
-        throw is_default.invalidParameterError("size", "integer between 1 and 8192", options.size);
-      }
-    }
-    if (is_default.defined(options.overlap)) {
-      if (is_default.integer(options.overlap) && is_default.inRange(options.overlap, 0, 8192)) {
-        if (options.overlap > this.options.tileSize) {
-          throw is_default.invalidParameterError("overlap", `<= size (${this.options.tileSize})`, options.overlap);
-        }
-        this.options.tileOverlap = options.overlap;
-      } else {
-        throw is_default.invalidParameterError("overlap", "integer between 0 and 8192", options.overlap);
-      }
-    }
-    if (is_default.defined(options.container)) {
-      if (is_default.string(options.container) && is_default.inArray(options.container, ["fs", "zip"])) {
-        this.options.tileContainer = options.container;
-      } else {
-        throw is_default.invalidParameterError("container", "one of: fs, zip", options.container);
-      }
-    }
-    if (is_default.defined(options.layout)) {
-      if (is_default.string(options.layout) && is_default.inArray(options.layout, ["dz", "google", "iiif", "iiif3", "zoomify"])) {
-        this.options.tileLayout = options.layout;
-      } else {
-        throw is_default.invalidParameterError("layout", "one of: dz, google, iiif, iiif3, zoomify", options.layout);
-      }
-    }
-    if (is_default.defined(options.angle)) {
-      if (is_default.integer(options.angle) && !(options.angle % 90)) {
-        this.options.tileAngle = options.angle;
-      } else {
-        throw is_default.invalidParameterError("angle", "positive/negative multiple of 90", options.angle);
-      }
-    }
-    this._setBackgroundColourOption("tileBackground", options.background);
-    if (is_default.defined(options.depth)) {
-      if (is_default.string(options.depth) && is_default.inArray(options.depth, ["onepixel", "onetile", "one"])) {
-        this.options.tileDepth = options.depth;
-      } else {
-        throw is_default.invalidParameterError("depth", "one of: onepixel, onetile, one", options.depth);
-      }
-    }
-    if (is_default.defined(options.skipBlanks)) {
-      if (is_default.integer(options.skipBlanks) && is_default.inRange(options.skipBlanks, -1, 65535)) {
-        this.options.tileSkipBlanks = options.skipBlanks;
-      } else {
-        throw is_default.invalidParameterError("skipBlanks", "integer between -1 and 255/65535", options.skipBlanks);
-      }
-    } else if (is_default.defined(options.layout) && options.layout === "google") {
-      this.options.tileSkipBlanks = 5;
-    }
-    const centre = is_default.bool(options.center) ? options.center : options.centre;
-    if (is_default.defined(centre)) {
-      this._setBooleanOption("tileCentre", centre);
-    }
-    if (is_default.defined(options.id)) {
-      if (is_default.string(options.id)) {
-        this.options.tileId = options.id;
-      } else {
-        throw is_default.invalidParameterError("id", "string", options.id);
-      }
-    }
-    if (is_default.defined(options.basename)) {
-      if (is_default.string(options.basename)) {
-        this.options.tileBasename = options.basename;
-      } else {
-        throw is_default.invalidParameterError("basename", "string", options.basename);
-      }
-    }
-  }
-  if (is_default.inArray(this.options.formatOut, ["jpeg", "png", "webp"])) {
-    this.options.tileFormat = this.options.formatOut;
-  } else if (this.options.formatOut !== "input") {
-    throw is_default.invalidParameterError("format", "one of: jpeg, png, webp", this.options.formatOut);
-  }
-  return this._updateFormatOut("dz");
-}
-function timeout(options) {
-  if (!is_default.plainObject(options)) {
-    throw is_default.invalidParameterError("options", "object", options);
-  }
-  if (is_default.integer(options.seconds) && is_default.inRange(options.seconds, 0, 3600)) {
-    this.options.timeoutSeconds = options.seconds;
-  } else {
-    throw is_default.invalidParameterError("seconds", "integer between 0 and 3600", options.seconds);
-  }
-  return this;
-}
-function _updateFormatOut(formatOut, options) {
-  if (!(is_default.object(options) && options.force === false)) {
-    this.options.formatOut = formatOut;
-  }
-  return this;
-}
-function _setBooleanOption(key, val2) {
-  if (is_default.bool(val2)) {
-    this.options[key] = val2;
-  } else {
-    throw is_default.invalidParameterError(key, "boolean", val2);
-  }
-}
-function _read() {
-  if (!this.options.streamOut) {
-    this.options.streamOut = true;
-    const stack = Error();
-    this._pipeline(void 0, stack);
-  }
-}
-function _pipeline(callback, stack) {
-  if (typeof callback === "function") {
-    if (this._isStreamInput()) {
-      this._whenStreamInFinished(() => {
-        this._flattenBufferIn();
-        sharp_default.pipeline(this.options, (err, data2, info) => {
-          if (err) {
-            callback(is_default.nativeError(err, stack));
-          } else {
-            callback(null, data2, info);
-          }
-        });
-      });
-    } else {
-      sharp_default.pipeline(this.options, (err, data2, info) => {
-        if (err) {
-          callback(is_default.nativeError(err, stack));
-        } else {
-          callback(null, data2, info);
-        }
-      });
-    }
-    return this;
-  } else if (this.options.streamOut) {
-    if (this._isStreamInput()) {
-      this._whenStreamInFinished(() => {
-        this._flattenBufferIn();
-        sharp_default.pipeline(this.options, (err, data2, info) => {
-          if (err) {
-            this.emit("error", is_default.nativeError(err, stack));
-          } else {
-            this.emit("info", info);
-            this.push(data2);
-          }
-          this.push(null);
-          this.on("end", () => this.emit("close"));
-        });
-      });
-    } else {
-      sharp_default.pipeline(this.options, (err, data2, info) => {
-        if (err) {
-          this.emit("error", is_default.nativeError(err, stack));
-        } else {
-          this.emit("info", info);
-          this.push(data2);
-        }
-        this.push(null);
-        this.on("end", () => this.emit("close"));
-      });
-    }
-    return this;
-  } else {
-    if (this._isStreamInput()) {
-      return new Promise((resolve4, reject) => {
-        this._whenStreamInFinished(() => {
-          this._flattenBufferIn();
-          sharp_default.pipeline(this.options, (err, data2, info) => {
-            if (err) {
-              reject(is_default.nativeError(err, stack));
-            } else {
-              if (this.options.resolveWithObject) {
-                resolve4({ data: data2, info });
-              } else {
-                resolve4(data2);
-              }
-            }
-          });
-        });
-      });
-    } else {
-      return new Promise((resolve4, reject) => {
-        sharp_default.pipeline(this.options, (err, data2, info) => {
-          if (err) {
-            reject(is_default.nativeError(err, stack));
-          } else {
-            if (this.options.resolveWithObject) {
-              resolve4({ data: data2, info });
-            } else {
-              resolve4(data2);
-            }
-          }
-        });
-      });
-    }
-  }
-}
-var output_default = (Sharp2) => {
-  Object.assign(Sharp2.prototype, {
-    // Public
-    toFile,
-    toBuffer,
-    toUint8Array: toUint8Array2,
-    withDensity,
-    keepExif,
-    withExif,
-    withExifMerge,
-    keepIccProfile,
-    withIccProfile,
-    keepGainMap,
-    withGainMap,
-    keepXmp,
-    withXmp,
-    keepMetadata,
-    withMetadata,
-    toFormat,
-    jpeg,
-    jp2,
-    png,
-    webp,
-    tiff,
-    avif,
-    heif,
-    jxl,
-    gif,
-    raw: raw2,
-    tile,
-    timeout,
-    // Private
-    _updateFormatOut,
-    _setBooleanOption,
-    _read,
-    _pipeline
-  });
-};
-
-// node_modules/sharp/dist/utility.mjs
-var import_detect_libc3 = __toESM(require_detect_libc(), 1);
-import events from "node:events";
-import { createRequire as createRequire2 } from "node:module";
-import { availableParallelism } from "node:os";
-var require3 = createRequire2(import.meta.url);
-var runtimePlatform2 = libvips_default.runtimePlatformArch();
-var libvipsVersion = sharp_default.libvipsVersion();
-var format = sharp_default.format();
-format.heif.output.alias = ["avif", "heic"];
-format.jpeg.output.alias = ["jpe", "jpg"];
-format.tiff.output.alias = ["tif"];
-format.jp2.output.alias = ["j2c", "j2k", "jp2", "jpx"];
-var interpolators = {
-  /** [Nearest neighbour interpolation](http://en.wikipedia.org/wiki/Nearest-neighbor_interpolation). Suitable for image enlargement only. */
-  nearest: "nearest",
-  /** [Bilinear interpolation](http://en.wikipedia.org/wiki/Bilinear_interpolation). Faster than bicubic but with less smooth results. */
-  bilinear: "bilinear",
-  /** [Bicubic interpolation](http://en.wikipedia.org/wiki/Bicubic_interpolation) (the default). */
-  bicubic: "bicubic",
-  /** [LBB interpolation](https://github.com/libvips/libvips/blob/master/libvips/resample/lbb.cpp#L100). Prevents some "[acutance](http://en.wikipedia.org/wiki/Acutance)" but typically reduces performance by a factor of 2. */
-  locallyBoundedBicubic: "lbb",
-  /** [Nohalo interpolation](http://eprints.soton.ac.uk/268086/). Prevents acutance but typically reduces performance by a factor of 3. */
-  nohalo: "nohalo",
-  /** [VSQBS interpolation](https://github.com/libvips/libvips/blob/master/libvips/resample/vsqbs.cpp#L48). Prevents "staircasing" when enlarging. */
-  vertexSplitQuadraticBasisSpline: "vsqbs"
-};
-var versions = {
-  vips: libvipsVersion.semver
-};
-if (!libvipsVersion.isGlobal) {
-  if (!libvipsVersion.isWasm) {
-    try {
-      versions = require3(`@img/sharp-${runtimePlatform2}/versions`);
-    } catch (_2) {
-      try {
-        versions = require3(`@img/sharp-libvips-${runtimePlatform2}/versions`);
-      } catch (_3) {
-      }
-    }
-  } else {
-    try {
-      versions = require3("@img/sharp-wasm32/versions");
-    } catch (_2) {
-    }
-  }
-}
-versions.sharp = package_default.version;
-if (versions.heif && format.heif) {
-  format.heif.input.fileSuffix = [".avif"];
-  format.heif.output.alias = ["avif"];
-}
-function cache2(options) {
-  if (is_default.bool(options)) {
-    if (options) {
-      return sharp_default.cache(50, 20, 100);
-    } else {
-      return sharp_default.cache(0, 0, 0);
-    }
-  } else if (is_default.object(options)) {
-    for (const property of ["memory", "files", "items"]) {
-      const value = options[property];
-      if (is_default.defined(value) && !(is_default.integer(value) && value >= 0)) {
-        throw is_default.invalidParameterError(property, "a positive integer", value);
-      }
-    }
-    return sharp_default.cache(options.memory, options.files, options.items);
-  } else {
-    return sharp_default.cache();
-  }
-}
-cache2(true);
-function concurrency(concurrency2) {
-  return sharp_default.concurrency(is_default.integer(concurrency2) ? concurrency2 : null);
-}
-if (!process.env.MALLOC_ARENA_MAX && import_detect_libc3.default.familySync() === import_detect_libc3.default.GLIBC && !sharp_default._isUsingJemalloc()) {
-  sharp_default.concurrency(1);
-} else if (import_detect_libc3.default.familySync() === import_detect_libc3.default.MUSL && sharp_default.concurrency() === 1024) {
-  sharp_default.concurrency(availableParallelism());
-}
-var queue = new events.EventEmitter();
-function counters() {
-  return sharp_default.counters();
-}
-function simd(simd2) {
-  return sharp_default.simd(is_default.bool(simd2) ? simd2 : null);
-}
-function block(options) {
-  if (is_default.object(options)) {
-    if (Array.isArray(options.operation) && options.operation.every(is_default.string)) {
-      sharp_default.block(options.operation, true);
-    } else {
-      throw is_default.invalidParameterError("operation", "Array<string>", options.operation);
-    }
-  } else {
-    throw is_default.invalidParameterError("options", "object", options);
-  }
-}
-function unblock(options) {
-  if (is_default.object(options)) {
-    if (Array.isArray(options.operation) && options.operation.every(is_default.string)) {
-      sharp_default.block(options.operation, false);
-    } else {
-      throw is_default.invalidParameterError("operation", "Array<string>", options.operation);
-    }
-  } else {
-    throw is_default.invalidParameterError("options", "object", options);
-  }
-}
-var utility_default = (Sharp2) => {
-  Sharp2.cache = cache2;
-  Sharp2.concurrency = concurrency;
-  Sharp2.counters = counters;
-  Sharp2.simd = simd;
-  Sharp2.format = format;
-  Sharp2.interpolators = interpolators;
-  Sharp2.versions = versions;
-  Sharp2.queue = queue;
-  Sharp2.block = block;
-  Sharp2.unblock = unblock;
-};
-
-// node_modules/sharp/dist/index.mjs
-input_default(constructor_default);
-resize_default(constructor_default);
-composite_default(constructor_default);
-operation_default(constructor_default);
-colour_default(constructor_default);
-channel_default(constructor_default);
-output_default(constructor_default);
-utility_default(constructor_default);
-var dist_default = constructor_default;
+var sharp_edge_stub_default = sharp;
 
 // upstream/animaku/apps/server/src/lib/site-config.ts
 init_config();
@@ -58455,8 +50825,8 @@ function getSiteConfig() {
   const filePath = getSiteConfigFilePath();
   if (existsSync3(filePath)) {
     try {
-      const raw3 = readFileSync2(filePath, "utf8");
-      const parsed = JSON.parse(raw3);
+      const raw2 = readFileSync2(filePath, "utf8");
+      const parsed = JSON.parse(raw2);
       if (parsed && typeof parsed === "object") {
         let announcement = null;
         if (parsed.announcement && typeof parsed.announcement === "object") {
@@ -58665,7 +51035,7 @@ async function generateIconSuite(inputBuf) {
     if (bestEntry && bestEntry.offset + bestEntry.size <= inputBuf.length) {
       const data2 = inputBuf.subarray(bestEntry.offset, bestEntry.offset + bestEntry.size);
       if (data2[0] === 137 && data2[1] === 80 && data2[2] === 78 && data2[3] === 71) {
-        sourceImg = dist_default(data2);
+        sourceImg = sharp_edge_stub_default(data2);
       } else if (data2.length >= 40 && data2.readUInt32LE(0) === 40) {
         const biBitCount = data2.readUInt16LE(14);
         if (biBitCount === 32) {
@@ -58684,13 +51054,13 @@ async function generateIconSuite(inputBuf) {
               rawRgba[dstIdx + 3] = data2[srcIdx + 3];
             }
           }
-          sourceImg = dist_default(rawRgba, { raw: { width: w2, height: h2, channels: 4 } });
+          sourceImg = sharp_edge_stub_default(rawRgba, { raw: { width: w2, height: h2, channels: 4 } });
         }
       }
     }
   }
   if (!sourceImg) {
-    sourceImg = dist_default(inputBuf);
+    sourceImg = sharp_edge_stub_default(inputBuf);
   }
   sourceImg = sourceImg.rotate();
   async function renderVariant(size, opts = {}) {
@@ -58858,8 +51228,8 @@ function isValidHttpUrl(urlStr) {
     return false;
   }
 }
-function sanitizeWebOrContactUrl(raw3) {
-  const trimmed = raw3.trim();
+function sanitizeWebOrContactUrl(raw2) {
+  const trimmed = raw2.trim();
   if (!trimmed) return "";
   if (/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(trimmed)) {
     return trimmed;
@@ -59044,7 +51414,7 @@ adminSiteRoutes.post("/site/default-settings", async (c2) => {
 });
 adminSiteRoutes.post("/site/upload-icon", async (c2) => {
   try {
-    let buffer2;
+    let buffer;
     const contentType = c2.req.header("content-type") || "";
     if (contentType.includes("multipart/form-data")) {
       let file;
@@ -59059,25 +51429,25 @@ adminSiteRoutes.post("/site/upload-icon", async (c2) => {
         return c2.json({ ok: false, error: "\u672A\u627E\u5230\u4E0A\u4F20\u7684\u56FE\u6807\u6587\u4EF6 (file \u5B57\u6BB5)", message: "\u672A\u627E\u5230\u4E0A\u4F20\u7684\u56FE\u6807\u6587\u4EF6 (file \u5B57\u6BB5)" }, 400);
       }
       if (typeof file.arrayBuffer === "function") {
-        buffer2 = Buffer.from(await file.arrayBuffer());
+        buffer = Buffer.from(await file.arrayBuffer());
       } else if (typeof file === "string") {
-        buffer2 = Buffer.from(file, "utf8");
+        buffer = Buffer.from(file, "utf8");
       } else {
         return c2.json({ ok: false, error: "\u65E0\u6CD5\u89E3\u6790\u4E0A\u4F20\u7684\u6587\u4EF6\u5185\u5BB9", message: "\u65E0\u6CD5\u89E3\u6790\u4E0A\u4F20\u7684\u6587\u4EF6\u5185\u5BB9" }, 400);
       }
     } else {
       const ab = await c2.req.arrayBuffer();
-      buffer2 = Buffer.from(ab);
+      buffer = Buffer.from(ab);
     }
-    if (!buffer2 || buffer2.length === 0) {
+    if (!buffer || buffer.length === 0) {
       return c2.json({ ok: false, error: "\u4E0A\u4F20\u5185\u5BB9\u4E3A\u7A7A", message: "\u4E0A\u4F20\u5185\u5BB9\u4E3A\u7A7A" }, 400);
     }
-    const check = validateIconBuffer(buffer2);
+    const check = validateIconBuffer(buffer);
     if (!check.valid) {
       const errText = check.error || "\u975E\u6CD5\u56FE\u6807\u6587\u4EF6";
       return c2.json({ ok: false, error: errText, message: errText }, 400);
     }
-    await saveCustomFavicon(buffer2);
+    await saveCustomFavicon(buffer);
     const cfg = getSiteConfig();
     return c2.json({
       ok: true,
@@ -59219,7 +51589,7 @@ adminSiteRoutes.delete("/site/announcement-history/:id", (c2) => {
 });
 adminSiteRoutes.post("/site/upload-announcement-image", async (c2) => {
   try {
-    let buffer2;
+    let buffer;
     let originalName = "";
     const contentType = c2.req.header("content-type") || "";
     if (contentType.includes("multipart/form-data")) {
@@ -59238,26 +51608,26 @@ adminSiteRoutes.post("/site/upload-announcement-image", async (c2) => {
         );
       }
       if (typeof file.arrayBuffer === "function") {
-        buffer2 = Buffer.from(await file.arrayBuffer());
+        buffer = Buffer.from(await file.arrayBuffer());
         originalName = file.name || "";
       } else if (typeof file === "string") {
-        buffer2 = Buffer.from(file, "utf8");
+        buffer = Buffer.from(file, "utf8");
       } else {
         return c2.json({ ok: false, error: "\u65E0\u6CD5\u89E3\u6790\u4E0A\u4F20\u7684\u6587\u4EF6\u5185\u5BB9", message: "\u65E0\u6CD5\u89E3\u6790\u4E0A\u4F20\u7684\u6587\u4EF6\u5185\u5BB9" }, 400);
       }
     } else {
       const ab = await c2.req.arrayBuffer();
-      buffer2 = Buffer.from(ab);
+      buffer = Buffer.from(ab);
     }
-    if (!buffer2 || buffer2.length === 0) {
+    if (!buffer || buffer.length === 0) {
       return c2.json({ ok: false, error: "\u4E0A\u4F20\u5185\u5BB9\u4E3A\u7A7A", message: "\u4E0A\u4F20\u5185\u5BB9\u4E3A\u7A7A" }, 400);
     }
-    const check = validateAnnouncementImageBuffer(buffer2);
+    const check = validateAnnouncementImageBuffer(buffer);
     if (!check.valid) {
       const errText = check.error || "\u975E\u6CD5\u56FE\u7247\u6587\u4EF6";
       return c2.json({ ok: false, error: errText, message: errText }, 400);
     }
-    const imageUrl = saveAnnouncementImage(buffer2, check.ext);
+    const imageUrl = saveAnnouncementImage(buffer, check.ext);
     return c2.json({
       ok: true,
       imageUrl,
@@ -59270,8 +51640,8 @@ adminSiteRoutes.post("/site/upload-announcement-image", async (c2) => {
 });
 adminSiteRoutes.get("/stats/daily", (c2) => {
   const date = c2.req.query("date");
-  const stats2 = watchStatsRepo.getDailyStats(date);
-  return c2.json(stats2);
+  const stats = watchStatsRepo.getDailyStats(date);
+  return c2.json(stats);
 });
 adminSiteRoutes.get("/site/nav-links", (c2) => {
   const cfg = getSiteConfig();
@@ -59351,21 +51721,21 @@ var analyticsRoutes = new Hono3();
 analyticsRoutes.post("/track", async (c2) => {
   let payload;
   try {
-    const raw3 = await c2.req.text();
-    if (raw3.length > MAX_BODY) return c2.json({ error: "too_large" }, 413);
-    payload = JSON.parse(raw3);
+    const raw2 = await c2.req.text();
+    if (raw2.length > MAX_BODY) return c2.json({ error: "too_large" }, 413);
+    payload = JSON.parse(raw2);
   } catch {
     return c2.json({ error: "bad_json" }, 400);
   }
-  const events2 = Array.isArray(payload) ? payload : [payload];
-  if (events2.length === 0 || events2.length > 100) {
+  const events = Array.isArray(payload) ? payload : [payload];
+  if (events.length === 0 || events.length > 100) {
     return c2.json({ error: "bad_count" }, 400);
   }
   const store3 = (0, import_pages_blob.getStore)(STORE);
   const now = Date.now();
   let written = 0;
-  for (let i2 = 0; i2 < events2.length; i2++) {
-    const e2 = events2[i2] || {};
+  for (let i2 = 0; i2 < events.length; i2++) {
+    const e2 = events[i2] || {};
     const clean = {};
     for (const f2 of FIELDS) {
       if (e2[f2] !== void 0 && e2[f2] !== null) clean[f2] = sanitize(e2[f2]);
@@ -59513,26 +51883,6 @@ var edge_index_default = app;
 export {
   edge_index_default as default
 };
-/*! Bundled license information:
-
-sharp/dist/is.mjs:
-sharp/dist/libvips.mjs:
-sharp/dist/sharp.mjs:
-sharp/dist/constructor.mjs:
-sharp/dist/input.mjs:
-sharp/dist/resize.mjs:
-sharp/dist/composite.mjs:
-sharp/dist/operation.mjs:
-sharp/dist/colour.mjs:
-sharp/dist/channel.mjs:
-sharp/dist/output.mjs:
-sharp/dist/utility.mjs:
-sharp/dist/index.mjs:
-  (*!
-    Copyright 2013 Lovell Fuller and others.
-    SPDX-License-Identifier: Apache-2.0
-  *)
-*/
 
 // EdgeOne entry adapter (injected by build-edge.mjs)
 export function onRequest(context) {

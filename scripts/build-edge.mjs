@@ -64,6 +64,9 @@ await build({
     // cheerio 顶层 import undici，真实 undici 的 CJS 在 EdgeOne 生产 bundle 下崩。
     // Animaku 只用 cheerio.load()，从不调 fromURL，stub 掉 undici 即可。
     'undici': undiciStub,
+    // sharp 原生模块（libvips）在 EdgeOne 云构建下无 linux-x64 二进制，加载即崩。
+    // 只用于管理后台生成 favicon，非核心链路，stub 掉保证函数不崩。
+    'sharp': path.join(root, 'runtime/sharp-edge-stub.ts'),
   },
   // CJS 依赖（cheerio/opencc 等）运行时调用 require("buffer")，
   // ESM 输出注入 createRequire 否则报 "Dynamic require of buffer is not supported"
