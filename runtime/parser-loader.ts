@@ -27,9 +27,14 @@ async function loadParsers(): Promise<ParserModule | null> {
 
   loading = (async () => {
     try {
-      // 同域 fetch（EdgeOne 函数内可用相对 URL 需基于 request，这里用环境域名兜底）
-      const base = (globalThis as any).__ANIMAKU_ORIGIN__ || 'https://anime.map987.dpdns.org'
-      const res = await fetch(new URL(PARSERS_URL, base).toString())
+      // 优先用当前请求的真实 origin（由 edge-index 中间件注入），不写死域名。
+      // 兜底顺序：全局 origin → 环境变量 → 相对路径（运行时多数支持）。
+      const base =
+        (globalThis as any).__ANIMAKU_ORIGIN__ ||
+        (globalThis as any).__ANIMAKU_PARSERS_ORIGIN__ ||
+        ''
+      const url = base ? new URL(PARSERS_URL, base).toString() : PARSERS_URL
+      const res = await fetch(url)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const code = await res.text()
       const m = { exports: {} as ParserModule }

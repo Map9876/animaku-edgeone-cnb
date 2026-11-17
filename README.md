@@ -10,6 +10,26 @@
 
 ---
 
+## 一键部署到 EdgeOne
+
+把下面链接里的 `REPOSITORY_URL` 换成你的仓库地址，浏览器打开即可在 EdgeOne 导入部署：
+
+```
+https://edgeone.ai/pages/new?repository-url=<REPOSITORY_URL>
+```
+
+- **在 CNB 看到此仓库**：用 CNB 仓库地址，例如
+  `https://edgeone.ai/pages/new?repository-url=https://cnb.cool/kfc50/animaku-edgeone`
+- **在 GitHub 看到此仓库**：用 GitHub 仓库地址，例如
+  `https://edgeone.ai/pages/new?repository-url=https://github.com/Map9876/Animaku-edgeone`
+
+部署要点：
+- 框架预设选 **Other**，根目录 `./`，输出目录 `./`（静态文件在项目根 + `public/`）
+- 项目类型选 **绑定仓库**（Cnb / GitHub），不要"上传静态包"——这样才能触发 CI 自更新
+- Maven/Node 构建由仓库 `.cnb.yml`（CNB）或 EdgeOne 构建配置负责
+
+---
+
 ## 目录
 
 1. [在线地址](#在线地址)
@@ -291,3 +311,40 @@ git push origin HEAD:main        # CI 自动构建 + webhook → EdgeOne
 - **哪里破局（终止循环）？** 同脚本第 28 行 `git diff --cached --quiet`——第二次构建发现产物没变化，直接 `exit 0`，不 commit 不 push，链条就断了。再加 `[skip ci]` 双保险。
 
 **一句话**：第一次 push 是"点火"，CI 拉新源码→重新打包→**自己把成果 push 回去**（这是破局的 push 点），第二次 CI 发现没变化就停。整个链条自运转，你只点火一次。
+
+---
+
+## FAQ（常见误解澄清）
+
+### Q: parsers.cjs 是存 blob 吗？每次刷新都要读 blob 会变慢吗？
+A: **不是存 blob，是静态文件**（`public/resolvers/parsers.cjs`），由 EdgeOne 静态托管，走 HTTP。
+而且函数内有**模块级内存缓存**：第一次请求 fetch 一次，之后缓存有效期内（TTL）的请求直接从内存读，
+零网络开销。不是"每次刷新都下载 3MB"。
+
+### Q: "10 分钟"是什么意思？每 10 分钟浏览器下载一次 3MB？
+A: 不是浏览器下载，是**服务端函数内的缓存 TTL**（`TTL_MS = 10 * 60 * 1000`）。
+含义：EdgeOne 函数实例内缓存解析模块 10 分钟，10 分钟后下次请求才重新 fetch 一次 parsers.cjs。
+浏览器完全不参与下载——浏览器只发普通搜索请求，解析代码加载在服务端完成。
+
+### Q: 冷启动会不会每次都下载 3MB 变慢？
+A: 函数实例被回收后，新实例第一次请求确实要 fetch 一次 3MB。低流量时可能较明显。
+优化方向：① 把 parsers.cjs 换成 gzip 压缩托管（3MB→约 600KB）；
+② 或改成按源拆包（只加载当前搜索的源）。当前实现优先保证"完整内核 + 可热更新"，性能可接受。
+
+### Q: 还需要额外自动化更新 kimiyi/xifan 等各源吗？
+A: **不需要单独做**。所有源的解析代码（16 个）都打进同一个 `parsers.cjs`，
+所有源的规则 JSON（17 个）都在 `rules-store` 里。上游 Animaku 一更新，
+CI 重新打包 → parsers.cjs 和规则一起更新。我们不需要针对单个源写单独更新逻辑。
+"面板加载的来源是多个"——是的，但这些源都从同一个 bundle / 同一个规则包读，统一更新。
+
+### Q: 完整的服务端内核已经这样了吗？
+A: 是的。Animaku 服务端的全部 Hono 路由（bangumi/danmaku/source/plugin/media/stats/site/admin）
+都打包进 `cloud-functions/api/[[default]].js`，在 EdgeOne Node 运行时跑。
+前端是 Animaku 原版 Vite 构建产物 + 我们的注入层。统计走 Blob，解析热更新走 rules-store + parser-loader。
+线上验证：首页、SPA 路由、全部 API、静态资源均 200。
+
+### Q: 为什么 origin 不写死了？
+A: 之前写死 `anime.map987.dpdns.org` 是为了"所有人共享我们的最新 parsers.cjs"。
+现改为从**当前请求 URL** 动态取 origin（中间件注入 `globalThis.__ANIMAKU_ORIGIN__`），
+这样别人部署在自己的域名下也能加载**自己仓库里的** parsers.cjs，不依赖我们在线。
+代价：别人的 parsers.cjs 随他们自己的仓库版本走；要更新需他们重新部署（或接我们的 CI）。

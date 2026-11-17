@@ -39,6 +39,16 @@ try {
 
 const app = new Hono()
 
+// 把当前请求的真实 origin 暴露给全局，供 parser-loader 加载同域静态 parsers.cjs。
+// 这样不写死域名 —— 别人部署在自己的域名下也能加载自己的 parsers.cjs。
+app.use('*', async (c, next) => {
+  try {
+    const u = new URL(c.req.url)
+    ;(globalThis as any).__ANIMAKU_ORIGIN__ = `${u.protocol}//${u.host}`
+  } catch (e) {}
+  await next()
+})
+
 // 结构化访问日志 + IP 限流（无状态下限流为 no-op）
 app.use('*', accessLogger())
 app.use('*', ipAccessAndRateLimit())
