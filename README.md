@@ -136,6 +136,13 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
   （17 个源）写入 Blob，TTL 1 小时。**上游源码零改动**（内存字符串替换，不动 submodule 文件）。
 - 效果：前端即使传来过时规则，服务端也用 GitHub 最新的同名规则覆盖后再解析。
 
+**边界（重要，别误以为全部能自更新）**：Animaku 解析分两层——
+- **搜索/章节层**（JSON 数据：`searchURL`/`searchList` XPath 等）→ 上述机制能自更新 ✅
+- **播放链接 resolve 层**（TS 代码：AES-256-GCM 解密、challenge 等，在 `lib/*.ts`）→ **不能靠 JSON 更新**，编译进 bundle，需重新打包 ❌
+
+所以"规则自更新"准确说是**搜索/章节层自更新**；别人想让播放解析也更新，必须绑仓库走 CI（而非上传静态包），
+我们仓库已支持这套 `.cnb.yml` + webhook 能力。详见 `docs/规则同步边界与自更新完整方案.md`。
+
 **验证**：生产环境传 `baseURL: https://WRONG.invalid/` 的残缺规则搜「咒术回战」→
 返回稀饭网正确结果（4 条）→ 证明覆盖生效；`/api/__rules` 显示 Blob 有 17 条规则。
 
@@ -144,6 +151,9 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
 - `docs/P2-给上游的协议入口提案.md`：给 Animaku 上游的 PR 提案（需要的协议入口）。
 - `docs/Git三方合并与PR协作.md`：给上游提 PR 时，别人也在同时改为什么不会冲突——
   三方合并 / 共同祖先 / 补丁加减 / 同步上游流程。
+- `docs/规则同步边界与自更新完整方案.md`：两层解析（搜索 JSON / 播放解密 TS）、
+  我们同步了哪层、别人如何完整自更新（绑仓库走 CI）。
+- `docs/给原作者的issue-规则路径协议.md`：请求作者保持规则 JSON 路径/字段稳定的 issue 正文。
 - `docs/自行循环学习流程.md`：通过该域名自查看、自迭代、自监督的闭环理念。
 
 ---
