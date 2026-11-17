@@ -71,7 +71,14 @@ export async function dynamicSearch(rule: any, keyword: string): Promise<any | u
   const fn = Object.values(fns).find((f) => /^search/i.test(f.name || '') && typeof f === 'function')
   if (!fn) return undefined
   try {
-    return await fn(rule, keyword)
+    const result = await fn(rule, keyword)
+    // 打来源标记，便于验证"动态 TS 解析"确实生效（而非内置回退）
+    if (result && typeof result === 'object' && Array.isArray(result.diagnostics)) {
+      result.diagnostics.push('[parser-loader:remote]')
+    } else if (result && typeof result === 'object') {
+      result._parser = 'remote'
+    }
+    return result
   } catch (e) {
     console.warn('[parser-loader] dynamic search failed:', (e as Error).message)
     return undefined

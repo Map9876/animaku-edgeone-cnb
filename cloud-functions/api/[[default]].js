@@ -46118,7 +46118,13 @@ async function dynamicSearch(rule, keyword) {
   const fn2 = Object.values(fns).find((f2) => /^search/i.test(f2.name || "") && typeof f2 === "function");
   if (!fn2) return void 0;
   try {
-    return await fn2(rule, keyword);
+    const result = await fn2(rule, keyword);
+    if (result && typeof result === "object" && Array.isArray(result.diagnostics)) {
+      result.diagnostics.push("[parser-loader:remote]");
+    } else if (result && typeof result === "object") {
+      result._parser = "remote";
+    }
+    return result;
   } catch (e2) {
     console.warn("[parser-loader] dynamic search failed:", e2.message);
     return void 0;
