@@ -2,3 +2,5 @@ node_modules/
 .git/
 .edgeone/
 *.log
+
+*.mp4
