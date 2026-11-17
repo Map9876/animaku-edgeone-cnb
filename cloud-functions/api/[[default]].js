@@ -46047,6 +46047,17 @@ async function debugRules() {
     return { ok: false, reason: e2.message };
   }
 }
+async function debugResolve(name2) {
+  const rules = await loadRules();
+  const key = name2.toLowerCase();
+  const fresh = rules[key];
+  return {
+    key,
+    found: !!fresh,
+    keys: Object.keys(rules).slice(0, 30),
+    fresh: fresh ? { name: fresh.name, hasSearchURL: !!fresh.searchURL, baseURL: fresh.baseURL } : null
+  };
+}
 async function resolveRuleFromStore(raw2) {
   const incoming = raw2 && typeof raw2 === "object" ? raw2 : {};
   const name2 = String(incoming.name || incoming.id || "").toLowerCase();
@@ -52020,7 +52031,10 @@ app.get(
     ts: Date.now()
   })
 );
-app.get("/api/__rules", async (c2) => c2.json(await debugRules()));
+app.get("/api/__rules", async (c2) => c2.json({
+  blob: await debugRules(),
+  resolveBimi: await debugResolve("bimi")
+}));
 app.route("/api", analyticsRoutes);
 app.route("/api/bangumi", bangumiRoutes);
 app.route("/api/danmaku", danmakuRoutes);

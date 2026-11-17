@@ -98,6 +98,19 @@ export async function debugRules(): Promise<Record<string, unknown>> {
   }
 }
 
+/** 诊断：给定规则名，返回 resolveRuleFromStore 会用来覆盖的规则 */
+export async function debugResolve(name: string): Promise<Record<string, unknown>> {
+  const rules = await loadRules()
+  const key = name.toLowerCase()
+  const fresh = rules[key]
+  return {
+    key,
+    found: !!fresh,
+    keys: Object.keys(rules).slice(0, 30),
+    fresh: fresh ? { name: fresh.name, hasSearchURL: !!fresh.searchURL, baseURL: fresh.baseURL } : null,
+  }
+}
+
 export async function resolveRuleFromStore(raw: unknown): Promise<Rule> {
   const incoming = (raw && typeof raw === 'object') ? raw as Rule : {}
   const name = String(incoming.name || incoming.id || '').toLowerCase()
