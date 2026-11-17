@@ -1,8 +1,7 @@
 /**
  * 构建后处理：把 EdgeOne 注入层的配置和脚本注入 Animaku 的 index.html。
- *
- * 在 pnpm 构建 web 并把 dist/* 复制到项目根后运行 `node scripts/inject-into-html.mjs`。
- * 幂等：重复运行不会重复插入。
+ * 在 pnpm 构建 web 并把 dist/* 复制后运行 `node scripts/inject-into-html.mjs`。
+ * 幂等：重复运行不会重复插入。同时处理根目录与 public/ 两份（EdgeOne 静态根可能是任一）。
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
@@ -10,19 +9,14 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
-const htmlPath = path.join(root, 'index.html')
+const targets = [
+  path.join(root, 'index.html'),
+  path.join(root, 'public', 'index.html'),
+].filter((p) => existsSync(p))
 
-if (!existsSync(htmlPath)) {
+if (targets.length === 0) {
   console.error('index.html 不存在，请先构建 web 并复制 dist')
   process.exit(1)
-}
-
-let html = readFileSync(htmlPath, 'utf8')
-
-// 已注入则跳过（幂等）
-if (html.includes('__ANIMAKU_CONFIG__')) {
-  console.log('已注入过，跳过')
-  process.exit(0)
 }
 
 // 部署开关：默认全开，可通过环境变量覆盖
@@ -45,6 +39,13 @@ const injectBlock = `
     <!-- ===== /注入层 ===== -->
 `
 
-html = html.replace('</head>', injectBlock + '\n  </head>')
-writeFileSync(htmlPath, html, 'utf8')
-console.log('✅ 注入完成：', cfg)
+for (const htmlPath of targets) {
+  let html = readFileSync(htmlPath, 'utf8')
+  if (html.includes('__ANIMAKU_CONFIG__')) {
+    console.log('已注入过，跳过:', path.relative(root, htmlPath))
+    continue
+  }
+  html = html.replace('</head>', injectBlock + '\n  </head>')
+  writeFileSync(htmlPath, html, 'utf8')
+  console.log('✅ 注入完成:', path.relative(root, htmlPath), cfg)
+}

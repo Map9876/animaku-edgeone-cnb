@@ -11,6 +11,7 @@ git add -A -- \
   'index.html' \
   'assets' \
   'inject' \
+  'public' \
   'upstream/animaku' \
   'robots.txt' \
   'sitemap.xml' \
