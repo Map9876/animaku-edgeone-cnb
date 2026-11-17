@@ -122,6 +122,23 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
 
 详见文末附录问答原话。
 
+### 7. 规则自更新（别人部署也能自动更新源规则）
+
+**问题**：Animaku 的源规则（`default-plugins/*.json`，含 searchURL/searchList XPath 等解析逻辑）
+在编译时固化进 bundle。我们开发者有 CI 自动 `submodule update` 更新，但**别人一键部署静态包后
+规则就冻结了**。
+
+**方案**（构建期注入 + 运行时 Blob 缓存，单层、前端零改动）：
+- `scripts/build-edge.mjs` 的 `injectRuleStore` 钩子在构建时把 `routes/plugin.ts` 的
+  `parseRuleOrThrow` 改成 async，优先调 `resolveRuleFromStore`（我们自己的 `runtime/rules-store.ts`）。
+- `resolveRuleFromStore`：按规则 name 从 EdgeOne Blob（`animaku-rules/rules.json`）读最新规则；
+  Blob 无/过期则 fetch `raw.githubusercontent.com/uerax/Animaku/master/.../default-plugins/*.json`
+  （17 个源）写入 Blob，TTL 1 小时。**上游源码零改动**（内存字符串替换，不动 submodule 文件）。
+- 效果：前端即使传来过时规则，服务端也用 GitHub 最新的同名规则覆盖后再解析。
+
+**验证**：生产环境传 `baseURL: https://WRONG.invalid/` 的残缺规则搜「咒术回战」→
+返回稀饭网正确结果（4 条）→ 证明覆盖生效；`/api/__rules` 显示 Blob 有 17 条规则。
+
 ### 相关文档
 
 - `docs/P2-给上游的协议入口提案.md`：给 Animaku 上游的 PR 提案（需要的协议入口）。
