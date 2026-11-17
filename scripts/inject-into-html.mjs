@@ -21,9 +21,9 @@ if (targets.length === 0) {
 
 // 部署开关：默认全开，可通过环境变量覆盖
 const cfg = {
-  frontTheme: process.env.VITE_FRONT_THEME || 'on',
   gitSync: process.env.VITE_GIT_SYNC || 'on',
   autoRefresh: process.env.VITE_AUTO_REFRESH || 'on',
+  bottomNav: process.env.VITE_BOTTOM_NAV || 'on',
   trackStats: process.env.VITE_TRACK_STATS || 'on',
   trackEndpoint: process.env.VITE_TRACK_ENDPOINT || '/api/track',
 }

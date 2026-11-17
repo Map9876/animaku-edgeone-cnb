@@ -1,9 +1,9 @@
 # Animaku EdgeOne
 
-> **在线网站：https://anime.map987.dpdns.org**
+> **在线网站：https://anime.map987.dpdns.org/**
 
 把 [uerax/Animaku](https://github.com/uerax/Animaku) 全栈部署到 EdgeOne Pages（Node 运行时），
-不改上游源码（git submodule + 注入层），叠加 UI 风格切换、访问统计、定时从 GitHub 更新等功能，
+不改上游源码（git submodule + 注入层），叠加访问统计、定时从 GitHub 更新、移动端底部五栏等功能，
 并通过 CNB CI 实现"上游更新 → 自动重新打包 → 自动部署"的自循环。
 
 线上已实测全绿：首页、SPA 路由（`/subject/:id` 等）、全部 API、静态资源、统计端点均 200。
@@ -99,8 +99,10 @@ stub 是平台限制下的适配——EdgeOne 报错路径 `file:///var/user/ind
 
 ### 4. 注入层（`inject/`）
 
-- `ui-inject.js`：白色 switch / design 风格按钮切换；设置页"定时从 GitHub 更新"on/off 开关
-  （开关左侧刷新图标，点击展示 3 秒"立即刷新"）；多源失败静默重试 1 次、反复才提示；移动端底部五栏。
+- `ui-inject.js`：设置页"定时从 GitHub 更新"on/off 开关（开关左侧刷新图标，点击展示 3 秒
+  "立即刷新"）；多源失败静默重试 1 次、反复才提示；移动端底部五栏。
+- **设计风格一致性**：所有注入 UI 沿用"定时从 GitHub 更新 / 自动同步源规则与界面；关闭则暂停"
+  这套——左侧标题+副标题、右侧 on/off 胶囊开关、开关左侧刷新图标，与 Animaku 原生 Switch 组件统一。
 - 依赖 `window.__ANIMAKU_CONFIG__` 开关（`FRONT_THEME=ON` 等），由 `scripts/inject-into-html.mjs` 注入 index.html。
 
 ### 5. SPA fallback（`middleware.js`）
@@ -189,7 +191,7 @@ git push origin HEAD:main        # CI 自动构建 + webhook → EdgeOne
 | 证书 | SAN 含 `anime.map987.dpdns.org` |
 
 浏览器验证：agent-browser 打开 `/subject/269235`，React 完整挂载（天气之子详情、选集、视频源、
-番剧推荐），注入层"白色风格"开关可见。截图：`docs/线上验证-subject269235.png`。
+番剧推荐），注入的设置页开关与底部五栏正常。截图：`docs/线上验证-subject269235.png`。
 
 ---
 

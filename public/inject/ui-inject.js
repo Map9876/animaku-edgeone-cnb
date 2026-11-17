@@ -2,11 +2,14 @@
  * Animaku UI 注入层（非侵入，配套 docs/P2 协议入口提案）
  *
  * 功能：
- *  1) 白色 switch 风格 / design 风格按钮切换（写 data-theme + 注入 CSS token）
- *  2) 设置页「定时从 GitHub 更新」面板：左侧文字 + 右侧 on/off 开关，
+ *  1) 设置页「定时从 GitHub 更新」面板：左侧文字 + 右侧 on/off 开关，
  *     开关左边一个刷新(loading)符号，点击后展示 3 秒「立即刷新」
- *  3) 多源加载失败 → 自动刷新（用户心理学：静默重试 1 次，反复才提示）
- *  4) 导航增强：底部五栏（首页/排行榜/个人…）移动端拇指热区适配
+ *  2) 多源加载失败 → 自动刷新（用户心理学：静默重试 1 次，反复才提示）
+ *  3) 导航增强：底部五栏（首页/排行榜/个人…）移动端拇指热区适配
+ *
+ * 设计风格一致性：所有注入 UI 沿用「定时从 GitHub 更新 / 自动同步源规则与界面；
+ * 关闭则暂停」这一套——左侧标题 + 副标题说明、右侧 on/off 胶囊开关、
+ * 开关左侧刷新图标，统一字号/圆角/间距/配色，与 Animaku 原生 Switch 组件一致。
  *
  * 依赖 window.__ANIMAKU_CONFIG__ 与 window.__ANIMAKU_HOOKS__（见 P2 提案）。
  * 无 hooks 时自动降级为 DOM 注入 + 事件监听，不强依赖上游。
@@ -15,46 +18,17 @@
   'use strict'
 
   var CFG = window.__ANIMAKU_CONFIG__ || {}
-  var UI_ON = String(CFG.frontTheme || '').toLowerCase() === 'on'
   var SYNC_ON = String(CFG.gitSync || '').toLowerCase() === 'on'
   var AUTO_REFRESH = String(CFG.autoRefresh || '').toLowerCase() === 'on'
+  // 底部五栏默认开启，可用 VITE_BOTTOM_NAV=off 关闭
+  var BOTTOM_NAV = String(CFG.bottomNav === undefined ? 'on' : CFG.bottomNav).toLowerCase() !== 'off'
 
-  if (!UI_ON && !SYNC_ON && !AUTO_REFRESH) return
+  if (!SYNC_ON && !AUTO_REFRESH && !BOTTOM_NAV) return
 
-  // ---------- 1) 主题 CSS token（白色 switch 风格 + design 风格）----------
+  // ---------- 1) 注入样式（统一设计风格）----------
   function injectThemeCSS() {
     var css = `
-/* ===== Animaku EdgeOne 注入主题 ===== */
-html[data-theme='kz-white'] {
-  --kz-bg:#ffffff; --kz-bg-elevated:#ffffff; --kz-bg-card:#ffffff;
-  --kz-bg-soft:#f7f8fa; --kz-bg-hover:#eef0f3;
-  --kz-fg:#1a1d21; --kz-fg-muted:#6b7280;
-  --kz-border:#e5e7eb; --kz-border-subtle:#f0f1f3;
-  --kz-accent:#2563eb; --kz-accent-hover:#1d4ed8;
-  --kz-accent-soft:rgba(37,99,235,.1); --kz-accent-fg:#ffffff;
-  color-scheme:light;
-}
-html[data-theme='kz-design'] {
-  --kz-bg:#fafafa; --kz-bg-elevated:#ffffff; --kz-bg-card:#ffffff;
-  --kz-bg-soft:#f4f4f5; --kz-bg-hover:#e8e8ea;
-  --kz-fg:#18181b; --kz-fg-muted:#71717a;
-  --kz-border:#e4e4e7; --kz-border-subtle:#f4f4f5;
-  --kz-accent:#7c3aed; --kz-accent-hover:#6d28d9;
-  --kz-accent-soft:rgba(124,58,237,.1); --kz-accent-fg:#ffffff;
-  color-scheme:light;
-}
-/* 风格切换按钮：白色 switch 胶囊（参考 Animaku 自带 Switch 组件风格）*/
-.ae-style-switch{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9998;
-  display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;
-  background:var(--kz-bg-elevated);border:1px solid var(--kz-border);
-  box-shadow:0 4px 18px rgba(0,0,0,.14);color:var(--kz-fg);font-size:12px;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;user-select:none}
-.ae-style-switch .track{width:44px;height:26px;border-radius:999px;background:var(--kz-border);
-  position:relative;transition:background .2s;flex:none}
-.ae-style-switch .thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
-  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
-.ae-style-switch[data-on='1'] .track{background:var(--kz-accent)}
-.ae-style-switch[data-on='1'] .thumb{transform:translateX(18px)}
+/* ===== Animaku EdgeOne 注入样式（与设置页开关风格一致）===== */
 /* 设置页 Git 同步面板 */
 .ae-git-panel{display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:12px 14px;border-radius:12px;background:var(--kz-bg-card);
@@ -68,7 +42,7 @@ html[data-theme='kz-design'] {
   transition:transform .2s;-webkit-tap-highlight-color:transparent}
 .ae-refresh.spin{animation:ae-spin .8s linear infinite;color:var(--kz-accent)}
 @keyframes ae-spin{to{transform:rotate(360deg)}}
-/* on/off 开关 */
+/* on/off 开关（与 Animaku 原生 Switch 风格一致）*/
 .ae-switch{width:44px;height:26px;border-radius:999px;background:var(--kz-border);position:relative;
   cursor:pointer;transition:background .2s;flex:none;-webkit-tap-highlight-color:transparent}
 .ae-switch[data-on='1']{background:var(--kz-accent)}
@@ -97,37 +71,7 @@ html[data-theme='kz-design'] {
     ;(document.head || document.documentElement).appendChild(s)
   }
 
-  // ---------- 2) 风格切换按钮 ----------
-  function addStyleSwitch() {
-    if (document.getElementById('ae-style-switch')) return
-    var btn = document.createElement('div')
-    btn.id = 'ae-style-switch'
-    var on = document.documentElement.getAttribute('data-theme') === 'kz-white' ? '1' : '0'
-    btn.className = 'ae-style-switch'
-    btn.setAttribute('data-on', on)
-    btn.innerHTML = '<span class="track"><span class="thumb"></span></span><span class="lbl">白色风格</span>'
-    btn.addEventListener('click', function () {
-      var now = btn.getAttribute('data-on') === '1' ? '0' : '1'
-      btn.setAttribute('data-on', now)
-      applyTheme(now === '1' ? 'kz-white' : 'kz-design')
-    })
-    document.body.appendChild(btn)
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme)
-    try {
-      // 同步 Animaku zustand store（若上游暴露）
-      var stores = window.__ANIMAKU_STORES__ || {}
-      if (stores.settings && stores.settings.getState) {
-        var st = stores.settings.getState()
-        if (st.setTheme) st.setTheme(theme === 'kz-white' ? 'light' : 'dark')
-      }
-    } catch (e) {}
-    try { localStorage.setItem('ae_theme', theme) } catch (e) {}
-  }
-
-  // ---------- 3) 设置页 Git 同步面板 ----------
+  // ---------- 2) 设置页 Git 同步面板 ----------
   function addGitPanel() {
     if (!SYNC_ON || document.getElementById('ae-git-panel')) return
     // 优先注入到上游预留容器
@@ -193,7 +137,7 @@ html[data-theme='kz-design'] {
     toastTimer = setTimeout(function () { t.classList.remove('show') }, 3000)
   }
 
-  // ---------- 4) 多源失败自动刷新 ----------
+  // ---------- 3) 多源失败自动刷新 ----------
   function setupAutoRefresh() {
     if (!AUTO_REFRESH) return
     var hooks = (window.__ANIMAKU_HOOKS__ = window.__ANIMAKU_HOOKS__ || {})
@@ -225,9 +169,9 @@ html[data-theme='kz-design'] {
     }
   }
 
-  // ---------- 5) 移动端底部五栏 ----------
+  // ---------- 4) 移动端底部五栏 ----------
   function addBottomNav() {
-    if (document.getElementById('ae-bottom-nav')) return
+    if (!BOTTOM_NAV || document.getElementById('ae-bottom-nav')) return
     var nav = document.createElement('nav')
     nav.id = 'ae-bottom-nav'
     nav.className = 'ae-bottom-nav'
@@ -249,14 +193,7 @@ html[data-theme='kz-design'] {
   // ---------- 初始化 ----------
   function init() {
     injectThemeCSS()
-    // 恢复上次主题
-    try {
-      var saved = localStorage.getItem('ae_theme')
-      if (saved === 'kz-white' || saved === 'kz-design') {
-        document.documentElement.setAttribute('data-theme', saved)
-      }
-    } catch (e) {}
-    if (UI_ON) { addStyleSwitch(); addBottomNav() }
+    addBottomNav()
     if (SYNC_ON) addGitPanel()
     setupAutoRefresh()
   }
