@@ -136,15 +136,22 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
   （17 个源）写入 Blob，TTL 1 小时。**上游源码零改动**（内存字符串替换，不动 submodule 文件）。
 - 效果：前端即使传来过时规则，服务端也用 GitHub 最新的同名规则覆盖后再解析。
 
-**边界（重要，别误以为全部能自更新）**：Animaku 解析分两层——
-- **搜索/章节层**（JSON 数据：`searchURL`/`searchList` XPath 等）→ 上述机制能自更新 ✅
-- **播放链接 resolve 层**（TS 代码：AES-256-GCM 解密、challenge 等，在 `lib/*.ts`）→ **不能靠 JSON 更新**，编译进 bundle，需重新打包 ❌
+**两层都能自更新**（Animaku 解析分两层，我们两层都做了热更新）：
+- **A 搜索/章节层**（JSON 数据：`searchURL`/`searchList` XPath 等）→ `rules-store` fetch GitHub JSON 存 Blob ✅
+- **B 播放解析层**（TS 代码：AES-256-GCM 解密、challenge 等，在 `lib/*.ts`）→ 见下方第 8 节
+  `TS 解析代码远程同步`，打包成 cjs + 运行时 `new Function` 加载，也能热更新 ✅
 
-所以"规则自更新"准确说是**搜索/章节层自更新**；别人想让播放解析也更新，必须绑仓库走 CI（而非上传静态包），
-我们仓库已支持这套 `.cnb.yml` + webhook 能力。详见 `docs/规则同步边界与自更新完整方案.md`。
+**验证**：生产环境传过时规则搜「咒术回战」→ 返回 4 条结果且 diagnostics 含 `[parser-loader:remote]`
+→ 证明动态 TS 解析器生效；`/api/__rules` 显示 Blob 17 条规则，`/api/__parsers` 显示 16 源加载成功。
 
-**验证**：生产环境传 `baseURL: https://WRONG.invalid/` 的残缺规则搜「咒术回战」→
-返回稀饭网正确结果（4 条）→ 证明覆盖生效；`/api/__rules` 显示 Blob 有 17 条规则。
+### 8. TS 解析代码远程同步（B 层热更新，"强行实现"）
+
+上面第 7 节只覆盖 A 层（JSON）。B 层——播放链接解析的 TS 代码（AES 解密等）——
+通过 `scripts/build-resolvers.mjs` 打包成 `resolvers/parsers.cjs`（3.2MB，16 源），部署为静态资源；
+运行时 `runtime/parser-loader.ts` 写死 fetch `https://anime.map987.dpdns.org/resolvers/parsers.cjs`
+→ `new Function(require,module,exports,code)` 加载 → 按 rule.name 找源函数覆盖内置解析。
+别人旧部署也来 fetch 我们这个 URL，所以**我们的 parsers.cjs 一更新，所有部署自动拿到新解析代码**。
+上游源码依旧零改动（esbuild 内存打包）。详见 `docs/TS解析代码远程同步.md`。
 
 ### 相关文档
 
@@ -154,6 +161,7 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
 - `docs/规则同步边界与自更新完整方案.md`：两层解析（搜索 JSON / 播放解密 TS）、
   我们同步了哪层、别人如何完整自更新（绑仓库走 CI）。
 - `docs/给原作者的issue-规则路径协议.md`：请求作者保持规则 JSON 路径/字段稳定的 issue 正文。
+- `docs/TS解析代码远程同步.md`：B 层（播放解密 TS 代码）打包 cjs + new Function 热更新的完整方案。
 - `docs/自行循环学习流程.md`：通过该域名自查看、自迭代、自监督的闭环理念。
 
 ---
