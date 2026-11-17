@@ -122,6 +122,13 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
 
 详见文末附录问答原话。
 
+### 相关文档
+
+- `docs/P2-给上游的协议入口提案.md`：给 Animaku 上游的 PR 提案（需要的协议入口）。
+- `docs/Git三方合并与PR协作.md`：给上游提 PR 时，别人也在同时改为什么不会冲突——
+  三方合并 / 共同祖先 / 补丁加减 / 同步上游流程。
+- `docs/自行循环学习流程.md`：通过该域名自查看、自迭代、自监督的闭环理念。
+
 ---
 
 ## 自监督性开发：用 agent-browser 做网络调试与截图
