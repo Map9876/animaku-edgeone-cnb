@@ -57,48 +57,42 @@
   background:rgba(24,24,27,.92);color:#fff;font-size:13px;white-space:nowrap;
   box-shadow:0 6px 24px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s}
 .ae-toast.show{opacity:1}
-/* 移动端底部五栏：半透明圆角胶囊悬浮（参考稀饭/B站），可隐藏 */
-.ae-bottom-nav{position:fixed;left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));
-  z-index:9997;display:none;align-items:center;justify-content:space-around;
-  height:56px;padding:0 10px;border-radius:999px;
-  background:color-mix(in srgb,var(--kz-bg-elevated) 72%,transparent);
-  backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
-  border:1px solid color-mix(in srgb,var(--kz-border) 60%,transparent);
-  box-shadow:0 6px 28px rgba(0,0,0,.18);transition:transform .28s ease,opacity .28s ease}
-.ae-bottom-nav.hidden{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
-.ae-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  flex:1;height:44px;font-size:10px;color:var(--kz-fg-muted);text-decoration:none;
-  border-radius:999px;transition:color .15s,background .15s}
-.ae-bottom-nav a.active{color:var(--kz-accent)}
-.ae-bottom-nav .ic{font-size:19px;line-height:1}
-/* 中间凸起主按钮（参考B站 +）*/
-.ae-bottom-nav a.ae-main{flex:0 0 46px;width:46px;height:46px;margin-top:-16px;
-  background:var(--kz-accent);color:#fff;border-radius:50%;
-  box-shadow:0 4px 14px color-mix(in srgb,var(--kz-accent) 45%,transparent)}
-.ae-bottom-nav a.ae-main .ic{font-size:24px;line-height:46px}
-/* 显示/隐藏胶囊的小把手（贴在胶囊上沿中央）*/
+/* ===== 底部导航：逐字复刻 next.xifanacg.com 原站编译产物（2026-11-18 抓取）=====
+   原站 <nav aria-label="移动导航"> 的真实 class + computed style + SVG path。
+   brand 原站实测 #cd7083；胶囊圆角 24px / bg 不透明度 .9 / blur 24px / min-h 4rem / gap 1 / p 1.5。 */
+.ae-xf-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;padding-left:.75rem;padding-right:.75rem;
+  padding-bottom:calc(.75rem + env(safe-area-inset-bottom));display:none;transition:transform .28s,opacity .28s}
+.ae-xf-nav>div{margin-left:auto;margin-right:auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:.25rem;min-height:4rem;max-width:520px;border-radius:1.5rem;
+  border:1px solid color-mix(in oklab,#fff 50%,transparent);
+  background:color-mix(in oklab,#fff 90%,transparent);
+  box-shadow:0 18px 46px -24px rgba(0,0,0,.52),0 0 0 1px color-mix(in oklab,#fff 50%,transparent);
+  padding:.375rem;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.ae-xf-nav a{position:relative;display:flex;min-height:3rem;min-width:0;flex-direction:column;
+  align-items:center;justify-content:center;gap:.25rem;border-radius:1.125rem;padding-left:.25rem;padding-right:.25rem;
+  font-size:11px;font-weight:500;line-height:1;text-decoration:none;
+  color:color-mix(in oklch,#141416 70%,transparent);transition:color .15s,transform .15s}
+.ae-xf-nav a:active{transform:scale(.97)}
+.ae-xf-nav a.ae-active{color:#cd7083}
+.ae-xf-nav a.ae-active>span.ae-bg{position:absolute;inset:0;border-radius:1.125rem;
+  background:color-mix(in oklch,#cd7083 14%,transparent);
+  box-shadow:0 10px 24px -18px #cd7083;
+  border:1px solid color-mix(in oklch,#cd7083 18%,transparent)}
+.ae-xf-nav svg{position:relative;width:1.25rem;height:1.25rem;flex-shrink:0;fill:currentColor;
+  transition:transform .15s}
+.ae-xf-nav a.ae-active svg{transform:scale(1.05);
+  filter:drop-shadow(0 6px 10px color-mix(in oklch,#cd7083 24%,transparent))}
+.ae-xf-nav a:not(.ae-active):hover svg{transform:translateY(-2px)}
+.ae-xf-nav a>span.ae-label{position:relative;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ae-xf-nav.hidden{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
 .ae-nav-toggle{position:fixed;left:50%;transform:translateX(-50%);
-  bottom:calc(76px + env(safe-area-inset-bottom));z-index:9996;
+  bottom:calc(84px + env(safe-area-inset-bottom));z-index:49;
   font-size:10px;color:var(--kz-fg-muted);background:color-mix(in srgb,var(--kz-bg-elevated) 70%,transparent);
   border:1px solid var(--kz-border);border-radius:999px;padding:2px 10px;cursor:pointer;
   opacity:0;transition:opacity .25s;-webkit-tap-highlight-color:transparent}
-.ae-bottom-nav:hover ~ .ae-nav-toggle,.ae-nav-toggle.show{opacity:1}
-@media(max-width:640px){.ae-bottom-nav{display:flex}}
-
-/* ===== 紧凑信息密度（AI 项目通病：卡片间距/分类空白过大）=====
-   只覆盖间距类原子样式，不改布局结构、不碰上游源码。
-   用 VITE_COMPACT=off 可关闭。 */
-html[data-ae-compact='on'] main .space-y-14 > * + *,
-html[data-ae-compact='on'] main .space-y-12 > * + *{margin-top:14px !important}
-html[data-ae-compact='on'] main .space-y-14,
-html[data-ae-compact='on'] main .space-y-12{--tw-space-y-reverse:0}
-html[data-ae-compact='on'] main [class*='mb-5']{margin-bottom:10px !important}
-html[data-ae-compact='on'] main [class*='mb-4']{margin-bottom:8px !important}
-html[data-ae-compact='on'] main [class*='gap-3']{gap:8px !important}
-html[data-ae-compact='on'] main [class*='gap-4']{gap:10px !important}
-html[data-ae-compact='on'] main [class*='py-8']{padding-top:14px !important;padding-bottom:14px !important}
-html[data-ae-compact='on'] main [class*='py-6']{padding-top:10px !important;padding-bottom:10px !important}
-html[data-ae-compact='on'] main [class*='py-10']{padding-top:16px !important;padding-bottom:16px !important}
+.ae-nav-toggle.show{opacity:1}
+@media(min-width:1024px){.ae-xf-nav{display:none}}
+@media(max-width:1023px){.ae-xf-nav{display:block}}
 `
     var s = document.createElement('style')
     s.id = 'ae-inject-style'
@@ -204,37 +198,48 @@ html[data-ae-compact='on'] main [class*='py-10']{padding-top:16px !important;pad
     }
   }
 
-  // ---------- 4) 移动端底部胶囊导航（半透明悬浮，可隐藏）----------
+  // ---------- 4) 底部导航：逐字复刻原站 HTML + SVG（只映射 href）----------
+  function svgIcon(path) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" ' +
+      'viewBox="0 0 256 256" aria-hidden="true"><path d="' + path + '"></path></svg>'
+  }
   function addBottomNav() {
-    if (!BOTTOM_NAV || document.getElementById('ae-bottom-nav')) return
+    if (!BOTTOM_NAV || document.getElementById('ae-xf-nav')) return
     var nav = document.createElement('nav')
-    nav.id = 'ae-bottom-nav'
-    nav.className = 'ae-bottom-nav'
-    // 中间第 3 项是凸起主按钮（追番），参考 B站 的「+」
+    nav.id = 'ae-xf-nav'
+    nav.className = 'ae-xf-nav'
+    nav.setAttribute('aria-label', '移动导航')
+    // 5 项：label / href（映射到 Animaku 路由）/ 原站 SVG path，逐字抄
+    // 原站入口: 首页 / 排行榜 / 周表 / 最近更新 / 我的
     var items = [
-      { href: '/', ic: '⌂', label: '首页', path: '/', main: false },
-      { href: '/anime', ic: '▦', label: '排行榜', path: '/anime', main: false },
-      { href: '/collect', ic: '☆', label: '追番', path: '/collect', main: true },
-      { href: '/timeline', ic: '▤', label: '时间表', path: '/timeline', main: false },
-      { href: '/settings', ic: '☰', label: '我的', path: '/settings', main: false },
+      { label: '首页', href: '/', path: '/',
+        svg: 'M224,120v96a8,8,0,0,1-8,8H160a8,8,0,0,1-8-8V164a4,4,0,0,0-4-4H108a4,4,0,0,0-4,4v52a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V120a16,16,0,0,1,4.69-11.31l80-80a16,16,0,0,1,22.62,0l80,80A16,16,0,0,1,224,120Z' },
+      { label: '排行榜', href: '/anime', path: '/anime',
+        svg: 'M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Zm-72-64v56h40V144ZM96,200h64V56H96Zm-56,0H80V104H40Z' },
+      { label: '周表', href: '/timeline', path: '/timeline',
+        svg: 'M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z' },
+      { label: '最近更新', href: '/timeline', path: '/timeline',
+        svg: 'M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm88-24a8,8,0,0,0-8,8V82c-6.35-7.36-12.83-14.45-20.12-21.83a96,96,0,1,0-2,137.7,8,8,0,0,0-11-11.64A80,80,0,1,1,184.54,71.4C192.68,79.64,199.81,87.58,207,96H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,224,56Z' },
+      { label: '我的', href: '/settings', path: '/settings',
+        svg: 'M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z' },
     ]
     var p = location.pathname
-    nav.innerHTML = items.map(function (it) {
-      var active = p === it.path ? ' active' : ''
-      var cls = [active, it.main ? 'ae-main' : ''].filter(Boolean).join(' ')
-      return '<a href="' + it.href + '" class="' + cls + '"><span class="ic">' + it.ic + '</span>' +
-        (it.main ? '' : it.label) + '</a>'
-    }).join('')
-    // 恢复隐藏状态
+    var inner = '<div>'
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i]
+      var active = p === it.path ? ' ae-active' : ''
+      inner += '<a class="group' + active + '" href="' + it.href + '">' +
+        (active ? '<span class="ae-bg" aria-hidden="true"></span>' : '') +
+        svgIcon(it.svg) + '<span class="ae-label">' + it.label + '</span></a>'
+    }
+    nav.innerHTML = inner + '</div>'
     if (localStorage.getItem('ae_nav_hidden') === '1') nav.classList.add('hidden')
-    // 双击胶囊切换显示/隐藏
     nav.addEventListener('dblclick', function () {
       var hidden = nav.classList.toggle('hidden')
       localStorage.setItem('ae_nav_hidden', hidden ? '1' : '0')
     })
     document.body.appendChild(nav)
 
-    // 显示/隐藏小把手：长按或点击切换（桌面端也能用）
     var toggle = document.createElement('button')
     toggle.className = 'ae-nav-toggle'
     toggle.textContent = '导航栏'
@@ -244,7 +249,6 @@ html[data-ae-compact='on'] main [class*='py-10']{padding-top:16px !important;pad
       localStorage.setItem('ae_nav_hidden', hidden ? '1' : '0')
     })
     document.body.appendChild(toggle)
-    // 鼠标靠近底部时显示把手
     document.addEventListener('mousemove', function (e) {
       if (e.clientY > window.innerHeight - 90) toggle.classList.add('show')
       else toggle.classList.remove('show')
