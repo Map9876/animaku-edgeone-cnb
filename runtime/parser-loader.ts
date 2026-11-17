@@ -67,8 +67,9 @@ async function getSourceFns(name: string): Promise<Record<string, (...a: any[]) 
 export async function dynamicSearch(rule: any, keyword: string): Promise<any | undefined> {
   const fns = await getSourceFns(String(rule?.name || rule?.id || ''))
   if (!fns) return undefined
-  // 找 search 开头的函数
-  const fn = Object.values(fns).find((f) => /^search/i.test(f.name || '') && typeof f === 'function')
+  // 按导出键名找函数（minify 会改函数名，但 cjs 导出键保留）
+  const entry = Object.entries(fns).find(([k, f]) => /^search/i.test(k) && typeof f === 'function')
+  const fn = entry?.[1]
   if (!fn) return undefined
   try {
     const result = await fn(rule, keyword)
@@ -88,7 +89,8 @@ export async function dynamicSearch(rule: any, keyword: string): Promise<any | u
 export async function dynamicChapters(rule: any, source: string): Promise<any | undefined> {
   const fns = await getSourceFns(String(rule?.name || rule?.id || ''))
   if (!fns) return undefined
-  const fn = Object.values(fns).find((f) => /^chapters/i.test(f.name || '') && typeof f === 'function')
+  const entry = Object.entries(fns).find(([k, f]) => /^chapters/i.test(k) && typeof f === 'function')
+  const fn = entry?.[1]
   if (!fn) return undefined
   try { return await fn(rule, source) } catch { return undefined }
 }
@@ -96,7 +98,8 @@ export async function dynamicChapters(rule: any, source: string): Promise<any | 
 export async function dynamicResolve(rule: any, pageUrl: string): Promise<any | undefined> {
   const fns = await getSourceFns(String(rule?.name || rule?.id || ''))
   if (!fns) return undefined
-  const fn = Object.values(fns).find((f) => /^resolve/i.test(f.name || '') && typeof f === 'function')
+  const entry = Object.entries(fns).find(([k, f]) => /^resolve/i.test(k) && typeof f === 'function')
+  const fn = entry?.[1]
   if (!fn) return undefined
   try { return await fn(rule, pageUrl) } catch { return undefined }
 }
