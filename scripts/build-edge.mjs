@@ -10,11 +10,36 @@
  */
 import { build } from 'esbuild'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
 const animaku = path.resolve(root, 'upstream/animaku')
+const privateHostEdge = path.join(root, 'runtime/private-host-edge.ts')
+const privateHostEdgeSrc = readFileSync(privateHostEdge, 'utf8')
+const outboundProxyEdge = path.join(root, 'runtime/outbound-proxy-edge.ts')
+const outboundProxyEdgeSrc = readFileSync(outboundProxyEdge, 'utf8')
+const undiciStub = path.join(root, 'runtime/undici-edge-stub.ts')
+
+// 用原生 fetch 版替换 private-host.ts / outbound-proxy.ts（undici 在 EdgeOne 生产 bundle 下
+// 顶层加载即崩溃：decompress.js "reading 'bind'"）。彻底切断 undici 依赖。
+// onResolve 标记 edge-stub namespace，onLoad 提供 stub 内容，避免被 alias 二次解析回原文件。
+const replaceUndiciModules = {
+  name: 'replace-undici-modules',
+  setup(b) {
+    b.onResolve({ filter: /private-host$/ }, () => ({
+      path: 'private-host-edge-stub', namespace: 'edge-stub',
+    }))
+    b.onResolve({ filter: /outbound-proxy$/ }, () => ({
+      path: 'outbound-proxy-edge-stub', namespace: 'edge-stub',
+    }))
+    b.onLoad({ filter: /.*/, namespace: 'edge-stub' }, (args) => ({
+      contents: args.path.includes('outbound') ? outboundProxyEdgeSrc : privateHostEdgeSrc,
+      loader: 'ts', resolveDir: root,
+    }))
+  },
+}
 
 await build({
   entryPoints: [path.join(root, 'runtime/edge-index.ts')],
@@ -31,10 +56,14 @@ await build({
   // 源码在 upstream/animaku/，但依赖装在我们的 node_modules，
   // 让 esbuild 从项目根解析 bare import
   nodePaths: [path.join(root, 'node_modules')],
+  plugins: [replaceUndiciModules],
   alias: {
     'node:sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
     'sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
     '@animaku/shared': path.join(animaku, 'packages/shared/src/index.ts'),
+    // cheerio 顶层 import undici，真实 undici 的 CJS 在 EdgeOne 生产 bundle 下崩。
+    // Animaku 只用 cheerio.load()，从不调 fromURL，stub 掉 undici 即可。
+    'undici': undiciStub,
   },
   // CJS 依赖（cheerio/opencc 等）运行时调用 require("buffer")，
   // ESM 输出注入 createRequire 否则报 "Dynamic require of buffer is not supported"
