@@ -140,6 +140,15 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
 → `build-edge.mjs` → `sync-web.mjs` → `inject-into-html.mjs` → `ci-commit-artifacts.sh`（有变化才 commit+push 回仓库）
 → webhook 通知 EdgeOne。防循环：`git diff --cached --quiet` 无变化则停 + `[skip ci]` 双保险。
 
+**CI 构建工具链（2026-11-18 修复）**：上游 Animaku 要求 `pnpm@9.15.0` + `node>=22`。
+之前 CI 用 `node:20` 且没装 pnpm，`sync-web.mjs` 的 `pnpm install` 报 `pnpm: not found`，
+被 catch 静默吞掉 → 一直用仓库里旧的 v1.30.2 前端产物， submodule 虽已更新到 v1.30.5 但前端不动。
+修复三处：① `.cnb.yml` 镜像改 `node:22` + `corepack prepare pnpm@9.15.0`；
+② 加 `node scripts/build-resolvers.mjs` 让 parsers.cjs 随上游解析代码重建；
+③ `sync-web.mjs` 构建失败/submodule 缺失改为 `process.exit(1)` 显式失败，不再静默用旧 dist。
+修复后 CI 日志确认 `✓ built in 6.19s` + web 同步完成，线上前端更新到 **v1.30.5**（`index-Bc_G3Bx0.js`），
+注入层（胶囊底栏/Git 面板）实测完好。
+
 详见文末附录问答原话。
 
 ### 7. 规则自更新（别人部署也能自动更新源规则）
