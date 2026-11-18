@@ -191,6 +191,10 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
   我们同步了哪层、别人如何完整自更新（绑仓库走 CI）。
 - `docs/给原作者的issue-规则路径协议.md`：请求作者保持规则 JSON 路径/字段稳定的 issue 正文。
 - `docs/TS解析代码远程同步.md`：B 层（播放解密 TS 代码）打包 cjs + new Function 热更新的完整方案。
+- `docs/排行榜与统计体系决策.md`：排行榜数据源从 SQLite 适配到 Blob、三类数据区分、
+  为什么先打通自有访问数据而非爬源站播放量（P0 已完成）。
+- `docs/源站榜单需求-稀饭Next.md`：给 bangumi-rank 项目的需求——接入稀饭弹幕榜/周热榜，
+  抓取方式（JSON-LD 内联）与不要评分榜的原因。
 - `docs/自行循环学习流程.md`：通过该域名自查看、自迭代、自监督的闭环理念。
 
 ---
