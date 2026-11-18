@@ -42932,7 +42932,7 @@ var WatchStatsRepository = class {
    * deduplicating within a 10-minute sliding window to ensure ultra-low overhead (<0.1ms).
    */
   recordDeviceActive(params) {
-    const { deviceId, clientIp, fingerprint } = params;
+    const { deviceId, clientIp, fingerprint, deviceType } = params;
     if (!deviceId || typeof deviceId !== "string") {
       return { success: false, deduped: false };
     }
@@ -42961,9 +42961,13 @@ var WatchStatsRepository = class {
       if (fingerprint && !existingDev.fingerprint) {
         existingDev.fingerprint = fingerprint;
       }
+      if (deviceType) {
+        existingDev.deviceType = deviceType;
+      }
     } else {
       this.pendingDevices.set(cleanDeviceId, {
         fingerprint,
+        deviceType: deviceType || "desktop",
         lastIp: clientIp || "127.0.0.1",
         lastSeenAt: now,
         playIncrement: 0
@@ -42980,7 +42984,7 @@ var WatchStatsRepository = class {
    * Execution is completely non-blocking and executes in < 0.2ms with 0 database I/O.
    */
   recordPlayView(params) {
-    const { deviceId, bangumiId, episode, fingerprint, clientIp } = params;
+    const { deviceId, bangumiId, episode, fingerprint, clientIp, deviceType } = params;
     if (!Number.isFinite(bangumiId) || bangumiId <= 0 || !deviceId) {
       return { success: false, deduped: false, totalPlayCount: 0 };
     }
@@ -43026,9 +43030,13 @@ var WatchStatsRepository = class {
       if (fingerprint && !existingDev.fingerprint) {
         existingDev.fingerprint = fingerprint;
       }
+      if (deviceType) {
+        existingDev.deviceType = deviceType;
+      }
     } else {
       this.pendingDevices.set(cleanDeviceId, {
         fingerprint,
+        deviceType: deviceType || "desktop",
         lastIp: clientIp || "127.0.0.1",
         lastSeenAt: now,
         lastPlayedAt: now,
@@ -43092,10 +43100,11 @@ var WatchStatsRepository = class {
       if (devicesToFlush.size > 0) {
         const deviceUpsert = prepareStatement(`
           INSERT INTO devices (
-            device_id, fingerprint, first_seen_at, last_seen_at, last_played_at, last_ip, total_plays
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            device_id, fingerprint, device_type, first_seen_at, last_seen_at, last_played_at, last_ip, total_plays
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(device_id) DO UPDATE SET
             fingerprint = COALESCE(excluded.fingerprint, devices.fingerprint),
+            device_type = COALESCE(excluded.device_type, devices.device_type),
             last_seen_at = excluded.last_seen_at,
             last_played_at = COALESCE(excluded.last_played_at, devices.last_played_at),
             last_ip = excluded.last_ip,
@@ -43105,6 +43114,7 @@ var WatchStatsRepository = class {
           deviceUpsert.run(
             devId,
             update2.fingerprint || null,
+            update2.deviceType || "desktop",
             update2.lastSeenAt,
             update2.lastSeenAt,
             update2.lastPlayedAt || null,
@@ -43145,23 +43155,26 @@ var WatchStatsRepository = class {
         const todayStartMs = this.getTodayStartTimestamp(now);
         const dauRow = db.prepare("SELECT COUNT(*) as c FROM devices WHERE last_seen_at >= ?;").get(todayStartMs);
         const playDevRow = db.prepare("SELECT COUNT(*) as c FROM devices WHERE last_played_at >= ?;").get(todayStartMs);
+        const mobileDevRow = db.prepare("SELECT COUNT(*) as c FROM devices WHERE last_seen_at >= ? AND device_type = 'mobile';").get(todayStartMs);
         const newDevRow = db.prepare("SELECT COUNT(*) as c FROM devices WHERE first_seen_at >= ?;").get(todayStartMs);
         const viewsRow = db.prepare("SELECT SUM(views) as s FROM anime_daily_views WHERE date = ?;").get(todayStr);
         const dau = Number(dauRow?.c || 0);
         const playDevices = Number(playDevRow?.c || 0);
+        const mobileDevices = Number(mobileDevRow?.c || 0);
         const newDevices = Number(newDevRow?.c || 0);
         const totalViews = Number(viewsRow?.s || 0);
         const dailyStatsUpsert = prepareStatement(`
-          INSERT INTO daily_active_stats (date, dau, play_devices, new_devices, total_views, updated_at)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO daily_active_stats (date, dau, play_devices, mobile_devices, new_devices, total_views, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           ON CONFLICT(date) DO UPDATE SET
             dau = excluded.dau,
             play_devices = excluded.play_devices,
+            mobile_devices = excluded.mobile_devices,
             new_devices = excluded.new_devices,
             total_views = excluded.total_views,
             updated_at = excluded.updated_at;
         `);
-        dailyStatsUpsert.run(todayStr, dau, playDevices, newDevices, totalViews, now);
+        dailyStatsUpsert.run(todayStr, dau, playDevices, mobileDevices, newDevices, totalViews, now);
       } catch (err) {
         console.error("[db:watch-stats] daily_active_stats update error:", err);
       }
@@ -43211,7 +43224,7 @@ var WatchStatsRepository = class {
   }
   /**
    * Retrieve ranked top played anime bangumi IDs across different timeframes.
-   * Supports 'today' (1 day), 'week' (7 days), 'month' (30 days), 'total' (all-time).
+   * Supports 'today' (2 days: yesterday + today), 'week' (7 days), 'month' (30 days), 'total' (all-time).
    */
   getTopRankings(type = "total", limit = 20) {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
@@ -43227,15 +43240,16 @@ var WatchStatsRepository = class {
     try {
       let results = [];
       if (type === "today") {
-        const todayStr = getLocalTodayDateStr(now);
+        const startDate = this.getDateDaysAgo(1, now);
         const stmt = prepareStatement(`
-          SELECT bangumi_id, views as total_views
+          SELECT bangumi_id, SUM(views) as total_views
           FROM anime_daily_views
-          WHERE date = ?
-          ORDER BY views DESC
+          WHERE date >= ?
+          GROUP BY bangumi_id
+          ORDER BY total_views DESC
           LIMIT ?;
         `);
-        const rows = stmt.all(todayStr, safeLimit);
+        const rows = stmt.all(startDate, safeLimit);
         results = rows.map((r2) => ({
           bangumiId: Number(r2.bangumi_id),
           totalPlayCount: Number(r2.total_views)
@@ -43349,20 +43363,33 @@ var WatchStatsRepository = class {
         this.flushSync();
       }
       const db = getDatabase();
-      const targetRow = db.prepare("SELECT dau, play_devices, new_devices, total_views, updated_at FROM daily_active_stats WHERE date = ?;").get(safeDate);
+      const targetRow = db.prepare("SELECT dau, play_devices, mobile_devices, new_devices, total_views, updated_at FROM daily_active_stats WHERE date = ?;").get(safeDate);
       const dau = Number(targetRow?.dau || 0);
       const rawPlay = Number(targetRow?.play_devices || 0);
       const totalViews = Number(targetRow?.total_views || 0);
       const playDevices = rawPlay > 0 ? rawPlay : totalViews > 0 ? dau : 0;
       const newDevices = Number(targetRow?.new_devices || 0);
       const updatedAt = Number(targetRow?.updated_at || now);
+      let mobileDevices = Number(targetRow?.mobile_devices || 0);
+      if (isToday) {
+        const todayStartMs = this.getTodayStartTimestamp(now);
+        const mobileDevRow = db.prepare("SELECT COUNT(*) as c FROM devices WHERE last_seen_at >= ? AND device_type = 'mobile';").get(todayStartMs);
+        mobileDevices = Number(mobileDevRow?.c || 0);
+      }
+      const desktopDevices = Math.max(0, dau - mobileDevices);
+      const mobileRatio = dau > 0 ? Number((mobileDevices / dau * 100).toFixed(1)) : 0;
+      const deviceBreakdown = {
+        mobile: mobileDevices,
+        desktop: desktopDevices,
+        mobileRatio
+      };
       const hitsRow = db.prepare("SELECT SUM(today_hits) as s FROM ip_access_logs WHERE last_date = ?;").get(safeDate);
       const todayHits = Number(hitsRow?.s || 0);
       const devTotalRow = db.prepare("SELECT COUNT(*) as c FROM devices;").get();
       const totalDevices = Number(devTotalRow?.c || 0);
       const startTrendDate = this.getDateDaysAgo(13, now);
       const trendRows = db.prepare(`
-          SELECT date, dau, play_devices, new_devices, total_views, updated_at
+          SELECT date, dau, play_devices, mobile_devices, new_devices, total_views, updated_at
           FROM daily_active_stats
           WHERE date >= ?
           ORDER BY date ASC;
@@ -43377,6 +43404,7 @@ var WatchStatsRepository = class {
           date: row.date,
           dau: tDau,
           playDevices: tPlay,
+          mobileDevices: Number(row.mobile_devices || 0),
           newDevices: Number(row.new_devices || 0),
           totalViews: tViews,
           updatedAt: Number(row.updated_at || 0)
@@ -43389,6 +43417,7 @@ var WatchStatsRepository = class {
           date: d2,
           dau: 0,
           playDevices: 0,
+          mobileDevices: 0,
           newDevices: 0,
           totalViews: 0,
           updatedAt: now
@@ -43401,11 +43430,13 @@ var WatchStatsRepository = class {
         isToday,
         dau,
         playDevices,
+        mobileDevices,
         newDevices,
         totalViews,
         todayHits,
         totalDevices,
         updatedAt,
+        deviceBreakdown,
         trend
       };
     } catch (err) {
@@ -50822,6 +50853,16 @@ function extractDeviceId(c2, body) {
   const fallbackHash = createHash5("md5").update(`${ip}::${ua}`).digest("hex").slice(0, 16);
   return `anon_${fallbackHash}`;
 }
+function extractDeviceType(c2, body, ua) {
+  if (body && typeof body.deviceType === "string" && body.deviceType.trim()) {
+    const raw2 = body.deviceType.trim().toLowerCase();
+    if (raw2 === "mobile" || raw2 === "tablet") return "mobile";
+    if (raw2 === "desktop") return "desktop";
+  }
+  const parsed = parseClientDevice(ua);
+  if (parsed.type === "mobile" || parsed.type === "tablet") return "mobile";
+  return "desktop";
+}
 async function handleRecordView(c2) {
   try {
     const body = await c2.req.json().catch(() => null);
@@ -50846,12 +50887,14 @@ async function handleRecordView(c2) {
       return c2.json(resp2);
     }
     const fingerprint = c2.req.header("x-browser-fingerprint") || (typeof body.fingerprint === "string" ? body.fingerprint : void 0);
+    const deviceType = extractDeviceType(c2, body, ua);
     const result = watchStatsRepo.recordPlayView({
       deviceId,
       bangumiId,
       episode,
       fingerprint,
-      clientIp
+      clientIp,
+      deviceType
     });
     const resp = {
       success: result.success,
@@ -50881,10 +50924,12 @@ async function handlePingActive(c2) {
       return c2.json(resp2);
     }
     const fingerprint = c2.req.header("x-browser-fingerprint") || (typeof body?.fingerprint === "string" ? body.fingerprint : void 0);
+    const deviceType = extractDeviceType(c2, body, ua);
     const result = watchStatsRepo.recordDeviceActive({
       deviceId,
       clientIp,
-      fingerprint
+      fingerprint,
+      deviceType
     });
     const resp = {
       ok: result.success
@@ -51516,9 +51561,9 @@ siteRoutes.get("/config", (c2) => {
   const cfg = getSiteConfig();
   return c2.json({
     ok: true,
-    siteName: cfg.siteName || "",
-    siteTagline: cfg.siteTagline || "",
-    githubUrl: cfg.githubUrl || "",
+    siteName: "\u624E\u53E3\u52A8\u6F2B",
+    siteTagline: "",
+    githubUrl: "https://github.com/uerax/Animaku",
     feedbackUrl: cfg.feedbackUrl || "",
     contactUrl: cfg.contactUrl || "",
     iconMode: cfg.iconMode || "default",
@@ -51620,15 +51665,6 @@ adminSiteRoutes.post("/verify", (c2) => {
 adminSiteRoutes.post("/site/config", async (c2) => {
   const body = await c2.req.json().catch(() => ({}));
   const updates = {};
-  if (body.siteName !== void 0) {
-    updates.siteName = typeof body.siteName === "string" ? body.siteName.trim().slice(0, 50) : "";
-  }
-  if (body.siteTagline !== void 0) {
-    updates.siteTagline = typeof body.siteTagline === "string" ? body.siteTagline.trim().slice(0, 100) : "";
-  }
-  if (body.githubUrl !== void 0) {
-    updates.githubUrl = typeof body.githubUrl === "string" ? sanitizeWebOrContactUrl(body.githubUrl).slice(0, 500) : "";
-  }
   if (body.feedbackUrl !== void 0) {
     updates.feedbackUrl = typeof body.feedbackUrl === "string" ? sanitizeWebOrContactUrl(body.feedbackUrl).slice(0, 500) : "";
   }
@@ -51744,8 +51780,8 @@ adminSiteRoutes.post("/site/reset-all", (c2) => {
       ok: true,
       message: "\u5DF2\u5168\u5C40\u6062\u590D\u5B98\u65B9\u9ED8\u8BA4\u8BBE\u7F6E",
       data: {
-        siteName: cfg.siteName || "",
-        siteTagline: cfg.siteTagline || "",
+        siteName: "\u624E\u53E3\u52A8\u6F2B",
+        siteTagline: "",
         iconMode: cfg.iconMode || "default",
         iconUrl: cfg.iconUrl || "",
         iconUpdatedAt: cfg.iconUpdatedAt || 0,
