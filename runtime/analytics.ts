@@ -22,6 +22,62 @@ function topN(map: Record<string, number>, n = 20) {
     .map(([key, count]) => ({ key, count }))
 }
 
+// ---- 排行榜（P0）：从我们自己的 Blob 事件聚合播放量 ----
+// 上游 stats.ts 的 rank 依赖 SQLite，EdgeOne 无状态下恒空 → 这里覆盖 /api/stats/rank*。
+// 播放量定义：进入 /subject/:id 或 /play/:id 记一次（analytics.js 已埋 subjectId）。
+type RankEvent = { ts: number; subjectId: string; did: string }
+let rankCache: { events: RankEvent[]; at: number } | null = null
+const RANK_TTL = 60 * 1000 // 1 分钟，避免每次全量读 Blob
+
+async function loadRankEvents(): Promise<RankEvent[]> {
+  const now = Date.now()
+  if (rankCache && now - rankCache.at < RANK_TTL) return rankCache.events
+  let keys: string[] = []
+  try {
+    const store = getStore(STORE)
+    const listed = await store.list({ prefix: 'events/' }) as { blobs?: Array<{ key: string }> }
+    keys = (listed.blobs || []).map((b) => b.key).filter(Boolean)
+  } catch { return [] }
+  const events: RankEvent[] = []
+  // 只读最近 2 万条，足够算总榜且避免超时
+  for (const key of keys.slice(-20000)) {
+    try {
+      const ev = await getStore(STORE).get(key, { type: 'json' }) as Record<string, unknown> | null
+      if (ev && ev.subjectId) {
+        events.push({
+          ts: Number(ev.serverTs || ev.ts || 0),
+          subjectId: String(ev.subjectId),
+          did: String(ev.did || ''),
+        })
+      }
+    } catch { continue }
+  }
+  rankCache = { events, at: now }
+  return events
+}
+
+function rankByType(type: string, limit: number) {
+  const now = Date.now()
+  const windowMs = type === 'today' ? 24 * 3600e3
+    : type === 'week' ? 7 * 24 * 3600e3
+    : type === 'month' ? 30 * 24 * 3600e3
+    : Infinity
+  return loadRankEvents().then((events) => {
+    const counts: Record<string, number> = {}
+    for (const e of events) {
+      if (windowMs !== Infinity && now - e.ts > windowMs) continue
+      const id = Number(e.subjectId)
+      if (!Number.isFinite(id) || id <= 0) continue
+      counts[String(id)] = (counts[String(id)] || 0) + 1
+    }
+    const data = Object.entries(counts)
+      .map(([id, count]) => ({ bangumiId: Number(id), totalPlayCount: count }))
+      .sort((a, b) => b.totalPlayCount - a.totalPlayCount)
+      .slice(0, limit)
+    return { data, type, limit }
+  })
+}
+
 export const analyticsRoutes = new Hono()
 
 analyticsRoutes.post('/track', async (c) => {
@@ -58,6 +114,7 @@ analyticsRoutes.post('/track', async (c) => {
     }
   }
   c.res.headers.set('Access-Control-Allow-Origin', '*')
+  if (written > 0) rankCache = null // 新事件写入后让排行榜缓存失效
   return c.json({ ok: true, written })
 })
 
@@ -126,3 +183,24 @@ analyticsRoutes.get('/stats', async (c) => {
     byHour: Object.entries(hourly).sort((a, b) => a[0].localeCompare(b[0])).map(([key, count]) => ({ key, count })),
   })
 })
+
+// 排行榜路由：覆盖上游 /api/stats/rank*（SQLite 空），改用我们 Blob 的真实访问数据。
+// 注意这些挂在 analyticsRoutes(/api) 下，先于上游 statsRoutes(/api/stats) 注册 → 优先命中。
+async function rankHandler(c: any, fixed?: string) {
+  const raw = (fixed || c.req.query('type') || 'total').toLowerCase()
+  const type = ['today', 'week', 'month'].includes(raw) ? raw : 'total'
+  const limit = Math.min(Math.max(Number(c.req.query('limit') || 20) || 20, 1), 100)
+  c.res.headers.set('Access-Control-Allow-Origin', '*')
+  c.res.headers.set('Cache-Control', 'public, max-age=60')
+  return c.json(await rankByType(type, limit))
+}
+analyticsRoutes.get('/stats/rank', (c) => rankHandler(c))
+analyticsRoutes.get('/stats/rank/top', (c) => rankHandler(c))
+analyticsRoutes.get('/stats/rank/today', (c) => rankHandler(c, 'today'))
+analyticsRoutes.get('/stats/rank/day', (c) => rankHandler(c, 'today'))
+analyticsRoutes.get('/stats/rank/week', (c) => rankHandler(c, 'week'))
+analyticsRoutes.get('/stats/rank/month', (c) => rankHandler(c, 'month'))
+analyticsRoutes.get('/stats/rank/total', (c) => rankHandler(c, 'total'))
+
+// 写事件后让 rank 缓存失效（下次读立刻反映新播放）
+// 通过在 /track 成功后清缓存实现：见下方 patch 点
