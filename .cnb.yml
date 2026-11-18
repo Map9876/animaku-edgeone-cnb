@@ -9,12 +9,16 @@ main:
   push:
   - stages:
     - name: 构建 EdgeOne 函数 bundle
-      image: node:20
+      image: node:22
       script:
+        # 上游 Animaku 要求 pnpm@9.15.0 + node>=22，用 corepack 激活指定版本
+        - corepack enable && corepack prepare pnpm@9.15.0 --activate
         - npm install --no-audit --no-fund
         # 拉取 Animaku 上游最新 master（--remote），实现「定时更新源项目」
         - git submodule update --init --remote --recursive
         - node scripts/build-edge.mjs
+        # 把 16 个源的 TS 解析代码重新打包成 parsers.cjs（随上游更新）
+        - node scripts/build-resolvers.mjs
         # 把最新前端构建产物同步进来并注入我们的开关脚本
         - node scripts/sync-web.mjs
         - node scripts/inject-into-html.mjs

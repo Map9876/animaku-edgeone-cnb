@@ -15,8 +15,8 @@ const animaku = path.join(root, 'upstream/animaku')
 const dist = path.join(animaku, 'apps/web/dist')
 
 if (!existsSync(path.join(animaku, 'pnpm-lock.yaml'))) {
-  console.log('submodule 源码不存在，跳过 web 同步（使用仓库已有 dist）')
-  process.exit(0)
+  console.error('[sync-web] submodule 源码不存在，无法构建前端（拒绝静默使用旧 dist）')
+  process.exit(1)
 }
 
 try {
@@ -51,5 +51,7 @@ try {
     console.log('✅ web 同步完成（根目录 + public/ 双份）')
   }
 } catch (err) {
-  console.warn('[sync-web] 构建失败，保留仓库已有 dist：', err.message)
+  // 构建失败必须让 CI 显式失败，否则会静默用旧 dist 骗过所有人（v1.30.2 卡住的根因）。
+  console.error('[sync-web] 前端构建失败：', err.message)
+  process.exit(1)
 }
