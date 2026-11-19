@@ -195,6 +195,9 @@ CNB push → 构建阶段：`npm install` → `git submodule update --init --rem
   为什么先打通自有访问数据而非爬源站播放量（P0 已完成）。
 - `docs/源站榜单需求-稀饭Next.md`：给 bangumi-rank 项目的需求——接入稀饭弹幕榜/周热榜，
   抓取方式（JSON-LD 内联）与不要评分榜的原因。
+- `docs/Cloudflare-Tunnel与EdgeOne加速部署指南.md`：CF Tunnel（零信用卡固定域名、网页 token 命令本机启动）
+  + EdgeOne 国内加速（新域名回源 CF 域名、开 WebSocket、灰云 CNAME）完整实测指南；
+  配套独立服务 `new-anime-webhook`（仓库 `kfc50/animaku-anime-update`）用这套暴露最近更新推送。
 - `docs/自行循环学习流程.md`：通过该域名自查看、自迭代、自监督的闭环理念。
 
 ---
