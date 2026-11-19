@@ -27,6 +27,8 @@ const cfg = {
   compact: process.env.VITE_COMPACT || 'on',
   trackStats: process.env.VITE_TRACK_STATS || 'on',
   trackEndpoint: process.env.VITE_TRACK_ENDPOINT || '/api/track',
+  recentPanel: process.env.VITE_RECENT_PANEL || 'on',
+  recentBase: process.env.VITE_RECENT_BASE || 'https://new-anime-webhook.map987.dpdns.org',
 }
 
 const injectBlock = `
@@ -37,6 +39,7 @@ const injectBlock = `
     </script>
     <script src="/inject/analytics.js" defer></script>
     <script src="/inject/ui-inject.js" defer></script>
+    <script src="/inject/recent-panel.js" defer></script>
     <!-- ===== /注入层 ===== -->
 `
 
