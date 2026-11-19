@@ -44413,6 +44413,8 @@ function accessLogger() {
 var apiWindowStore = /* @__PURE__ */ new Map();
 var heavyWindowStore = /* @__PURE__ */ new Map();
 var sourceWindowStore = /* @__PURE__ */ new Map();
+var subjectWindowStore = /* @__PURE__ */ new Map();
+var commentsWindowStore = /* @__PURE__ */ new Map();
 var pruneTimer = setInterval(() => {
   const now = Date.now();
   for (const [ip, bucket] of apiWindowStore.entries()) {
@@ -44428,6 +44430,16 @@ var pruneTimer = setInterval(() => {
   for (const [ip, bucket] of sourceWindowStore.entries()) {
     if (now - bucket.windowStart > 5e3) {
       sourceWindowStore.delete(ip);
+    }
+  }
+  for (const [ip, bucket] of subjectWindowStore.entries()) {
+    if (now - bucket.windowStart > 5e3) {
+      subjectWindowStore.delete(ip);
+    }
+  }
+  for (const [ip, bucket] of commentsWindowStore.entries()) {
+    if (now - bucket.windowStart > 5e3) {
+      commentsWindowStore.delete(ip);
     }
   }
 }, 60 * 1e3);
@@ -44538,6 +44550,12 @@ function ipAccessAndRateLimit(options) {
     }
     return next2();
   };
+}
+function checkCommentsRateLimit(c2, limit = 3) {
+  const ip = resolveIp(c2);
+  const now = Date.now();
+  const { allowed } = checkWindowLimit(commentsWindowStore, ip, limit, now);
+  return allowed;
 }
 
 // upstream/animaku/apps/server/src/routes/bangumi.ts
@@ -44862,6 +44880,17 @@ bangumiRoutes.get("/subjects/:id/comments", async (c2) => {
   }
   let chunk = bypass ? void 0 : cacheGet(chunkKey);
   if (!chunk) {
+    if (!checkCommentsRateLimit(c2, 3)) {
+      const emptyPayload = {
+        data: [],
+        total: 0,
+        page,
+        pageSize
+      };
+      c2.res.headers.set("Cache-Control", "private, no-cache, no-store");
+      c2.res.headers.set("Cloudflare-CDN-Cache-Control", "no-store");
+      return c2.json(emptyPayload, 200, cacheHeaders(false));
+    }
     try {
       const url = new URL(
         `${config.bangumiNextApi}/p1/subjects/${subjectId}/comments`
