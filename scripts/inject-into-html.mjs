@@ -28,6 +28,7 @@ const cfg = {
   trackStats: process.env.VITE_TRACK_STATS || 'on',
   trackEndpoint: process.env.VITE_TRACK_ENDPOINT || '/api/track',
   recentPanel: process.env.VITE_RECENT_PANEL || 'on',
+  recentMode: process.env.VITE_RECENT_MODE || 'generic', // generic=webhook本体 / blob=EdgeOne Blob
   recentBase: process.env.VITE_RECENT_BASE || 'https://new-anime-webhook.map987.dpdns.org',
 }
 

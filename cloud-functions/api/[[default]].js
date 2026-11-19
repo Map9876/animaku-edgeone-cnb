@@ -44413,8 +44413,6 @@ function accessLogger() {
 var apiWindowStore = /* @__PURE__ */ new Map();
 var heavyWindowStore = /* @__PURE__ */ new Map();
 var sourceWindowStore = /* @__PURE__ */ new Map();
-var subjectWindowStore = /* @__PURE__ */ new Map();
-var commentsWindowStore = /* @__PURE__ */ new Map();
 var pruneTimer = setInterval(() => {
   const now = Date.now();
   for (const [ip, bucket] of apiWindowStore.entries()) {
@@ -44430,16 +44428,6 @@ var pruneTimer = setInterval(() => {
   for (const [ip, bucket] of sourceWindowStore.entries()) {
     if (now - bucket.windowStart > 5e3) {
       sourceWindowStore.delete(ip);
-    }
-  }
-  for (const [ip, bucket] of subjectWindowStore.entries()) {
-    if (now - bucket.windowStart > 5e3) {
-      subjectWindowStore.delete(ip);
-    }
-  }
-  for (const [ip, bucket] of commentsWindowStore.entries()) {
-    if (now - bucket.windowStart > 5e3) {
-      commentsWindowStore.delete(ip);
     }
   }
 }, 60 * 1e3);
@@ -44550,12 +44538,6 @@ function ipAccessAndRateLimit(options) {
     }
     return next2();
   };
-}
-function checkCommentsRateLimit(c2, limit = 3) {
-  const ip = resolveIp(c2);
-  const now = Date.now();
-  const { allowed } = checkWindowLimit(commentsWindowStore, ip, limit, now);
-  return allowed;
 }
 
 // upstream/animaku/apps/server/src/routes/bangumi.ts
@@ -44880,17 +44862,6 @@ bangumiRoutes.get("/subjects/:id/comments", async (c2) => {
   }
   let chunk = bypass ? void 0 : cacheGet(chunkKey);
   if (!chunk) {
-    if (!checkCommentsRateLimit(c2, 3)) {
-      const emptyPayload = {
-        data: [],
-        total: 0,
-        page,
-        pageSize
-      };
-      c2.res.headers.set("Cache-Control", "private, no-cache, no-store");
-      c2.res.headers.set("Cloudflare-CDN-Cache-Control", "no-store");
-      return c2.json(emptyPayload, 200, cacheHeaders(false));
-    }
     try {
       const url = new URL(
         `${config.bangumiNextApi}/p1/subjects/${subjectId}/comments`
@@ -52205,6 +52176,44 @@ analyticsRoutes.get("/stats/rank/day", (c2) => rankHandler(c2, "today"));
 analyticsRoutes.get("/stats/rank/week", (c2) => rankHandler(c2, "week"));
 analyticsRoutes.get("/stats/rank/month", (c2) => rankHandler(c2, "month"));
 analyticsRoutes.get("/stats/rank/total", (c2) => rankHandler(c2, "total"));
+var LATEST_STORE = { name: "animaku-latest", consistency: "strong" };
+var SYNC_TOKEN = process.env.ANIMAKU_SYNC_TOKEN || "animaku-latest-sync-2026";
+var latestMem = null;
+analyticsRoutes.post("/latest-cache", async (c2) => {
+  const token = c2.req.header("X-Sync-Token") || "";
+  if (token !== SYNC_TOKEN) return c2.json({ error: "unauthorized" }, 401);
+  let payload;
+  try {
+    const raw2 = await c2.req.text();
+    if (raw2.length > 2 * 1024 * 1024) return c2.json({ error: "too_large" }, 413);
+    payload = JSON.parse(raw2);
+  } catch {
+    return c2.json({ error: "bad_json" }, 400);
+  }
+  try {
+    await (0, import_pages_blob2.getStore)(LATEST_STORE).setJSON("latest.json", { at: Date.now(), data: payload });
+    latestMem = { data: payload, at: Date.now() };
+    return c2.json({ ok: true, at: latestMem.at });
+  } catch (e2) {
+    return c2.json({ error: "write_failed", message: String(e2.message || e2) }, 500);
+  }
+});
+analyticsRoutes.get("/latest-cache", async (c2) => {
+  c2.res.headers.set("Access-Control-Allow-Origin", "*");
+  c2.res.headers.set("Cache-Control", "public, max-age=30");
+  if (latestMem && Date.now() - latestMem.at < 60 * 1e3) {
+    return c2.json({ ok: true, cached: true, at: latestMem.at, data: latestMem.data });
+  }
+  try {
+    const doc = await (0, import_pages_blob2.getStore)(LATEST_STORE).get("latest.json", { type: "json" });
+    if (doc && doc.data) {
+      latestMem = { data: doc.data, at: doc.at };
+      return c2.json({ ok: true, cached: false, at: doc.at, data: doc.data });
+    }
+  } catch {
+  }
+  return c2.json({ ok: false, data: null });
+});
 
 // runtime/edge-index.ts
 try {

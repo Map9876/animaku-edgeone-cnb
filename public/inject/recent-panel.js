@@ -1,19 +1,25 @@
 /**
  * 最近更新面板（注入层，不改 Animaku 上游源码）
  *
- * 数据源（通用，不依赖 EdgeOne）：
- *   HTTP GET  {base}/api/latest  —— 基线，面板常驻（webhook 仓库本体存数据）
- *   WS        {base}/ws          —— 实时增量 + 弹动画；断开不收起面板
+ * 两种数据源模式（通过配置切换，两版本并存）：
+ *   generic（默认，通用版，不依赖 EdgeOne）：
+ *     HTTP GET {webhook}/api/latest  —— 基线，webhook 仓库本体存 data/latest.json
+ *   blob（EdgeOne 版）：
+ *     HTTP GET 同域 /api/latest-cache —— 基线，animaku EdgeOne Blob（webhook POST 同步过来）
+ *   两种模式 WS 都连 {webhook}/ws —— 实时增量 + 弹动画；断开不收起面板
  *   定时 HTTP 补拉（WS 断时兜底）
  *
- * 开关：window.__ANIMAKU_CONFIG__.recentPanel = 'on'|'off'
- * 域名：window.__ANIMAKU_CONFIG__.recentBase（默认 new-anime-webhook.map987.dpdns.org）
+ * 开关：recentPanel='on'|'off'；recentMode='generic'|'blob'
+ * 域名：recentBase（默认 new-anime-webhook.map987.dpdns.org）
  */
 ;(function () {
   'use strict'
   var CFG = window.__ANIMAKU_CONFIG__ || {}
   if (String(CFG.recentPanel === undefined ? 'on' : CFG.recentPanel).toLowerCase() === 'off') return
   var BASE = String(CFG.recentBase || 'https://new-anime-webhook.map987.dpdns.org').replace(/\/$/, '')
+  var MODE = String(CFG.recentMode || 'generic').toLowerCase() === 'blob' ? 'blob' : 'generic'
+  // 基线 HTTP 地址：generic 读 webhook 本体；blob 读 animaku 同域 Blob
+  var BASE_HTTP = MODE === 'blob' ? '/api/latest-cache' : (BASE + '/api/latest')
 
   // ---------- CSS（复用源站 token，逐字对齐原站风格）----------
   var css = `
@@ -133,9 +139,11 @@
   // ---------- HTTP 基线（持久，不依赖 WS）----------
   async function httpLoad() {
     try {
-      var res = await fetch(BASE + '/api/latest', { cache: 'no-store' })
+      var res = await fetch(BASE_HTTP, { cache: 'no-store' })
       var d = await res.json()
-      if (d && d.items && d.items.length) { render(d.items, false); return true }
+      // blob 模式：{ok, at, data: <latest state>}；generic 模式：直接是 latest state
+      var payload = (MODE === 'blob' && d && d.data) ? d.data : d
+      if (payload && payload.items && payload.items.length) { render(payload.items, false); return true }
     } catch (e) {}
     return false
   }

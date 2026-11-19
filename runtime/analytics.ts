@@ -204,3 +204,42 @@ analyticsRoutes.get('/stats/rank/total', (c) => rankHandler(c, 'total'))
 
 // 写事件后让 rank 缓存失效（下次读立刻反映新播放）
 // 通过在 /track 成功后清缓存实现：见下方 patch 点
+// ---- 最近更新快照（webhook → animaku Blob 同步）----
+// 前端 HTTP GET 读这份快照做持久展示；WS 断了也不收起面板。
+const LATEST_STORE = { name: 'animaku-latest', consistency: 'strong' as const }
+const SYNC_TOKEN = process.env.ANIMAKU_SYNC_TOKEN || 'animaku-latest-sync-2026'
+let latestMem: { data: unknown; at: number } | null = null
+
+analyticsRoutes.post('/latest-cache', async (c) => {
+  const token = c.req.header('X-Sync-Token') || ''
+  if (token !== SYNC_TOKEN) return c.json({ error: 'unauthorized' }, 401)
+  let payload: unknown
+  try {
+    const raw = await c.req.text()
+    if (raw.length > 2 * 1024 * 1024) return c.json({ error: 'too_large' }, 413)
+    payload = JSON.parse(raw)
+  } catch { return c.json({ error: 'bad_json' }, 400) }
+  try {
+    await getStore(LATEST_STORE).setJSON('latest.json', { at: Date.now(), data: payload })
+    latestMem = { data: payload, at: Date.now() }
+    return c.json({ ok: true, at: latestMem.at })
+  } catch (e) {
+    return c.json({ error: 'write_failed', message: String((e as Error).message || e) }, 500)
+  }
+})
+
+analyticsRoutes.get('/latest-cache', async (c) => {
+  c.res.headers.set('Access-Control-Allow-Origin', '*')
+  c.res.headers.set('Cache-Control', 'public, max-age=30')
+  if (latestMem && Date.now() - latestMem.at < 60 * 1000) {
+    return c.json({ ok: true, cached: true, at: latestMem.at, data: latestMem.data })
+  }
+  try {
+    const doc = await getStore(LATEST_STORE).get('latest.json', { type: 'json' }) as { at: number; data: unknown } | null
+    if (doc && doc.data) {
+      latestMem = { data: doc.data, at: doc.at }
+      return c.json({ ok: true, cached: false, at: doc.at, data: doc.data })
+    }
+  } catch {}
+  return c.json({ ok: false, data: null })
+})
