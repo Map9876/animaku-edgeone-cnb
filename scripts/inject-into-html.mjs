@@ -41,6 +41,7 @@ const injectBlock = `
     <script src="/inject/analytics.js" defer></script>
     <script src="/inject/ui-inject.js" defer></script>
     <script src="/inject/recent-panel.js" defer></script>
+    <script src="/inject/recent-page.js" defer></script>
     <!-- ===== /注入层 ===== -->
 `
 
