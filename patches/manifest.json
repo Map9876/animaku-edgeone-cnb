@@ -1,0 +1,70 @@
+{
+  "$comment": "Animaku 叠加层 patch 桶。每个 patch 声明式地改写上游 submodule 源码文本，构建期由 scripts/build-edge.mjs 应用，不修改上游文件。上游升级后若 match 不再命中，构建会显式报错（不再静默跳过）。",
+  "version": 1,
+  "patches": [
+    {
+      "id": "rule-store-import",
+      "target": "routes/plugin.ts",
+      "layer": "A-rule-autoupdate",
+      "match": "import { Hono } from 'hono'",
+      "replace": "import { Hono } from 'hono'\nimport { resolveRuleFromStore } from '@rules-store'",
+      "idempotentBy": "resolveRuleFromStore",
+      "note": "注入 A 层规则自更新依赖"
+    },
+    {
+      "id": "parse-rule-async",
+      "target": "routes/plugin.ts",
+      "layer": "A-rule-autoupdate",
+      "matchRegex": "function parseRuleOrThrow\\(raw: unknown\\): PluginRule \\{\\s*return parsePluginRule\\(raw\\)\\s*\\}",
+      "replace": "async function parseRuleOrThrow(raw: unknown): Promise<PluginRule> { return parsePluginRule(await resolveRuleFromStore(raw)) }",
+      "idempotentBy": "async function parseRuleOrThrow",
+      "note": "parseRuleOrThrow 改 async，优先用 Blob/GitHub 最新规则"
+    },
+    {
+      "id": "parse-rule-await-calls",
+      "target": "routes/plugin.ts",
+      "layer": "A-rule-autoupdate",
+      "matchRegex": "rule = parseRuleOrThrow\\(body\\.rule\\)",
+      "replace": "rule = await parseRuleOrThrow(body.rule)",
+      "global": true,
+      "idempotentBy": "rule = await parseRuleOrThrow(body.rule)",
+      "note": "3 处调用点加 await"
+    },
+    {
+      "id": "parser-loader-import",
+      "target": "routes/plugin.ts",
+      "layer": "B-parser-hotupdate",
+      "match": "import { resolveRuleFromStore } from '@rules-store'",
+      "replace": "import { resolveRuleFromStore } from '@rules-store'\nimport { dynamicSearch, dynamicChapters, dynamicResolve } from '@parser-loader'",
+      "idempotentBy": "dynamicSearch",
+      "note": "注入 B 层 TS 解析热更新依赖"
+    },
+    {
+      "id": "dynamic-search",
+      "target": "routes/plugin.ts",
+      "layer": "B-parser-hotupdate",
+      "match": "loader: () => searchWithRule(rule, keyword),",
+      "replace": "loader: async () => (await dynamicSearch(rule, keyword)) ?? searchWithRule(rule, keyword),",
+      "idempotentBy": "await dynamicSearch(rule, keyword)",
+      "note": "搜索动态解析优先、内置回退"
+    },
+    {
+      "id": "dynamic-chapters",
+      "target": "routes/plugin.ts",
+      "layer": "B-parser-hotupdate",
+      "match": "loader: () => chaptersWithRule(rule, source),",
+      "replace": "loader: async () => (await dynamicChapters(rule, source)) ?? chaptersWithRule(rule, source),",
+      "idempotentBy": "await dynamicChapters(rule, source)",
+      "note": "章节列表动态解析优先、内置回退"
+    },
+    {
+      "id": "dynamic-resolve",
+      "target": "routes/plugin.ts",
+      "layer": "B-parser-hotupdate",
+      "match": "() => resolvePlay(rule, pageUrl),",
+      "replace": "async () => (await dynamicResolve(rule, pageUrl)) ?? resolvePlay(rule, pageUrl),",
+      "idempotentBy": "await dynamicResolve(rule, pageUrl)",
+      "note": "播放解析动态解析优先、内置回退"
+    }
+  ]
+}

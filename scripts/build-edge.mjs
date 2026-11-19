@@ -23,43 +23,50 @@ const outboundProxyEdgeSrc = readFileSync(outboundProxyEdge, 'utf8')
 const undiciStub = path.join(root, 'runtime/undici-edge-stub.ts')
 const rulesStore = path.join(root, 'runtime/rules-store.ts')
 
-// 规则自更新：把 plugin.ts 的 parseRuleOrThrow 改成 async，优先用 Blob/GitHub 最新规则。
-// 构建期源码文本替换，不改上游 submodule 文件（单行 import + 函数签名 + 3 处 await）。
-const injectRuleStore = {
-  name: 'inject-rule-store',
+// 叠加层 patch 桶：所有对上游源码的改写都声明在 patches/manifest.json。
+// 构建期按声明应用，不修改上游 submodule 文件。
+// 关键改进：上游升级后若 match 不再命中，构建会显式报错，不再静默跳过导致功能悄悄失效。
+const manifest = JSON.parse(readFileSync(path.join(root, 'patches/manifest.json'), 'utf8'))
+const patchByTarget = {}
+for (const p of manifest.patches) {
+  ;(patchByTarget[p.target] ||= []).push(p)
+}
+
+// 把 args.path 归一成 manifest 里的 target（相对 upstream/animaku/apps/server/src 的路径）。
+function patchTargetOf(absPath) {
+  const rel = path.relative(path.join(animaku, 'apps/server/src'), absPath).replace(/\\/g, '/')
+  return rel
+}
+
+function applyPatches(src, patches, absPath) {
+  for (const p of patches) {
+    // 幂等：已应用过（源码含 idempotentBy 标记）就跳过。
+    if (p.idempotentBy && src.includes(p.idempotentBy)) continue
+    const re = p.matchRegex ? new RegExp(p.matchRegex, p.global ? 'g' : undefined) : null
+    const hit = re ? re.test(src) : src.includes(p.match)
+    if (!hit) {
+      throw new Error(
+        `[patch] ${p.id} 未命中目标 ${patchTargetOf(absPath)}（上游已改？）\n` +
+        `  layer=${p.layer} note=${p.note}\n` +
+        `  期望匹配: ${p.matchRegex || p.match}\n` +
+        `  处理：检查上游新源码，更新 patches/manifest.json 的 match/replace。`
+      )
+    }
+    src = re ? src.replace(re, p.replace) : (p.global ? src.split(p.match).join(p.replace) : src.replace(p.match, p.replace))
+    console.log(`[patch] applied ${p.id} (${p.layer})`)
+  }
+  return src
+}
+
+const injectPatches = {
+  name: 'inject-patches',
   setup(b) {
-    b.onLoad({ filter: /routes[\\/]plugin\.ts$/ }, (args) => {
+    b.onLoad({ filter: /routes[\\/].*\.ts$/ }, (args) => {
+      const target = patchTargetOf(args.path)
+      const patches = patchByTarget[target]
+      if (!patches || !patches.length) return null // 让 esbuild 继续用默认 loader
       let src = readFileSync(args.path, 'utf8')
-      if (!src.includes('resolveRuleFromStore')) {
-        src = src.replace(
-          "import { Hono } from 'hono'",
-          "import { Hono } from 'hono'\nimport { resolveRuleFromStore } from '@rules-store'",
-        )
-        src = src.replace(
-          /function parseRuleOrThrow\(raw: unknown\): PluginRule \{\s*return parsePluginRule\(raw\)\s*\}/,
-          "async function parseRuleOrThrow(raw: unknown): Promise<PluginRule> { return parsePluginRule(await resolveRuleFromStore(raw)) }",
-        )
-        src = src.replace(/rule = parseRuleOrThrow\(body\.rule\)/g, 'rule = await parseRuleOrThrow(body.rule)')
-      }
-      // --- 动态解析注入（B 层热更新）---
-      if (!src.includes('dynamicSearch')) {
-        src = src.replace(
-          "import { resolveRuleFromStore } from '@rules-store'",
-          "import { resolveRuleFromStore } from '@rules-store'\nimport { dynamicSearch, dynamicChapters, dynamicResolve } from '@parser-loader'",
-        )
-        src = src.replace(
-          'loader: () => searchWithRule(rule, keyword),',
-          'loader: async () => (await dynamicSearch(rule, keyword)) ?? searchWithRule(rule, keyword),',
-        )
-        src = src.replace(
-          'loader: () => chaptersWithRule(rule, source),',
-          'loader: async () => (await dynamicChapters(rule, source)) ?? chaptersWithRule(rule, source),',
-        )
-        src = src.replace(
-          '() => resolvePlay(rule, pageUrl),',
-          'async () => (await dynamicResolve(rule, pageUrl)) ?? resolvePlay(rule, pageUrl),',
-        )
-      }
+      src = applyPatches(src, patches, args.path)
       return { contents: src, loader: 'ts', resolveDir: path.dirname(args.path) }
     })
   },
@@ -99,7 +106,7 @@ await build({
   // 源码在 upstream/animaku/，但依赖装在我们的 node_modules，
   // 让 esbuild 从项目根解析 bare import
   nodePaths: [path.join(root, 'node_modules')],
-  plugins: [replaceUndiciModules, injectRuleStore],
+  plugins: [replaceUndiciModules, injectPatches],
   alias: {
     'node:sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
     'sqlite': path.join(root, 'runtime/sqlite-stub.ts'),
