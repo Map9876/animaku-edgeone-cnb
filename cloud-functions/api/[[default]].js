@@ -52230,14 +52230,11 @@ analyticsRoutes.post("/latest-cache", async (c2) => {
 analyticsRoutes.get("/latest-cache", async (c2) => {
   c2.res.headers.set("Access-Control-Allow-Origin", "*");
   c2.res.headers.set("Cache-Control", "public, max-age=30");
-  if (latestMem && Date.now() - latestMem.at < 60 * 1e3) {
-    return c2.json({ ok: true, cached: true, at: latestMem.at, data: latestMem.data });
-  }
   try {
     const doc = await (0, import_pages_blob2.getStore)(LATEST_STORE).get("latest.json", { type: "json" });
     if (doc && doc.data) {
       latestMem = { data: doc.data, at: doc.at };
-      return c2.json({ ok: true, cached: false, at: doc.at, data: doc.data });
+      return c2.json({ ok: true, at: doc.at, data: doc.data });
     }
   } catch {
   }

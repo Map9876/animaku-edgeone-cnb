@@ -230,15 +230,14 @@ analyticsRoutes.post('/latest-cache', async (c) => {
 
 analyticsRoutes.get('/latest-cache', async (c) => {
   c.res.headers.set('Access-Control-Allow-Origin', '*')
+  // 必须每次读 Blob：EdgeOne 多实例，内存缓存会导致 POST 写到实例A、GET 打到实例B 读到旧数据。
+  // 靠边缘 Cache-Control 缓存 30s 降低 Blob 读压力，而非服务端内存缓存。
   c.res.headers.set('Cache-Control', 'public, max-age=30')
-  if (latestMem && Date.now() - latestMem.at < 60 * 1000) {
-    return c.json({ ok: true, cached: true, at: latestMem.at, data: latestMem.data })
-  }
   try {
     const doc = await getStore(LATEST_STORE).get('latest.json', { type: 'json' }) as { at: number; data: unknown } | null
     if (doc && doc.data) {
       latestMem = { data: doc.data, at: doc.at }
-      return c.json({ ok: true, cached: false, at: doc.at, data: doc.data })
+      return c.json({ ok: true, at: doc.at, data: doc.data })
     }
   } catch {}
   return c.json({ ok: false, data: null })
