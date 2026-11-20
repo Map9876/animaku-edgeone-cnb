@@ -7,9 +7,16 @@
 # EdgeOne 项目指向本仓库 master 且安装了 package.json 依赖。
 main:
   push:
-  # 从密钥仓库 kfc50/key 的 envs.yml 注入环境变量（含 GIT_PASSWORD=GitHub PAT）。
-  # 密钥仓库禁止本地克隆/token 读取，只能在流水线里通过 imports 引用。
-  - imports: https://cnb.cool/kfc50/key/-/blob/main/envs.yml
+  # 串行锁：多个 push 间隔很近时，避免两个 git-sync 同时 force push GitHub 造成
+  # ref 锁冲突（remote rejected: cannot lock ref）。wait=true 让后一个构建等待前一个跑完。
+  - lock:
+      key: animaku-push-sync
+      wait: true
+      timeout: 600
+      expires: 3600
+    # 从密钥仓库 kfc50/key 的 envs.yml 注入环境变量（含 GIT_PASSWORD=GitHub PAT）。
+    # 密钥仓库禁止本地克隆/token 读取，只能在流水线里通过 imports 引用。
+    imports: https://cnb.cool/kfc50/key/-/blob/main/envs.yml
     stages:
     - name: 构建 EdgeOne 函数 bundle
       image: node:22
