@@ -5,3 +5,4 @@ node_modules/
 
 *.mp4
 runtime/_resolvers-entry.ts
+scripts/dev-server.mjs
