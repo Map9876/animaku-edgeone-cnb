@@ -42816,6 +42816,8 @@ var WatchStatsRepository = class {
   rankingCache = /* @__PURE__ */ new Map();
   /** Instantaneous active online users sliding window tracker: deviceId -> expireTimestamp */
   watchingUsers = /* @__PURE__ */ new Map();
+  /** Instantaneous active online users per anime sliding window: bangumiId -> Map<deviceId, expireTimestamp> */
+  animeWatchingUsers = /* @__PURE__ */ new Map();
   flushTimer = null;
   cleanupTimer = null;
   isFlushing = false;
@@ -42844,6 +42846,16 @@ var WatchStatsRepository = class {
       for (const [devId, expireAt] of this.watchingUsers.entries()) {
         if (now >= expireAt) {
           this.watchingUsers.delete(devId);
+        }
+      }
+      for (const [bangumiId, devMap] of this.animeWatchingUsers.entries()) {
+        for (const [devId, expireAt] of devMap.entries()) {
+          if (now >= expireAt) {
+            devMap.delete(devId);
+          }
+        }
+        if (devMap.size === 0) {
+          this.animeWatchingUsers.delete(bangumiId);
         }
       }
       for (const [ip, item] of this.ipNewDeviceTracker.entries()) {
@@ -42996,6 +43008,7 @@ var WatchStatsRepository = class {
     const cleanEpisode = Math.max(0, Math.trunc(Number(episode) || 0));
     const dedupKey = `${cleanDeviceId}::${bangumiId}::${cleanEpisode}`;
     this.refreshWatchingUser(cleanDeviceId, now);
+    this.refreshAnimeWatchingUser(bangumiId, cleanDeviceId, now);
     const lastSeen = this.dedupCache.get(dedupKey);
     if (lastSeen && now - lastSeen < DEDUP_WINDOW_MS) {
       const currentTotal = this.getTotalViewsFast(bangumiId);
@@ -43325,6 +43338,38 @@ var WatchStatsRepository = class {
       } else {
         this.watchingUsers.delete(devId);
       }
+    }
+    return count;
+  }
+  /**
+   * Slide the active online window for the given device ID under a specific anime by 30 minutes.
+   */
+  refreshAnimeWatchingUser(bangumiId, deviceId, now = Date.now()) {
+    if (!bangumiId || !deviceId) return;
+    let devMap = this.animeWatchingUsers.get(bangumiId);
+    if (!devMap) {
+      devMap = /* @__PURE__ */ new Map();
+      this.animeWatchingUsers.set(bangumiId, devMap);
+    }
+    devMap.set(deviceId, now + ONLINE_WINDOW_MS);
+  }
+  /**
+   * Retrieve instantaneous count of online active users watching a specific anime within 30-minute rolling window.
+   */
+  getAnimeWatchingCount(bangumiId, now = Date.now()) {
+    if (!bangumiId) return 0;
+    const devMap = this.animeWatchingUsers.get(bangumiId);
+    if (!devMap) return 0;
+    let count = 0;
+    for (const [devId, expireAt] of devMap.entries()) {
+      if (expireAt > now) {
+        count++;
+      } else {
+        devMap.delete(devId);
+      }
+    }
+    if (devMap.size === 0) {
+      this.animeWatchingUsers.delete(bangumiId);
     }
     return count;
   }
@@ -50976,6 +51021,16 @@ statsRoutes.get("/online", (c2) => {
   setOnlineUsersCdnHeaders(c2, Boolean(bypass));
   const online = watchStatsRepo.getOnlineUsersCount();
   return c2.json({ online });
+});
+statsRoutes.get("/online/:bangumiId", (c2) => {
+  const bangumiId = Number(c2.req.param("bangumiId"));
+  if (!Number.isFinite(bangumiId) || bangumiId <= 0) {
+    return c2.json({ error: "bad_request", message: "\u65E0\u6548\u7684\u756A\u5267 ID" }, 400);
+  }
+  const bypass = c2.req.query("refresh") === "1" || c2.req.header("cache-control")?.includes("no-cache");
+  setOnlineUsersCdnHeaders(c2, Boolean(bypass));
+  const online = watchStatsRepo.getAnimeWatchingCount(bangumiId);
+  return c2.json({ bangumiId, online });
 });
 statsRoutes.post("/view", handleRecordView);
 statsRoutes.post("/views", handleRecordView);
