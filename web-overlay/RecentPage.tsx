@@ -23,11 +23,15 @@ type RecentItem = {
   bgmName: string
   lastSeenAt: number
   updatedAt: string
+  /** 源站判定的真实更新日期（如「11月20日」），优先于我们推算的 lastSeenAt 档位 */
+  updateDay?: string
 }
 
 const WEBHOOK_WS = 'wss://new-anime-webhook.map987.dpdns.org/ws'
 
-function updDay(ts: number): string {
+function updDay(ts: number, sourceDay?: string): string {
+  // 优先用源站自己判定的更新日期（固定不变、比我们推算可靠）
+  if (sourceDay) return sourceDay
   if (!ts) return ''
   const d = new Date(ts)
   const today = new Date()
@@ -51,7 +55,8 @@ function hashId(s: string): number {
 // 把 webhook 条目映射成原站 BangumiItem，直接复用原站卡片/网格（原生感来源）。
 function toBangumiItem(it: RecentItem, idx: number): BangumiItem {
   const name = it.bgmName || it.title || ''
-  const progress = it.episode ? `${it.episode} · ${updDay(it.lastSeenAt)}` : updDay(it.lastSeenAt)
+  const day = updDay(it.lastSeenAt, it.updateDay)
+  const progress = it.episode ? `${it.episode} · ${day}` : day
   return {
     id: it.bgmId || hashId(`${it.source}:${it.animeId || it.title}`),
     type: 2,

@@ -203,6 +203,25 @@
     return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" ' +
       'viewBox="0 0 256 256" aria-hidden="true"><path d="' + path + '"></path></svg>'
   }
+  // 底部导航 active 状态：按当前 pathname 同步，避免 React SPA 软导航后粉色卡住。
+  function syncBottomActive() {
+    var nav = document.getElementById('ae-xf-nav')
+    if (!nav) return
+    var p = location.pathname
+    nav.querySelectorAll('a[data-nav-path]').forEach(function (a) {
+      var on = a.getAttribute('data-nav-path') === p
+      a.classList.toggle('ae-active', on)
+      var bg = a.querySelector('.ae-bg')
+      if (on && !bg) {
+        bg = document.createElement('span')
+        bg.className = 'ae-bg'
+        bg.setAttribute('aria-hidden', 'true')
+        a.insertBefore(bg, a.firstChild)
+      } else if (!on && bg) {
+        bg.remove()
+      }
+    })
+  }
   function addBottomNav() {
     if (!BOTTOM_NAV || document.getElementById('ae-xf-nav')) return
     var nav = document.createElement('nav')
@@ -223,16 +242,26 @@
       { label: '我的', href: '/settings', path: '/settings',
         svg: 'M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z' },
     ]
-    var p = location.pathname
     var inner = '<div>'
     for (var i = 0; i < items.length; i++) {
       var it = items[i]
-      var active = p === it.path ? ' ae-active' : ''
-      inner += '<a class="group' + active + '" href="' + it.href + '">' +
-        (active ? '<span class="ae-bg" aria-hidden="true"></span>' : '') +
+      inner += '<a class="group" href="' + it.href + '" data-nav-path="' + it.path + '">' +
         svgIcon(it.svg) + '<span class="ae-label">' + it.label + '</span></a>'
     }
     nav.innerHTML = inner + '</div>'
+    // SPA 软导航：拦截 <a> 点击，用 history.pushState + popstate 让 React Router 接管，
+    // 和顶部原生 <Link> 行为一致（不整页刷新）。
+    nav.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-nav-path]')
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+      var href = a.getAttribute('href')
+      if (!href || href === location.pathname) { e.preventDefault(); return }
+      e.preventDefault()
+      history.pushState({}, '', href)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+      syncBottomActive()
+    })
+    syncBottomActive()
     if (localStorage.getItem('ae_nav_hidden') === '1') nav.classList.add('hidden')
     nav.addEventListener('dblclick', function () {
       var hidden = nav.classList.toggle('hidden')
@@ -273,6 +302,8 @@
   // SPA 路由变化后补注入设置面板（React 重渲染会冲掉 DOM）
   var lastPath = location.pathname
   setInterval(function () {
+    // 每秒都同步底部 active：React hydration/重渲染会冲掉 ae-active，靠这个补回来。
+    syncBottomActive()
     if (location.pathname !== lastPath) {
       lastPath = location.pathname
       if (/\/settings/.test(lastPath)) setTimeout(addGitPanel, 300)
