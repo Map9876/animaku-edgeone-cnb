@@ -7,7 +7,10 @@
 # EdgeOne 项目指向本仓库 master 且安装了 package.json 依赖。
 main:
   push:
-  - stages:
+  # 从密钥仓库 kfc50/key 的 envs.yml 注入环境变量（含 GIT_PASSWORD=GitHub PAT）。
+  # 密钥仓库禁止本地克隆/token 读取，只能在流水线里通过 imports 引用。
+  - imports: https://cnb.cool/kfc50/key/-/blob/main/envs.yml
+    stages:
     - name: 构建 EdgeOne 函数 bundle
       image: node:22
       script:
