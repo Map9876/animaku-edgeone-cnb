@@ -20,6 +20,11 @@ if (!existsSync(path.join(animaku, 'pnpm-lock.yaml'))) {
 }
 
 try {
+  // 构建期侵入式 patch：把「原站范式」的 /recent 功能注入上游源码工作副本。
+  // 构建完成后 finally 里 --revert 恢复，submodule 保持干净（不改源文件仓库）。
+  console.log('[sync-web] 应用前端 patch（/recent 原生路由 + 菜单入口）...')
+  execSync('node scripts/apply-web-patches.mjs', { cwd: root, stdio: 'inherit' })
+
   console.log('安装 Animaku 依赖并构建 web...')
   execSync('pnpm install --ignore-scripts', { cwd: animaku, stdio: 'inherit' })
   execSync('pnpm --filter @animaku/web build', { cwd: animaku, stdio: 'inherit' })
@@ -53,5 +58,11 @@ try {
 } catch (err) {
   // 构建失败必须让 CI 显式失败，否则会静默用旧 dist 骗过所有人（v1.30.2 卡住的根因）。
   console.error('[sync-web] 前端构建失败：', err.message)
+  // 失败也要恢复上游源码，避免污染 submodule（finally 兜底）
+  try { execSync('node scripts/apply-web-patches.mjs --revert', { cwd: root, stdio: 'inherit' }) } catch {}
   process.exit(1)
+} finally {
+  // 无论成功失败都恢复上游源码工作副本（submodule commit 指针与 git status 保持干净）。
+  console.log('[sync-web] 恢复上游源码（--revert）...')
+  try { execSync('node scripts/apply-web-patches.mjs --revert', { cwd: root, stdio: 'inherit' }) } catch (e) { console.warn('[sync-web] revert 失败:', e.message) }
 }

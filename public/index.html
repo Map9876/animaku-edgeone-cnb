@@ -76,28 +76,19 @@
     <style>
       .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
     </style>
-    <script type="module" crossorigin src="/assets/index-DpK2Y_tp.js"></script>
+    <script type="module" crossorigin src="/assets/index-RbXtBVGd.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-vendor-VsCOcl9a.js">
     <link rel="modulepreload" crossorigin href="/assets/data-vendor-hYH679Cr.js">
     <link rel="stylesheet" crossorigin href="/assets/index-Dm5XsEjK.css">
   
     <!-- ===== Animaku EdgeOne 注入层（由 scripts/inject-into-html.mjs 生成）===== -->
     <script>
-      window.__ANIMAKU_CONFIG__ = {"gitSync":"on","autoRefresh":"on","bottomNav":"on","compact":"on","trackStats":"on","trackEndpoint":"/api/track","recentPanel":"off","recentPage":"on","recentMode":"generic","recentBase":"https://new-anime-webhook.map987.dpdns.org"};
+      window.__ANIMAKU_CONFIG__ = {"gitSync":"on","autoRefresh":"on","bottomNav":"on","compact":"on","trackStats":"on","trackEndpoint":"/api/track"};
       window.__ANIMAKU_HOOKS__ = window.__ANIMAKU_HOOKS__ || {};
-      // /recent 是注入层独立页：只隐藏 React 的 404 内容区(main)，保留原站 header/footer。
-      // 这样顶部菜单原生显示（含我们注入的「最近更新」入口），不动上游源码。
-      if (location.pathname.replace(/\/+$/, '') === '/recent') {
-        document.documentElement.classList.add('ae-recent-route');
-        var _s = document.createElement('style');
-        _s.textContent = '.ae-recent-route #root>div>main{display:none!important}'
-          + '.ae-recent-route header{z-index:10000!important}';
-        document.head.appendChild(_s);
-      }
     </script>
     <script src="/inject/analytics.js" defer></script>
     <script src="/inject/ui-inject.js" defer></script>
-    <script src="/inject/recent-page.js" defer></script>
+    <!-- /recent 最近更新页与顶部菜单入口已改为构建期原生 patch，不在此注入 -->
     <!-- ===== /注入层 ===== -->
 
   </head>

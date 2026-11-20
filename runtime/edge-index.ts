@@ -27,6 +27,7 @@ import { mediaRoutes } from '../upstream/animaku/apps/server/src/routes/media'
 import { statsRoutes } from '../upstream/animaku/apps/server/src/routes/stats'
 import { siteRoutes, adminSiteRoutes } from '../upstream/animaku/apps/server/src/routes/site'
 import { analyticsRoutes } from './analytics'
+import { recentRoutes } from './recent'
 import { debugRules, debugResolve } from './rules-store'
 import { debugParsers } from './parser-loader'
 
@@ -101,6 +102,9 @@ app.get('/api/__rules', async (c) => c.json({
 
 // ---- 统计埋点（我们自己的，单进程 Blob 共享）----
 app.route('/api', analyticsRoutes)
+
+// ---- 最近更新数据代理（原生路由方案，见二次开发规范）----
+app.route('/api', recentRoutes)
 
 // ---- Animaku 全部业务路由 ----
 app.route('/api/bangumi', bangumiRoutes)
