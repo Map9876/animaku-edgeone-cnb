@@ -52241,6 +52241,26 @@ analyticsRoutes.get("/latest-cache", async (c2) => {
   return c2.json({ ok: false, data: null });
 });
 
+// runtime/recent.ts
+var recentRoutes = new Hono3();
+var WEBHOOK_BASE = "https://new-anime-webhook.map987.dpdns.org";
+recentRoutes.get("/recent", async (c2) => {
+  try {
+    const res = await fetch(`${WEBHOOK_BASE}/api/latest`, {
+      headers: { "User-Agent": "animaku-edgeone/1.0" },
+      signal: AbortSignal.timeout(8e3)
+    });
+    if (!res.ok) return c2.json({ ok: false, items: [] }, 502);
+    const data2 = await res.json();
+    return c2.json(
+      { ok: true, items: data2.items || [], counts: data2.counts || {}, updatedAt: data2.updatedAt || 0 },
+      200
+    );
+  } catch (e2) {
+    return c2.json({ ok: false, items: [], error: String(e2) }, 502);
+  }
+});
+
 // runtime/edge-index.ts
 try {
   initBangumiDataMapping();
@@ -52296,6 +52316,7 @@ app.get("/api/__rules", async (c2) => c2.json({
   resolveBimi: await debugResolve("bimi")
 }));
 app.route("/api", analyticsRoutes);
+app.route("/api", recentRoutes);
 app.route("/api/bangumi", bangumiRoutes);
 app.route("/api/danmaku", danmakuRoutes);
 app.route("/api/danmaku", bilibiliDanmakuRoutes);
