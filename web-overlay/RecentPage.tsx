@@ -7,7 +7,7 @@
  * - 时间显示用「今天/昨天/前天」档位（和原站 xifan recent 一致，不用会每分钟跳的 HH:MM）
  * - 无变化不重建列表（签名对比），避免刷新瞬间错位
  */
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { BangumiItem } from '@animaku/shared'
 import { BangumiGrid, BangumiGridSkeleton, EmptyState, PageHeader } from '../components/ui'
 
@@ -77,23 +77,45 @@ function toBangumiItem(it: RecentItem, idx: number): BangumiItem {
   }
 }
 
-function itemsSignature(items: RecentItem[]): string {
-  return items
-    .map((x) => [x.source, x.animeId || x.title, x.episode || '', x.bgmId || '', x.score || ''].join(':'))
-    .join('|')
-}
-
 export function RecentPage() {
   const [items, setItems] = useState<RecentItem[]>([])
   const [live, setLive] = useState(false)
   const [loading, setLoading] = useState(true)
-  const sigRef = useRef('')
 
+  const keyOf = (x: RecentItem) => `${x.source}:${x.animeId ?? x.title}`
+  const contentChanged = (a: RecentItem, b: RecentItem) =>
+    a.title !== b.title || a.cover !== b.cover || a.episode !== b.episode ||
+    a.score !== b.score || a.bgmId !== b.bgmId || a.bgmName !== b.bgmName ||
+    a.updateDay !== b.updateDay
+
+  // 彻底锁定顺序：源站每轮返回的条目集合会波动（某些 animeId 这轮有下轮没有），
+  // 任何"集合签名对比"都会因集合变化触发全量重建 → 顺序乱跳。
+  // 改为增量 merge：已有条目保持原位（只更新内容），新条目追加到末尾，消失的保留。
   const apply = (next: RecentItem[]) => {
-    const sig = itemsSignature(next)
-    if (sig === sigRef.current) return // 无变化不重建，避免刷新错位
-    sigRef.current = sig
-    setItems(next)
+    if (!next.length) return
+    setItems((prev) => {
+      if (!prev.length) return next
+      const nextMap = new Map(next.map((x) => [keyOf(x), x]))
+      const merged: RecentItem[] = []
+      let changed = false
+      // 保持 prev 顺序，更新内容
+      for (const old of prev) {
+        const fresh = nextMap.get(keyOf(old))
+        if (fresh && contentChanged(old, fresh)) {
+          merged.push({ ...old, ...fresh })
+          changed = true
+        } else {
+          merged.push(old)
+        }
+      }
+      // 新条目追加到末尾（不插队、不打乱已有顺序）
+      const prevKeys = new Set(prev.map(keyOf))
+      for (const x of next) {
+        if (!prevKeys.has(keyOf(x))) { merged.push(x); changed = true }
+      }
+      if (!changed) return prev // 内容没变，返回同一引用 → React 不重渲染
+      return merged.slice(0, 120) // 上限，避免无限增长
+    })
   }
 
   useEffect(() => {

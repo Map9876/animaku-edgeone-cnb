@@ -61,6 +61,22 @@ function patchNav() {
   console.log('[web-patch] NavLinks.tsx: 「最近更新」菜单项已注入')
 }
 
+function patchNavNoWrap() {
+  let src = readFileSync(nav, 'utf8')
+  if (src.includes('whitespace-nowrap')) return // 已应用
+  const anchor = '<nav\n      className="flex h-full min-w-0 items-center gap-1 sm:gap-2 lg:gap-3"'
+  if (!src.includes(anchor)) {
+    // 兼容单行写法
+    const anchor2 = 'className="flex h-full min-w-0 items-center gap-1 sm:gap-2 lg:gap-3"'
+    if (!src.includes(anchor2)) throw new Error('NavLinks.tsx nav className 锚点未命中（上游已改？）')
+    src = src.replace(anchor2, anchor2.replace('flex h-full', 'flex whitespace-nowrap h-full'))
+  } else {
+    src = src.replace(anchor, anchor.replace('flex h-full', 'flex whitespace-nowrap h-full'))
+  }
+  writeFileSync(nav, src)
+  console.log('[web-patch] NavLinks.tsx: 窄屏菜单 whitespace-nowrap（防「最近更新」竖排分行）')
+}
+
 function patchCardLabel() {
   const ui = path.join(web, 'components/ui.tsx')
   let src = readFileSync(ui, 'utf8')
@@ -95,6 +111,7 @@ if (revert) {
   mustExist(app); mustExist(nav); mustExist(uiFile); mustExist(pageSrc)
   patchApp()
   patchNav()
+  patchNavNoWrap()
   patchCardLabel()
   copyFileSync(pageSrc, pageDst)
   console.log('[web-patch] RecentPage.tsx 已复制到 apps/web/src/pages/')

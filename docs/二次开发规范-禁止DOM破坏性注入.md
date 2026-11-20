@@ -222,3 +222,14 @@ EdgeOne Pages（CNB 类型 webhook 部署）
 - 部分源站条目 `cover` 为空 → 原生卡片显示「无封面」占位（数据抓取问题，旧方案同样如此）。
 - 本地 dev 无 `/api/recent` 后端时，RecentPage 回退直读 webhook CORS API；线上 EdgeOne 走同源代理。
 
+
+
+## 八、数据稳定性策略（2026-11-20 补充）
+
+### 8.1 顺序锁定（最近更新不再乱跳）
+- 根因：源站 recent 页每轮返回的条目集合会波动（某些 animeId 这轮有下轮没有），任何「集合签名对比」都会因集合变化触发全量重建 → 顺序乱跳。
+- 解法（前端 RecentPage）：**锁定顺序 + 增量 merge**——首次按服务端顺序渲染；后续已有条目保持原位只更新内容（title/cover/episode/score/bgmId/updateDay），新条目追加到末尾，消失的保留，上限 120 条。内容无变化返回同一引用（React 不重渲染）。
+- 服务端双保险：`itemsSignature` 用 normEp 抹平集数格式差异（"7 / 12" vs "7/12"）+ sort 排序无关；BGM 结果和 poll 都做签名对比，无变化不广播。
+
+### 8.2 窄屏菜单横排
+- patch `NavLinks.tsx` 的 nav className 加 `whitespace-nowrap`，修复手机端「最近更新」4字被拆成竖排两行（原站默认窄屏换行）。实测截图确认单行横排。
