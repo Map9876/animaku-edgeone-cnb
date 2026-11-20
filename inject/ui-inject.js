@@ -255,11 +255,42 @@
     })
   }
 
+  // ---------- 顶部菜单：融入原站 header，逐字抄「时间表」菜单项的 DOM/class ----------
+  // 不改上游源码，只克隆原站已有 <a> 的结构，保证与原菜单完全一致（原生感）。
+  function addTopMenu() {
+    if (document.getElementById('ae-top-recent')) return
+    var header = document.querySelector('header')
+    if (!header) return
+    // 找原站的「时间表」链接作为模板（逐字抄它的 class 与结构）
+    var tpl = null
+    var links = header.querySelectorAll('a')
+    for (var i = 0; i < links.length; i++) {
+      if (links[i].textContent.trim() === '时间表') { tpl = links[i]; break }
+    }
+    if (!tpl) return
+    var a = tpl.cloneNode(true)
+    a.id = 'ae-top-recent'
+    a.setAttribute('href', '/recent')
+    a.removeAttribute('aria-current')
+    // 改可见文字为「最近更新」（保留原站所有 class/子结构，只换文字节点）
+    var walker = document.createTreeWalker(a, NodeFilter.SHOW_TEXT)
+    var node
+    while ((node = walker.nextNode())) {
+      if (node.textContent.trim() === '时间表') { node.textContent = '最近更新'; break }
+    }
+    if (location.pathname.replace(/\/+$/, '') === '/recent') {
+      a.classList.add('text-[var(--kz-brand)]') // 与原站 active 同款高亮（brand 色）
+    }
+    tpl.parentNode.insertBefore(a, tpl.nextSibling)
+  }
+
   // ---------- 初始化 ----------
   function init() {
     if (COMPACT) document.documentElement.setAttribute('data-ae-compact', 'on')
     injectThemeCSS()
     addBottomNav()
+    addTopMenu()
+    setTimeout(addTopMenu, 800) // React 首屏渲染较晚，补一次
     if (SYNC_ON) addGitPanel()
     setupAutoRefresh()
   }
@@ -274,6 +305,8 @@
   setInterval(function () {
     if (location.pathname !== lastPath) {
       lastPath = location.pathname
+      addTopMenu()
+      setTimeout(addTopMenu, 400)
       if (/\/settings/.test(lastPath)) setTimeout(addGitPanel, 300)
     }
   }, 1000)

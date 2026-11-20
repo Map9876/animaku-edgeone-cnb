@@ -27,7 +27,8 @@ const cfg = {
   compact: process.env.VITE_COMPACT || 'on',
   trackStats: process.env.VITE_TRACK_STATS || 'on',
   trackEndpoint: process.env.VITE_TRACK_ENDPOINT || '/api/track',
-  recentPanel: process.env.VITE_RECENT_PANEL || 'on',
+  recentPanel: process.env.VITE_RECENT_PANEL || 'off', // 右侧悬浮挂件：默认关（改为顶部菜单入口 → /recent 独立页）
+  recentPage: process.env.VITE_RECENT_PAGE || 'on',    // /recent 独立页：默认开
   recentMode: process.env.VITE_RECENT_MODE || 'generic', // generic=webhook本体 / blob=EdgeOne Blob
   recentBase: process.env.VITE_RECENT_BASE || 'https://new-anime-webhook.map987.dpdns.org',
 }
@@ -37,10 +38,18 @@ const injectBlock = `
     <script>
       window.__ANIMAKU_CONFIG__ = ${JSON.stringify(cfg)};
       window.__ANIMAKU_HOOKS__ = window.__ANIMAKU_HOOKS__ || {};
+      // /recent 是注入层独立页：只隐藏 React 的 404 内容区(main)，保留原站 header/footer。
+      // 这样顶部菜单原生显示（含我们注入的「最近更新」入口），不动上游源码。
+      if (location.pathname.replace(/\\/+$/, '') === '/recent') {
+        document.documentElement.classList.add('ae-recent-route');
+        var _s = document.createElement('style');
+        _s.textContent = '.ae-recent-route #root>div>main{display:none!important}'
+          + '.ae-recent-route header{z-index:10000!important}';
+        document.head.appendChild(_s);
+      }
     </script>
     <script src="/inject/analytics.js" defer></script>
     <script src="/inject/ui-inject.js" defer></script>
-    <script src="/inject/recent-panel.js" defer></script>
     <script src="/inject/recent-page.js" defer></script>
     <!-- ===== /注入层 ===== -->
 `

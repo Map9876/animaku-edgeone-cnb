@@ -12,16 +12,16 @@
   'use strict'
   if (location.pathname.replace(/\/+$/, '') !== '/recent') return
   var CFG = window.__ANIMAKU_CONFIG__ || {}
-  if (String(CFG.recentPanel === undefined ? 'on' : CFG.recentPanel).toLowerCase() === 'off') return
+  if (String(CFG.recentPage === undefined ? 'on' : CFG.recentPage).toLowerCase() === 'off') return
   var BASE = String(CFG.recentBase || 'https://new-anime-webhook.map987.dpdns.org').replace(/\/$/, '')
   var MODE = String(CFG.recentMode || 'generic').toLowerCase() === 'blob' ? 'blob' : 'generic'
   var BASE_HTTP = MODE === 'blob' ? '/api/latest-cache' : (BASE + '/api/latest')
 
   var css = `
 html,body{scroll-behavior:auto}
-.ae-rp{position:relative;z-index:9990;min-height:100dvh;box-sizing:border-box;
-  padding:72px max(12px,env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom));
-  font-family:inherit;color:#141416}
+.ae-rp{position:fixed;inset:0;z-index:9990;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;
+  padding:80px max(12px,env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom));
+  background:#fff;font-family:inherit;color:#141416}
 .ae-rp-hd{display:flex;align-items:center;gap:10px;margin:0 0 16px}
 .ae-rp-hd h1{font-size:22px;font-weight:800;margin:0;letter-spacing:.5px}
 .ae-rp-dot{width:10px;height:10px;border-radius:50%;background:#cd7083;
@@ -65,13 +65,19 @@ html,body{scroll-behavior:auto}
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     })
   }
-  function timeAgo(ts) {
-    if (!ts) return ''
-    var d = Date.now() - Number(ts)
-    if (d < 0 || d < 60000) return d < 0 ? '' : Math.floor(d / 1000) + '秒前'
-    if (d < 3600000) return Math.floor(d / 60000) + '分钟前'
-    if (d < 86400000) return Math.floor(d / 3600000) + '小时前'
-    return Math.floor(d / 86400000) + '天前'
+  // 固定绝对时间，不再每秒刷新（用户要真实更新时间，不是「X秒前」）。
+  function updTime(it) {
+    var ts = Number(it.lastSeenAt)
+    if (ts > 0) {
+      var d = new Date(ts)
+      var hh = String(d.getHours()).padStart(2, '0')
+      var mm = String(d.getMinutes()).padStart(2, '0')
+      var today = new Date()
+      if (d.toDateString() === today.toDateString()) return hh + ':' + mm
+      return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hh + ':' + mm
+    }
+    // 源站自带时间文本（bimi「周三23:45更」/sorani「X前」）兜底
+    return it.updatedAt && it.updatedAt !== '新收录' ? it.updatedAt : ''
   }
 
   // ---------- 建页面 DOM，覆盖 SPA 首页内容 ----------
@@ -85,15 +91,9 @@ html,body{scroll-behavior:auto}
     '<p class="ae-rp-sub">全网多源 · 按来源分组 · 实时更新（与番剧时间表一致）</p>' +
     '<div id="ae-rp-root"><div class="ae-rp-empty">加载中…</div></div>'
   function mount() {
-    // SPA fallback 后上游 React 会在 #root 渲染 404 页；隐藏它，只显示本页。
-    var rootEl = document.getElementById('root')
-    if (rootEl) rootEl.style.display = 'none'
-    // 电脑版右侧挂件在本页重复，隐藏（本页已是全屏最近更新）。
-    var aside = document.getElementById('ae-recent')
-    if (aside) aside.style.display = 'none'
+    // #root 已由 head 里的同步 CSS(.ae-recent-route)隐藏，React 404 页不会显示。
     document.body.appendChild(page)
     document.body.style.overflowY = 'auto'
-    // React 可能在 defer 脚本之后再改 title，延迟覆盖确保是我们的标题。
     setTimeout(function () { document.title = '最近更新 - 扎口动漫' }, 300)
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount)
@@ -135,7 +135,7 @@ html,body{scroll-behavior:auto}
           '<div class="ae-rp-meta"><div class="ae-rp-name">' + esc(name2) + '</div>' +
           (it.episode ? '<div class="ae-rp-ep">' + esc(it.episode) + '</div>' : '') +
           '<div class="ae-rp-foot">' +
-          '<span class="ae-rp-time">' + esc(timeAgo(it.lastSeenAt || it.updatedAt)) + '</span>' +
+          '<span class="ae-rp-time">' + esc(updTime(it)) + '</span>' +
           (it.score ? '<span class="ae-rp-score">' + esc(it.score) + '</span>' : '') +
           '</div></div></a>'
       }
