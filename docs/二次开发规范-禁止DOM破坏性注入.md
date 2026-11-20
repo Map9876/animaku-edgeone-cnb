@@ -233,3 +233,11 @@ EdgeOne Pages（CNB 类型 webhook 部署）
 
 ### 8.2 窄屏菜单横排
 - patch `NavLinks.tsx` 的 nav className 加 `whitespace-nowrap`，修复手机端「最近更新」4字被拆成竖排两行（原站默认窄屏换行）。实测截图确认单行横排。
+
+
+## 九、最近更新入口形态决策（2026-11-20）
+
+- 顶栏**不加**「最近更新」第4项：手机窄屏会把搜索图标/用户头像挤到边缘（实测 390px 下 4 菜单项+logo+搜索+头像塞满）。撤销了 `NavLinks.tsx` 的菜单项 patch（顶栏恢复原站 3 项：首页/番剧/时间表）。
+- 入口改为**顶栏下方右侧独立悬浮按钮**（`inject/ui-inject.js` 的 `addRecentFab()`），brand 色胶囊+圆点，SPA 软导航（history.pushState+popstate），active 跟随路由。
+  - 踩坑：active 状态初版用 `--kz-accent-fg`（为深色按钮设计的白字）配浅色背景 → 文字不可见只剩圆点；改用 `--kz-accent` 文字 + accent 10% 淡背景修复。
+- 底部导航「最近更新」简写为「**最新**」（2字）——原4字在 67px 格子里偏挤，用户要求简短显示。

@@ -51,14 +51,9 @@ function patchApp() {
 }
 
 function patchNav() {
-  let src = readFileSync(nav, 'utf8')
-  const anchor = "  { to: '/timeline', label: '时间表' },"
-  if (!src.includes("to: '/recent'")) {
-    if (!src.includes(anchor)) throw new Error('NavLinks.tsx mainLinks 锚点未命中（上游已改？）')
-    src = src.replace(anchor, anchor + "\n  { to: '/recent', label: '最近更新' },")
-  }
-  writeFileSync(nav, src)
-  console.log('[web-patch] NavLinks.tsx: 「最近更新」菜单项已注入')
+  // 顶栏不再加「最近更新」第4项（窄屏挤占搜索/头像）。改为顶栏下方右侧独立悬浮按钮
+  // （见 inject/ui-inject.js 的 addRecentFab）。上游 NavLinks.tsx 保持原样。
+  console.log('[web-patch] NavLinks.tsx: 保持原样（最近更新入口改为顶栏下悬浮按钮）')
 }
 
 function patchNavNoWrap() {
@@ -111,7 +106,6 @@ if (revert) {
   mustExist(app); mustExist(nav); mustExist(uiFile); mustExist(pageSrc)
   patchApp()
   patchNav()
-  patchNavNoWrap()
   patchCardLabel()
   copyFileSync(pageSrc, pageDst)
   console.log('[web-patch] RecentPage.tsx 已复制到 apps/web/src/pages/')

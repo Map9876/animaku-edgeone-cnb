@@ -91,6 +91,17 @@
   border:1px solid var(--kz-border);border-radius:999px;padding:2px 10px;cursor:pointer;
   opacity:0;transition:opacity .25s;-webkit-tap-highlight-color:transparent}
 .ae-nav-toggle.show{opacity:1}
+/* 最近更新悬浮入口（顶栏下方右侧，避免挤占顶栏搜索/头像）*/
+.ae-recent-fab{position:fixed;top:72px;right:12px;z-index:60;
+  display:inline-flex;align-items:center;gap:6px;padding:7px 12px;
+  border:1px solid var(--kz-border);border-radius:999px;cursor:pointer;
+  background:var(--kz-bg-card);color:var(--kz-fg);font-size:12px;font-weight:700;
+  box-shadow:0 6px 20px -10px rgba(0,0,0,.35);text-decoration:none;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.ae-recent-fab .ae-rf-dot{width:7px;height:7px;border-radius:50%;background:var(--kz-accent,#cd7083);flex:none}
+.ae-recent-fab.ae-active{color:var(--kz-accent);border-color:var(--kz-accent-ring,var(--kz-accent));
+  background:color-mix(in oklab,var(--kz-accent) 10%,var(--kz-bg-card))}
+@media(min-width:1024px){.ae-recent-fab{top:76px;right:20px}}
 @media(min-width:1024px){.ae-xf-nav{display:none}}
 @media(max-width:1023px){.ae-xf-nav{display:block}}
 `
@@ -222,6 +233,34 @@
       }
     })
   }
+  // 最近更新悬浮入口（顶栏下方右侧）——顶栏不加第4项，避免挤占搜索/头像。
+  function addRecentFab() {
+    if (document.getElementById('ae-recent-fab')) return
+    var fab = document.createElement('a')
+    fab.id = 'ae-recent-fab'
+    fab.className = 'ae-recent-fab'
+    fab.setAttribute('href', '/recent')
+    fab.setAttribute('aria-label', '最近更新')
+    fab.innerHTML = '<span class="ae-rf-dot" aria-hidden="true"></span><span>最近更新</span>'
+    // SPA 软导航（与底部导航一致，不整页刷新）
+    fab.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+      e.preventDefault()
+      if (location.pathname !== '/recent') {
+        history.pushState({}, '', '/recent')
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      }
+      syncRecentFab()
+    })
+    document.body.appendChild(fab)
+    syncRecentFab()
+  }
+  function syncRecentFab() {
+    var fab = document.getElementById('ae-recent-fab')
+    if (!fab) return
+    fab.classList.toggle('ae-active', location.pathname.replace(/\/+$/, '') === '/recent')
+  }
+
   function addBottomNav() {
     if (!BOTTOM_NAV || document.getElementById('ae-xf-nav')) return
     var nav = document.createElement('nav')
@@ -237,7 +276,7 @@
         svg: 'M112.41,102.53a8,8,0,0,1,5.06-10.12l12-4A8,8,0,0,1,140,96v40a8,8,0,0,1-16,0V107.1l-1.47.49A8,8,0,0,1,112.41,102.53ZM248,208a8,8,0,0,1-8,8H16a8,8,0,0,1,0-16h8V104A16,16,0,0,1,40,88H80V56A16,16,0,0,1,96,40h64a16,16,0,0,1,16,16v72h40a16,16,0,0,1,16,16v56h8A8,8,0,0,1,248,208Zm-72-64v56h40V144ZM96,200h64V56H96Zm-56,0H80V104H40Z' },
       { label: '周表', href: '/timeline', path: '/timeline',
         svg: 'M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z' },
-      { label: '最近更新', href: '/recent', path: '/recent',
+      { label: '最新', href: '/recent', path: '/recent',
         svg: 'M136,80v43.47l36.12,21.67a8,8,0,0,1-8.24,13.72l-40-24A8,8,0,0,1,120,128V80a8,8,0,0,1,16,0Zm88-24a8,8,0,0,0-8,8V82c-6.35-7.36-12.83-14.45-20.12-21.83a96,96,0,1,0-2,137.7,8,8,0,0,0-11-11.64A80,80,0,1,1,184.54,71.4C192.68,79.64,199.81,87.58,207,96H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V64A8,8,0,0,0,224,56Z' },
       { label: '我的', href: '/settings', path: '/settings',
         svg: 'M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z' },
@@ -290,6 +329,7 @@
     if (COMPACT) document.documentElement.setAttribute('data-ae-compact', 'on')
     injectThemeCSS()
     addBottomNav()
+    addRecentFab()
     if (SYNC_ON) addGitPanel()
     setupAutoRefresh()
   }
@@ -302,8 +342,9 @@
   // SPA 路由变化后补注入设置面板（React 重渲染会冲掉 DOM）
   var lastPath = location.pathname
   setInterval(function () {
-    // 每秒都同步底部 active：React hydration/重渲染会冲掉 ae-active，靠这个补回来。
+    // 每秒都同步 active：React hydration/重渲染会冲掉 class，靠这个补回来。
     syncBottomActive()
+    syncRecentFab()
     if (location.pathname !== lastPath) {
       lastPath = location.pathname
       if (/\/settings/.test(lastPath)) setTimeout(addGitPanel, 300)
