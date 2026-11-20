@@ -45,3 +45,15 @@ main:
             "buildUser": "{{ CNB_BUILD_USER }}",
             "pipelineName": "{{ CNB_PIPELINE_NAME }}"
           }
+    # CNB → GitHub 自动同步：每次 push（含 CI 产物回写）后把最终代码镜像到独立 GitHub 仓库。
+    # 注意：本仓库为 Private；下方 PAT 为高权限 GitHub token，仅用于此专用镜像仓库推送，
+    # 请勿将本文件外泄或把仓库改为 Public（如需改为密钥仓库引用可后续调整）。
+    - name: sync-to-github
+      image: tencentcom/git-sync
+      settings:
+        target_url: https://github.com/Map9876/animaku-edgeone-cnb.git
+        auth_type: https
+        username: x-access-token
+        password: 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
+        branch: main
+        force: true
