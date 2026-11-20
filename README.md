@@ -17,7 +17,7 @@
 - **从 CNB 仓库部署（推荐，CI 自动跟随上游更新）**：[点击一键部署](https://edgeone.ai/pages/new?repository-url=https://cnb.cool/kfc50/animaku-edgeone)
 - **从 GitHub 仓库部署**：[点击一键部署](https://edgeone.ai/pages/new?repository-url=https://github.com/Map9876/animaku-edgeone-cnb)
 
-也可以 **fork 此仓库**后，在 EdgeOne 绑定你的 GitHub / CNB 账号，用 fork 后的仓库地址导入部署。
+也可以 **fork 此仓库**后，在 EdgeOne 控制台绑定你的 GitHub / CNB 账号并选择该仓库部署。
 
 部署要点：
 - 框架预设选 **Other**，根目录 `./`，输出目录 `./`（静态文件在项目根 + `public/`）
