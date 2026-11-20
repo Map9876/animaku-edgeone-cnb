@@ -12,21 +12,23 @@
 
 ## 一键部署到 EdgeOne
 
-把下面链接里的 `REPOSITORY_URL` 换成你的仓库地址，浏览器打开即可在 EdgeOne 导入部署：
+点击以下链接，自动在 EdgeOne Pages 导入并部署：
 
-```
-https://edgeone.ai/pages/new?repository-url=<REPOSITORY_URL>
-```
+- **从 CNB 仓库部署（推荐，CI 自动跟随上游更新）**：
+  https://edgeone.ai/pages/new?repository-url=https://cnb.cool/kfc50/animaku-edgeone
+- **从 GitHub 仓库部署**：
+  https://edgeone.ai/pages/new?repository-url=https://github.com/Map9876/animaku-edgeone-cnb
 
-- **在 CNB 看到此仓库**：用 CNB 仓库地址，例如
-  `https://edgeone.ai/pages/new?repository-url=https://cnb.cool/kfc50/animaku-edgeone`
-- **在 GitHub 看到此仓库**：用 GitHub 仓库地址，例如
-  `https://edgeone.ai/pages/new?repository-url=https://github.com/Map9876/Animaku-edgeone`
+也可以 **fork 此仓库**后，在 EdgeOne 绑定你的 GitHub / CNB 账号，用 fork 后的仓库地址导入部署。
 
 部署要点：
 - 框架预设选 **Other**，根目录 `./`，输出目录 `./`（静态文件在项目根 + `public/`）
 - 项目类型选 **绑定仓库**（Cnb / GitHub），不要"上传静态包"——这样才能触发 CI 自更新
 - Maven/Node 构建由仓库 `.cnb.yml`（CNB）或 EdgeOne 构建配置负责
+
+> **注意**：
+> - 请使用 **EdgeOne 国际版**（从腾讯云国际站账号登录：https://www.tencentcloud.com/account/login?s_url=https%3A%2F%2Fconsole.tencentcloud.com%2Fedgeone%2Fpages ）——**国际版才不需要域名备案**，国内版需备案。
+> - 部署需要**一个自有域名**（例如在 digitalplat.org / DPDNS 注册的域名，如 `https://domain.digitalplat.org/`），在 EdgeOne Pages 绑定该域名后即可访问。
 
 ---
 
